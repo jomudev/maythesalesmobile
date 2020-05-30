@@ -8,7 +8,7 @@
 
 import React, {useState} from 'react';
 import {StatusBar, Text} from 'react-native';
-import Header from './src/components/header';
+import 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import HomeContainer from './src/containers/HomeContainer';
 import CotizacionContainer from './src/containers/CotizacionContainer';
@@ -30,6 +30,7 @@ const App: () => React$Node = () => {
       <StatusBar barStyle="light-content" backgroundColor="#101e5a" />
       <Drawer.Navigator
         drawerType="back"
+        edgeWidth={100}
         screenOptions={({route}) => ({
           drawerIcon: ({focused, color, size}) => {
             color = focused ? '#101e5a' : '#acbdd3';

@@ -29,6 +29,10 @@ build/
 local.properties
 *.iml
 
+# Rar
+#
+maythesalesmobile.rar
+
 # node.js
 #
 node_modules/

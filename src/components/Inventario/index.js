@@ -13,25 +13,43 @@ import {
   StyleSheet,
 } from 'react-native';
 import {Badge, FormOptions, ProductData, ClientsData} from './data';
-import {AddClient, CancelBtn, AddProduct} from './modalComponents';
+import {
+  AddClient,
+  CancelBtn,
+  AddProduct,
+  AddService,
+  AddProvider,
+} from './modalComponents';
+import {ShowComponent} from './showInformacion';
 import {ShoppingCart} from './inventarioComponents';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
 
 const modalContent: () => React$Node = (modal, setModalValue) => {
-  switch (modal.type) {
-    case 'ADD_CLIENT':
-      return <AddClient setModalValue={setModalValue} />;
-    case 'ADD_PRODUCT':
-      return <AddProduct setModalValue={setModalValue} />;
-    default:
-      return <CancelBtn setModalValue={setModalValue} />;
+  if (modal.mode === 'ADD') {
+    switch (modal.type) {
+      // Componenetes para agregar al Inventario
+      case 'ADD_CLIENT':
+        return <AddClient setModalValue={setModalValue} />;
+      case 'ADD_PRODUCT':
+        return <AddProduct setModalValue={setModalValue} />;
+      case 'ADD_SERVICE':
+        return <AddService setModalValue={setModalValue} />;
+      case 'ADD_PROVIDER':
+        return <AddProvider setModalValue={setModalValue} />;
+      // Componentes para mostrar la info. del invtario.
+    }
+  } else if (modal.mode === 'SHOW') {
+    return <ShowComponent setModalValue={setModalValue} type={modal.type} />;
   }
 };
 
 const FormInventario: () => React$Node = () => {
-  const [modalValue, setModalValue] = useState({type: 'hola', visible: false});
-
+  const [modalValue, setModalValue] = useState({
+    type: '',
+    mode: null,
+    visible: false,
+  });
   return (
     <View style={styles.form}>
       <View
@@ -52,7 +70,9 @@ const FormInventario: () => React$Node = () => {
         <TouchableOpacity
           key={item + index}
           style={styles.ventaBtn}
-          onPress={() => setModalValue({type: item.funcType, visible: true})}>
+          onPress={() =>
+            setModalValue({type: item.funcType, mode: 'ADD', visible: true})
+          }>
           <Icon name={item.icon} size={36} color="#5d80b6" />
           <Text style={styles.btnFormText}>{item.name}</Text>
         </TouchableOpacity>
@@ -62,23 +82,19 @@ const FormInventario: () => React$Node = () => {
 };
 
 const NuevaVenta: () => React$Node = () => {
-  const [searchedProduct, setFundProduct] = useState('undefined');
-  const [searchedClient, setFundClient] = useState('undefined');
-
-  const addProductToCart = data => {
-    store.dispatch({
-      type: 'ADD_PRODUCT_TO_CART',
-      product: data,
-      cantidad: {pid: data.pid, cantidad: 1},
-    });
-  };
+  const [searchedProduct, setFundProduct] = useState('');
+  const [searchedClient, setFundClient] = useState('');
 
   const ProductItem: () => Rect$Node = ({data, index}) => (
     <TouchableOpacity
       key={data + index}
       style={styles.itemList}
       onPress={() => {
-        addProductToCart(data);
+        store.dispatch({
+          type: 'ADD_PRODUCT_TO_CART',
+          product: data,
+          cantidad: {pid: data.pid, cantidad: 1},
+        });
       }}>
       <Text style={{fontSize: 14}}>
         {data.nombre + ' ' + data.valorVenta + ' ' + Badge}
@@ -86,10 +102,22 @@ const NuevaVenta: () => React$Node = () => {
     </TouchableOpacity>
   );
 
+  // Item de lista que muestra los clientes.
   const ClientItem: () => Rect$Node = ({data, index}) => (
-    <TouchableOpacity key={data + index} style={styles.itemList}>
+    <TouchableOpacity
+      key={data + index}
+      style={styles.itemList}
+      onPress={() => {
+        store.dispatch({
+          type: 'SET_CART_CLIENT',
+          clientData: data,
+        });
+      }}>
       <Text style={{fontSize: 14}}>
-        {data.nombre + '     ' + (data.telefono ? 'cel: ' + data.telefono : '')}
+        {data.nombre +
+          ' ' +
+          (data.telefono ? 'cel: ' + data.telefono : '') +
+          (data.email ? 'email: ' + data.email : '')}
       </Text>
     </TouchableOpacity>
   );
@@ -136,30 +164,20 @@ const NuevaVenta: () => React$Node = () => {
     <View style={styles.form}>
       <View style={styles.formGroup}>
         <TextInput
-          onChangeText={text => {
-            if (!text) {
-              setFundClient('undefined');
-            } else {
-              setFundClient(text);
-            }
-          }}
+          value={searchedClient}
+          onChangeText={text => setFundClient(text)}
           style={styles.txtInput}
           placeholder="Cliente"
         />
         <View style={styles.findProductsList}>
-          <Search List={ClientsData} type="clients" />
+          {searchedClient ? <Search List={ClientsData} type="clients" /> : null}
         </View>
       </View>
       <View style={styles.formGroup}>
         <TextInput
+          value={searchedProduct}
           style={styles.txtInput}
-          onChangeText={text => {
-            if (!text) {
-              setFundProduct('undefined');
-            } else {
-              setFundProduct(text);
-            }
-          }}
+          onChangeText={text => setFundProduct(text)}
           placeholder="Producto"
         />
         <View style={styles.findProductsList}>
@@ -180,13 +198,30 @@ const VentasDia: () => React$Node = () => {
 };
 
 const Inventario: () => React$Node = () => {
+  const [modalValue, setModalValue] = useState({type: '', visible: false});
   return (
     <View style={styles.form}>
+      <View
+        style={styles.centeredView}
+        onPress={() => setModalValue({visible: false})}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalValue.visible}>
+          <View style={styles.centeredViewShowData}>
+            <View style={styles.modalViewShowData}>
+              {modalContent(modalValue, setModalValue)}
+            </View>
+          </View>
+        </Modal>
+      </View>
       {FormOptions.map((item, index) => (
         <TouchableOpacity
           key={index + item}
           style={styles.ventaBtn}
-          onPress={() => console.log(item.type)}>
+          onPress={() =>
+            setModalValue({type: item.type, mode: 'SHOW', visible: true})
+          }>
           <Icon name={item.icon} size={36} color="#5d80b6" />
           <Text style={styles.btnFormText}>{item.type}</Text>
         </TouchableOpacity>
@@ -217,6 +252,20 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  centeredViewShowData: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    backgroundColor: '#ffffff',
+  },
+  modalViewShowData: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  },
   formTitle: {
     fontSize: 46,
     marginBottom: 50,
@@ -231,7 +280,7 @@ const styles = StyleSheet.create({
   },
   itemList: {
     width: '100%',
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderColor: '#ddd',
     paddingHorizontal: 32,
     paddingVertical: 16,

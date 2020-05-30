@@ -4,15 +4,24 @@
  * @flow
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
+  ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {ProductData, ClientsData, Badge} from './data';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {NavigationContainer} from '@react-navigation/native';
 
+const Stack = createStackNavigator();
+
+// COMPONENTES PRIMARIOS
+// Componentes para agregar al inventario
 const AddClient: () => React$Node = ({setModalValue}) => {
   return (
     <View>
@@ -22,11 +31,19 @@ const AddClient: () => React$Node = ({setModalValue}) => {
           placeholder="Nombres ej. Daniela Andrade*"
           style={styles.txtInput}
         />
-        <TextInput placeholder="Número de teléfono" style={styles.txtInput} />
-        <TextInput placeholder="Correo Electrónico" style={styles.txtInput} />
+        <TextInput
+          placeholder="Número de teléfono"
+          keyboardType="numeric"
+          style={styles.txtInput}
+        />
+        <TextInput
+          placeholder="Correo Electrónico"
+          keyboardType="email-address"
+          style={styles.txtInput}
+        />
         <TextInput placeholder="Comentario" style={styles.txtInput} />
       </View>
-      <BtnGroup setModalValue={setModalValue}/>
+      <BtnGroup setModalValue={setModalValue} />
     </View>
   );
 };
@@ -35,19 +52,107 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
   return (
     <View>
       <View style={styles.form}>
-        <Text style={styles.formTitle}>Agregar producto</Text>
-        <TextInput placeholder="Nombre del producto*" style={styles.txtInput} />
-        <TextInput placeholder="Cantidad a agregar*" style={styles.txtInput} />
-        <TextInput placeholder="Precio de costo p/u*" style={styles.txtInput} />
-        <Text>p/u = por unidad</Text>
-        <TextInput placeholder="Precio de costo p/m*" style={styles.txtInput} />
-        <Text>p/u = por mayoria</Text>
-        <TextInput placeholder="Precio de venta*" style={styles.txtInput} />
+        <ScrollView>
+          <Text style={styles.formTitle}>Agregar producto</Text>
+          <TextInput
+            placeholder="Nombre del producto*"
+            style={styles.txtInput}
+          />
+          <TextInput
+            placeholder="Cantidad a agregar*"
+            style={styles.txtInput}
+          />
+          <TextInput placeholder="Proveedor" style={styles.txtInput} />
+          <TextInput
+            placeholder="Precio de costo p/u*"
+            style={styles.txtInput}
+          />
+          <Text>p/u = por unidad</Text>
+          <TextInput
+            placeholder="Precio de costo p/m*"
+            style={styles.txtInput}
+          />
+          <Text>p/u = por mayoria</Text>
+          <TextInput placeholder="Precio de venta*" style={styles.txtInput} />
+        </ScrollView>
       </View>
-      <BtnGroup setModalValue={setModalValue}/>
+      <BtnGroup setModalValue={setModalValue} />
     </View>
   );
 };
+
+const AddService: () => React$Node = ({setModalValue}) => {
+  return (
+    <View>
+      <View style={styles.form}>
+        <ScrollView>
+          <Text style={styles.formTitle}>Agregar Servicio</Text>
+          <TextInput
+            placeholder="Nombre de servicio*"
+            style={styles.txtInput}
+          />
+          <TextInput
+            placeholder="Cantidad a agregar*"
+            style={styles.txtInput}
+          />
+          <TextInput placeholder="Proveedor" style={styles.txtInput} />
+          <TextInput
+            placeholder="Precio de costo p/u*"
+            style={styles.txtInput}
+          />
+          <Text>p/u = por unidad</Text>
+          <TextInput
+            placeholder="Precio de costo p/m*"
+            style={styles.txtInput}
+          />
+          <Text>p/u = por mayoria</Text>
+          <TextInput placeholder="Precio de venta*" style={styles.txtInput} />
+          <TextInput
+            placeholder="Descripcion"
+            numberOfLines={2}
+            style={styles.txtInput}
+          />
+        </ScrollView>
+      </View>
+      <BtnGroup setModalValue={setModalValue} />
+    </View>
+  );
+};
+
+const AddProvider: () => React$Node = ({setModalValue}) => {
+  return (
+    <>
+      <View style={styles.form}>
+        <ScrollView>
+          <Text style={styles.formTitle}>Agregar Proveedor</Text>
+          <TextInput
+            placeholder="Nombre de Proveedor*"
+            style={styles.txtInput}
+          />
+          <TextInput
+            placeholder="Cantidad a agregar*"
+            keyboardType="number-pad"
+            style={styles.txtInput}
+          />
+          <TextInput
+            placeholder="Número de teléfono"
+            keyboardType="numeric"
+            style={styles.txtInput}
+          />
+          <TextInput
+            placeholder="Email"
+            keyboardType="email-address"
+            style={styles.txtInput}
+          />
+          <TextInput placeholder="Descripcion" style={styles.txtInput} />
+        </ScrollView>
+      </View>
+      <BtnGroup setModalValue={setModalValue} />
+    </>
+  );
+};
+
+// COMPONENTES SECUNDARIOS
 
 const BtnGroup: () => ReactNode = ({setModalValue}) => {
   return (
@@ -59,8 +164,8 @@ const BtnGroup: () => ReactNode = ({setModalValue}) => {
         <SuccesBtn setModalValue={setModalValue} />
       </View>
     </View>
-  )
-}
+  );
+};
 
 const CancelBtn: () => React$Node = ({setModalValue}) => {
   return (
@@ -82,7 +187,7 @@ const SuccesBtn: () => React$Node = ({setModalValue}) => {
   );
 };
 
-export {AddClient, AddProduct, CancelBtn};
+export {AddClient, AddProduct, AddService, AddProvider, CancelBtn};
 
 const styles = StyleSheet.create({
   form: {
@@ -104,8 +209,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#eee',
     paddingHorizontal: 32,
-    paddingVertical: 16,
-    margin: 10,
+    paddingVertical: 5,
+    marginVertical: 5,
   },
   btn: {
     paddingVertical: 16,

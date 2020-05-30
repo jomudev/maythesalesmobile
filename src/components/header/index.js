@@ -6,6 +6,7 @@ import store from '../../../store';
 const Header = ({navigation}) => {
   const [title, setTitle] = useState('Maythe´s Sales');
   const [user, setUser] = useState(null);
+
   store.subscribe(() => {
     if (store.getState().title) {
       setTitle(store.getState().title);
