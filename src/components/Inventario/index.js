@@ -6,16 +6,16 @@
 import React, {useState} from 'react';
 import {
   View,
+  ScrollView,
   Text,
   TouchableOpacity,
   TextInput,
   Modal,
   StyleSheet,
 } from 'react-native';
-import {Badge, FormOptions, ProductData, ClientsData} from './data';
+import {Badge, FormOptions, ProductData, ClientsData, Ventas} from './data';
 import {
   AddClient,
-  CancelBtn,
   AddProduct,
   AddService,
   AddProvider,
@@ -77,6 +77,7 @@ const FormInventario: () => React$Node = () => {
           <Text style={styles.btnFormText}>{item.name}</Text>
         </TouchableOpacity>
       ))}
+      <Text>p/u: por unidad - p/m: por mayoria</Text>
     </View>
   );
 };
@@ -97,7 +98,7 @@ const NuevaVenta: () => React$Node = () => {
         });
       }}>
       <Text style={{fontSize: 14}}>
-        {data.nombre + ' ' + data.valorVenta + ' ' + Badge}
+        {data.nombre + ' ' + data.valorVentaP_U + ' ' + Badge}
       </Text>
     </TouchableOpacity>
   );
@@ -191,9 +192,23 @@ const NuevaVenta: () => React$Node = () => {
 
 const VentasDia: () => React$Node = () => {
   return (
-    <View>
-      <Text>Ventas del día</Text>
-    </View>
+    <ScrollView>
+      {Ventas.map((item, index) => (
+        <View key={item + index} style={styles.ventaCard}>
+          <Text style={{fontSize: 18, textAlign: 'center', fontWeight: 'bold'}}>
+            {item.fechaLarga}
+          </Text>
+          {item.listaProductos.map((data, i) => (
+            <View key={data + i}>
+              <Text>{data.nombre + ' ' + Badge + data.valorVentaP_U}</Text>
+            </View>
+          ))}
+          <Text style={{fontWeight: 'bold'}}>
+            {'\n'}Total: {Badge + item.totalVenta}
+          </Text>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
@@ -322,5 +337,12 @@ const styles = StyleSheet.create({
     width: '90%',
     borderBottomWidth: 2,
     borderColor: '#ddd',
+  },
+  ventaCard: {
+    borderWidth: 1,
+    borderColor: '#cbc6c3',
+    margin: 5,
+    padding: 10,
+    borderRadius: 4,
   },
 });

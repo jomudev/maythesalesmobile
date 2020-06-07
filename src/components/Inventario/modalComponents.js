@@ -41,7 +41,7 @@ const AddClient: () => React$Node = ({setModalValue}) => {
           keyboardType="email-address"
           style={styles.txtInput}
         />
-        <TextInput placeholder="Comentario" style={styles.txtInput} />
+        <TextInput placeholder="Descripción" style={styles.txtInput} />
       </View>
       <BtnGroup setModalValue={setModalValue} />
     </View>
@@ -58,22 +58,40 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
             placeholder="Nombre del producto*"
             style={styles.txtInput}
           />
+
           <TextInput
             placeholder="Cantidad a agregar*"
             style={styles.txtInput}
+            keyboardType="number-pad"
           />
+
           <TextInput placeholder="Proveedor" style={styles.txtInput} />
+
           <TextInput
             placeholder="Precio de costo p/u*"
             style={styles.txtInput}
+            keyboardType="number-pad"
           />
-          <Text>p/u = por unidad</Text>
+
           <TextInput
             placeholder="Precio de costo p/m*"
+            keyboardType="number-pad"
             style={styles.txtInput}
           />
-          <Text>p/u = por mayoria</Text>
-          <TextInput placeholder="Precio de venta*" style={styles.txtInput} />
+
+          <TextInput
+            placeholder="Precio de venta p/u*"
+            keyboardType="number-pad"
+            style={styles.txtInput}
+          />
+
+          <TextInput
+            placeholder="Precio de venta p/m*"
+            style={styles.txtInput}
+            keyboardType="number-pad"
+          />
+
+          <TextInput placeholder="Descripción" style={styles.txtInput} />
         </ScrollView>
       </View>
       <BtnGroup setModalValue={setModalValue} />
@@ -100,13 +118,18 @@ const AddService: () => React$Node = ({setModalValue}) => {
             placeholder="Precio de costo p/u*"
             style={styles.txtInput}
           />
-          <Text>p/u = por unidad</Text>
           <TextInput
             placeholder="Precio de costo p/m*"
             style={styles.txtInput}
           />
-          <Text>p/u = por mayoria</Text>
-          <TextInput placeholder="Precio de venta*" style={styles.txtInput} />
+          <TextInput
+            placeholder="Precio de venta p/u*"
+            style={styles.txtInput}
+          />
+          <TextInput
+            placeholder="Precio de venta p/m*"
+            style={styles.txtInput}
+          />
           <TextInput
             placeholder="Descripcion"
             numberOfLines={2}
@@ -127,11 +150,6 @@ const AddProvider: () => React$Node = ({setModalValue}) => {
           <Text style={styles.formTitle}>Agregar Proveedor</Text>
           <TextInput
             placeholder="Nombre de Proveedor*"
-            style={styles.txtInput}
-          />
-          <TextInput
-            placeholder="Cantidad a agregar*"
-            keyboardType="number-pad"
             style={styles.txtInput}
           />
           <TextInput
@@ -198,7 +216,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   formTitle: {
-    fontSize: 46,
+    fontSize: 32,
     textAlign: 'center',
     marginBottom: 20,
   },

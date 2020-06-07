@@ -11,7 +11,7 @@ const reducers = (state, action) => {
     for (let y = 0; y < newCart.length; y++) {
       for (let x = 0; x < newCantidades.length; x++) {
         if (newCantidades[x].pid === newCart[y].pid) {
-          totalSuma += newCart[y].valorVenta * newCantidades[x].cantidad;
+          totalSuma += newCart[y].valorVentaP_U * newCantidades[x].cantidad;
         }
       }
     }
@@ -36,7 +36,7 @@ const reducers = (state, action) => {
   }
   if (action.type === 'ADD_PRODUCT_TO_CART') {
     const product = action.product;
-    product.valorVenta = parseInt(product.valorVenta);
+    product.valorVenta = parseInt(product.valorVentaP_U);
     action.cantidad = parseInt(action.cantidad);
     let productoEnCarrito = {existe: false, index: 0};
     for (let y = 0; y < newCart.length; y++) {

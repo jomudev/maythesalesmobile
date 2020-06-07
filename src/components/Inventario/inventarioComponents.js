@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   ScrollView,
   TouchableOpacity,
@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Modal,
+  Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
@@ -21,9 +22,11 @@ class ShoppingCart extends React.Component {
       cantidades: [],
       total: 0,
       toggleIcon: 'expand-more',
-      cartPosition: 0,
+      open: true,
+      cartPosition: new Animated.Value(0),
       cartHeight: 0,
       optionMenu: false,
+      appear: new Animated.Value(0),
     };
   }
 
@@ -49,6 +52,7 @@ class ShoppingCart extends React.Component {
     });
   }
 
+  // Mostrar la cantidad respectiva de cada producto
   cantidad = data => {
     let cantidadToShow = 0;
     for (let i = 0; i < this.state.cantidades.length; i++) {
@@ -60,15 +64,24 @@ class ShoppingCart extends React.Component {
     return cantidadToShow;
   };
 
+  // Mostrar u ocultar el Carrito de compras
   toggleCart = () => {
-    if (this.state.cartPosition === 0) {
+    if (this.state.open) {
+      Animated.timing(this.state.cartPosition, {
+        toValue: this.state.cartHeight - this.state.cartHeight * 0.13,
+        duration: 250,
+      }).start();
       this.setState({
-        cartPosition: this.state.cartHeight - this.state.cartHeight * 0.13,
+        open: false,
         toggleIcon: 'expand-less',
       });
     } else {
+      Animated.timing(this.state.cartPosition, {
+        toValue: 0,
+        duration: 250,
+      }).start();
       this.setState({
-        cartPosition: 0,
+        open: true,
         toggleIcon: 'expand-more',
       });
     }
@@ -76,9 +89,17 @@ class ShoppingCart extends React.Component {
 
   render() {
     if (this.state.cart.length > 0) {
+      Animated.timing(this.state.appear, {
+        toValue: 1,
+        duration: 250,
+      }).start();
+
       return (
-        <View
-          style={[styles.container, {translateY: this.state.cartPosition}]}
+        <Animated.View
+          style={[
+            styles.container,
+            {translateY: this.state.cartPosition, opacity: this.state.appear},
+          ]}
           onLayout={Event =>
             this.setState({cartHeight: Event.nativeEvent.layout.height})
           }>
@@ -111,24 +132,24 @@ class ShoppingCart extends React.Component {
                 cantidad={this.cantidad.bind(this, data)}
               />
             ))}
-            <View>
-              <View style={styles.total}>
-                <Text style={{fontSize: 18, marginRight: 20, marginTop: 20}}>
-                  Total ponderado: {this.state.total}lps.
-                </Text>
-              </View>
-              <TouchableHighlight style={styles.soldBtn}>
-                <Text style={{color: 'white', fontWeight: 'bold'}}>
-                  Realizar venta
-                </Text>
-              </TouchableHighlight>
-            </View>
           </ScrollView>
+          <View>
+            <View style={styles.total}>
+              <Text style={{fontSize: 18, marginRight: 20, marginTop: 20}}>
+                Total ponderado: {this.state.total}lps.
+              </Text>
+            </View>
+            <TouchableHighlight style={styles.soldBtn}>
+              <Text style={{color: 'white', fontWeight: 'bold'}}>
+                Realizar venta
+              </Text>
+            </TouchableHighlight>
+          </View>
           <OptionMenu
             open={this.state.optionMenu}
             closeMenu={() => this.setState({optionMenu: false})}
           />
-        </View>
+        </Animated.View>
       );
     } else {
       return null;
@@ -171,7 +192,7 @@ const OptionMenu: () => React$Node = ({open, closeMenu}) => {
 const ListItem = ({data, index, cantidad}) => (
   <View style={styles.cartItem}>
     <Text style={{fontSize: 18}}>{data.nombre}</Text>
-    <Text style={styles.valorVenta}>{' Lps. ' + data.valorVenta}</Text>
+    <Text style={styles.valorVentaP_U}>{' Lps. ' + data.valorVentaP_U}</Text>
     <TextInput
       style={styles.cartInput}
       keyboardType="numeric"
@@ -184,7 +205,7 @@ const ListItem = ({data, index, cantidad}) => (
         })
       }
     />
-    <Text>{' subTotal: Lps. ' + data.valorVenta * cantidad(data)}</Text>
+    <Text>{' subTotal: Lps. ' + data.valorVentaP_U * cantidad(data)}</Text>
     <TouchableOpacity
       style={styles.removeFromCart}
       onPress={() => store.dispatch({type: 'REMOVE_FROM_CART', index: index})}>
@@ -198,6 +219,7 @@ export {ShoppingCart};
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
+    maxHeight: 400,
     bottom: 0,
     width: '100%',
     borderTopWidth: 1,
