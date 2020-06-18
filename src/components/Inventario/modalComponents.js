@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable react-native/no-inline-styles */
 /**
  * @format
@@ -13,12 +14,22 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import {createStackNavigator} from '@react-navigation/stack';
-import {ProductData, ClientsData, Badge} from './data';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import {NavigationContainer} from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
 
-const Stack = createStackNavigator();
+const products = firestore().collection('productos');
+
+// METODOS
+const randomId = () => {
+  let id = '';
+  for (let i = 0; i < 6; i++) {
+    const randomNum = () => {
+      Math.floor(Math.random() * (10 - 0) + 0);
+    };
+    let r = Math.random() * (62 - 10) + 0;
+    id += String.fromCharCode((r += r > 9 ? (r < 36 ? 55 : 61) : 48));
+  }
+  console.log(id);
+};
 
 // COMPONENTES PRIMARIOS
 // Componentes para agregar al inventario
@@ -43,12 +54,59 @@ const AddClient: () => React$Node = ({setModalValue}) => {
         />
         <TextInput placeholder="Descripción" style={styles.txtInput} />
       </View>
-      <BtnGroup setModalValue={setModalValue} />
+      <BtnGroup setModalValue={setModalValue} action={() => randomId()} />
     </View>
   );
 };
 
 const AddProduct: () => React$Node = ({setModalValue}) => {
+  const [nombre, setNombre] = useState('');
+  const [cantidad, setCantidad] = useState(0);
+  const [proveedor, setProveedor] = useState('');
+  const [costoP_U, setCostoP_U] = useState(0);
+  const [costoP_M, setCostoP_M] = useState(0);
+  const [ventaP_U, setVentaP_U] = useState(0);
+  const [ventaP_M, setVentaP_M] = useState(0);
+  const [descripcion, setDescripcion] = useState('');
+
+  const clean = () => {
+    setNombre('');
+    setCantidad(0);
+    setProveedor('');
+    setCostoP_M(0);
+    setCostoP_U(0);
+    setVentaP_M(0);
+    setVentaP_U(0);
+    setDescripcion('');
+  };
+
+  const save = () => {
+    if (nombre === '' || cantidad < 0) {
+      alert('Ingresa todos los datos correctamente');
+      return;
+    }
+
+    products
+      .doc(nombre)
+      .set({
+        nombre,
+        cantidad,
+        proveedor,
+        costoP_U,
+        costoP_M,
+        ventaP_U,
+        ventaP_M,
+        descripcion,
+      })
+      .then(() => {
+        console.log('El producto fue agregado correctamente.');
+        clean();
+      })
+      .catch(err => {
+        console.log('error: ' + err.code);
+      });
+  };
+
   return (
     <View>
       <View style={styles.form}>
@@ -57,44 +115,66 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
           <TextInput
             placeholder="Nombre del producto*"
             style={styles.txtInput}
+            onChangeText={text => setNombre(text)}
+            value={nombre}
           />
 
           <TextInput
             placeholder="Cantidad a agregar*"
             style={styles.txtInput}
             keyboardType="number-pad"
+            onChangeText={text => setCantidad(text)}
+            value={cantidad}
           />
 
-          <TextInput placeholder="Proveedor" style={styles.txtInput} />
+          <TextInput
+            placeholder="Proveedor"
+            style={styles.txtInput}
+            onChangeText={text => setProveedor(text)}
+            value={proveedor}
+          />
 
           <TextInput
             placeholder="Precio de costo p/u*"
             style={styles.txtInput}
             keyboardType="number-pad"
+            onChangeText={text => setCostoP_U(text)}
+            value={costoP_U}
           />
 
           <TextInput
             placeholder="Precio de costo p/m*"
             keyboardType="number-pad"
             style={styles.txtInput}
+            onChangeText={text => setCostoP_M(text)}
+            value={costoP_M}
           />
 
           <TextInput
             placeholder="Precio de venta p/u*"
             keyboardType="number-pad"
             style={styles.txtInput}
+            onChangeText={text => setVentaP_U(text)}
+            value={ventaP_U}
           />
 
           <TextInput
             placeholder="Precio de venta p/m*"
             style={styles.txtInput}
             keyboardType="number-pad"
+            onChangeText={text => setVentaP_M(text)}
+            value={ventaP_M}
           />
 
-          <TextInput placeholder="Descripción" style={styles.txtInput} />
+          <TextInput
+            placeholder="Descripción"
+            style={styles.txtInput}
+            onChangeText={text => setDescripcion(text)}
+            value={descripcion}
+          />
         </ScrollView>
       </View>
-      <BtnGroup setModalValue={setModalValue} />
+      <BtnGroup setModalValue={setModalValue} action={() => save()} />
     </View>
   );
 };
@@ -172,14 +252,14 @@ const AddProvider: () => React$Node = ({setModalValue}) => {
 
 // COMPONENTES SECUNDARIOS
 
-const BtnGroup: () => ReactNode = ({setModalValue}) => {
+const BtnGroup: () => ReactNode = ({setModalValue, action}) => {
   return (
     <View style={{flexDirection: 'row'}}>
       <View style={{float: 'left', width: 'auto'}}>
         <CancelBtn setModalValue={setModalValue} />
       </View>
       <View style={{float: 'right', width: 'auto'}}>
-        <SuccesBtn setModalValue={setModalValue} />
+        <SuccesBtn setModalValue={setModalValue} action={action} />
       </View>
     </View>
   );
@@ -195,11 +275,11 @@ const CancelBtn: () => React$Node = ({setModalValue}) => {
   );
 };
 
-const SuccesBtn: () => React$Node = ({setModalValue}) => {
+const SuccesBtn: () => React$Node = ({setModalValue, action}) => {
   return (
     <TouchableOpacity
       style={[styles.btn, styles.succesBtn]}
-      onPress={() => setModalValue({visible: false})}>
+      onPress={() => action()}>
       <Text style={{color: 'white'}}>Agregar</Text>
     </TouchableOpacity>
   );

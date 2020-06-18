@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useRef, useEffect, useState} from 'react';
 import {
   View,
@@ -9,16 +10,9 @@ import {
   Modal,
   SafeAreaView,
   Animated,
-  Easing,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {
-  ProductData,
-  ClientsData,
-  ProvidersData,
-  Badge,
-  ServicesData,
-} from './data';
+import {ProductData, ClientsData, Badge} from './data';
 import {
   AddClient,
   AddProduct,

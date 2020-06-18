@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState} from 'react';
 import {
   ScrollView,
   TouchableOpacity,
@@ -7,6 +8,7 @@ import {
   TextInput,
   StyleSheet,
   Modal,
+  Switch,
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -17,6 +19,7 @@ class ShoppingCart extends React.Component {
   constructor() {
     super();
     this.state = {
+      _isMounted: false,
       cartClient: {},
       cart: [],
       cantidades: [],
@@ -30,26 +33,50 @@ class ShoppingCart extends React.Component {
     };
   }
 
-  componentDidMount() {
-    store.subscribe(() => {
-      const newCart = store.getState().cart;
-      const newCantidades = store.getState().cantidades;
-      const totalVenta = store.getState().totalVenta;
-      const cliente = store.getState().cartClient;
-
-      if (cliente !== this.state.cartClient) {
-        this.setState({cartClient: cliente});
-      }
-      if (totalVenta !== this.state.total) {
-        this.setState({total: totalVenta});
-      }
-      if (newCart !== this.state.cart) {
-        this.setState({cart: newCart});
-      }
-      if (newCantidades !== this.state.cantidades) {
-        this.setState({cantidades: newCantidades});
-      }
+  componentWillUnmount() {
+    this.setState({
+      _isMounted: false,
     });
+  }
+
+  UNSAFE_componentWillMount() {
+    this.setState({
+      _isMounted: true,
+    });
+  }
+
+  componentDidMount() {
+    if (this.state._isMounted) {
+      store.subscribe(() => {
+        const newCart = store.getState().cart;
+        const newCantidades = store.getState().cantidades;
+        const totalVenta = store.getState().totalVenta;
+        const cliente = store.getState().cartClient;
+
+        if (cliente !== this.state.cartClient) {
+          this.setState({cartClient: cliente});
+        }
+        if (totalVenta !== this.state.totalVenta) {
+          this.setState({total: totalVenta});
+        }
+        if (newCart !== this.state.newCart) {
+          this.setState({cart: newCart});
+        }
+        if (newCantidades !== this.state.newCantidades) {
+          this.setState({cantidades: newCantidades});
+        }
+      });
+    }
+  }
+
+  componentDidUpdate() {
+    if (!this.state.open) {
+      Animated.timing(this.state.cartPosition, {
+        toValue: this.state.cartHeight - this.state.cartHeight * 0.16,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
   }
 
   // Mostrar la cantidad respectiva de cada producto
@@ -68,8 +95,9 @@ class ShoppingCart extends React.Component {
   toggleCart = () => {
     if (this.state.open) {
       Animated.timing(this.state.cartPosition, {
-        toValue: this.state.cartHeight - this.state.cartHeight * 0.13,
+        toValue: this.state.cartHeight - this.state.cartHeight * 0.2,
         duration: 250,
+        useNativeDriver: true,
       }).start();
       this.setState({
         open: false,
@@ -79,6 +107,7 @@ class ShoppingCart extends React.Component {
       Animated.timing(this.state.cartPosition, {
         toValue: 0,
         duration: 250,
+        useNativeDriver: true,
       }).start();
       this.setState({
         open: true,
@@ -92,72 +121,88 @@ class ShoppingCart extends React.Component {
       Animated.timing(this.state.appear, {
         toValue: 1,
         duration: 250,
+        useNativeDriver: true,
       }).start();
-
-      return (
-        <Animated.View
-          style={[
-            styles.container,
-            {translateY: this.state.cartPosition, opacity: this.state.appear},
-          ]}
-          onLayout={Event =>
-            this.setState({cartHeight: Event.nativeEvent.layout.height})
-          }>
-          <View style={styles.cartHeader}>
-            <Icon
-              name={this.state.toggleIcon}
-              size={28}
-              style={styles.toggleCart}
-              onPress={() => this.toggleCart()}
-            />
-            <Icon
-              name="more-horiz"
-              size={28}
-              style={styles.more}
-              onPress={() => this.setState({optionMenu: true})}
-            />
-          </View>
-          <ScrollView style={styles.cartBody}>
-            <Text style={{fontSize: 24}}>
-              Carrito:{' '}
-              <Text style={{textDecorationLine: 'underline'}}>
-                {this.state.cartClient.nombre}
-              </Text>
-            </Text>
-            {this.state.cart.map((data, index) => (
-              <ListItem
-                key={data + index}
-                data={data}
-                index={index}
-                cantidad={this.cantidad.bind(this, data)}
-              />
-            ))}
-          </ScrollView>
-          <View>
-            <View style={styles.total}>
-              <Text style={{fontSize: 18, marginRight: 20, marginTop: 20}}>
-                Total ponderado: {this.state.total}lps.
-              </Text>
-            </View>
-            <TouchableHighlight style={styles.soldBtn}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>
-                Realizar venta
-              </Text>
-            </TouchableHighlight>
-          </View>
-          <OptionMenu
-            open={this.state.optionMenu}
-            closeMenu={() => this.setState({optionMenu: false})}
-          />
-        </Animated.View>
-      );
     } else {
-      return null;
+      Animated.timing(this.state.appear, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
     }
+    return (
+      <Animated.View
+        style={[
+          styles.container,
+          {translateY: this.state.cartPosition, opacity: this.state.appear},
+        ]}
+        onLayout={Event =>
+          this.setState({cartHeight: Event.nativeEvent.layout.height})
+        }>
+        <View style={styles.cartHeader}>
+          <Icon
+            name={this.state.toggleIcon}
+            size={28}
+            style={styles.toggleCart}
+            onPress={() => this.toggleCart()}
+          />
+          <Icon
+            name="more-horiz"
+            size={28}
+            style={styles.more}
+            onPress={() => this.setState({optionMenu: true})}
+          />
+        </View>
+        <ScrollView style={styles.cartBody}>
+          <Text style={{fontSize: 24}}>
+            {this.state.cartClient.nombre ? (
+              <>
+                Carrito:{' '}
+                <Text style={{textDecorationLine: 'underline'}}>
+                  {this.state.cartClient.nombre}
+                </Text>
+              </>
+            ) : null}
+          </Text>
+          {this.state.cart.map((data, index) => (
+            <ListItem
+              key={data + index}
+              data={data}
+              index={index}
+              cantidad={this.cantidad.bind(this, data)}
+              ventaType={this.state.ventaType}
+            />
+          ))}
+        </ScrollView>
+        <View>
+          <View style={styles.total}>
+            <Text style={{fontSize: 18, marginRight: 20, marginTop: 20}}>
+              Total ponderado: {this.state.total}lps.
+            </Text>
+          </View>
+          <TouchableHighlight style={styles.soldBtn}>
+            <Text style={{color: 'white', fontWeight: 'bold'}}>
+              Realizar venta
+            </Text>
+          </TouchableHighlight>
+        </View>
+        <OptionMenu
+          open={this.state.optionMenu}
+          closeMenu={() => this.setState({optionMenu: false})}
+        />
+      </Animated.View>
+    );
   }
 }
 
 const OptionMenu: () => React$Node = ({open, closeMenu}) => {
+  const [type, setType] = useState(store.getState().ventaType);
+  const setVentaType = ventaType => {
+    store.dispatch({
+      type: 'SET_VENTA_TYPE',
+      ventaType,
+    });
+  };
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={open}>
@@ -169,6 +214,17 @@ const OptionMenu: () => React$Node = ({open, closeMenu}) => {
               style={styles.modalCloseMenu}
               onPress={() => closeMenu()}
             />
+            <View style={styles.menuOptions}>
+              <Text>Por unidad</Text>
+              <Switch
+                value={type}
+                onChange={() => {
+                  setVentaType(!type);
+                  setType(!type);
+                }}
+              />
+              <Text>Por mayor</Text>
+            </View>
             <View style={styles.menuOptions}>
               <TouchableOpacity
                 onPress={() => {
@@ -189,30 +245,50 @@ const OptionMenu: () => React$Node = ({open, closeMenu}) => {
   );
 };
 
-const ListItem = ({data, index, cantidad}) => (
-  <View style={styles.cartItem}>
-    <Text style={{fontSize: 18}}>{data.nombre}</Text>
-    <Text style={styles.valorVentaP_U}>{' Lps. ' + data.valorVentaP_U}</Text>
-    <TextInput
-      style={styles.cartInput}
-      keyboardType="numeric"
-      defaultValue={cantidad(data).toString()}
-      onChangeText={text =>
-        store.dispatch({
-          type: 'SET_CANTIDAD',
-          product: data,
-          cantidad: text,
-        })
-      }
-    />
-    <Text>{' subTotal: Lps. ' + data.valorVentaP_U * cantidad(data)}</Text>
-    <TouchableOpacity
-      style={styles.removeFromCart}
-      onPress={() => store.dispatch({type: 'REMOVE_FROM_CART', index: index})}>
-      <Text style={{color: 'red', fontSize: 18}}>Quitar</Text>
-    </TouchableOpacity>
-  </View>
-);
+const ListItem = ({data, index, cantidad}) => {
+  const [type, setType] = useState(false);
+  store.subscribe(() => {
+    if (store.getState().ventaType !== type) {
+      setType(store.getState().ventaType);
+    }
+  });
+  return (
+    <View style={styles.cartItem}>
+      <Text>{data.nombre}</Text>
+      <Text style={styles.ventaP_U}>
+        {'Lps. ' +
+          (type
+            ? data.ventaP_M * cantidad(data)
+            : data.ventaP_U * cantidad(data))}
+      </Text>
+      <TextInput
+        style={styles.cartInput}
+        keyboardType="numeric"
+        defaultValue={cantidad(data).toString()}
+        onChangeText={text =>
+          store.dispatch({
+            type: 'SET_CANTIDAD',
+            product: data,
+            cantidad: text,
+          })
+        }
+      />
+      <Text>
+        {' subTotal: Lps. ' +
+          (type
+            ? data.ventaP_M * cantidad(data)
+            : data.ventaP_U * cantidad(data))}
+      </Text>
+      <TouchableOpacity
+        style={styles.removeFromCart}
+        onPress={() =>
+          store.dispatch({type: 'REMOVE_FROM_CART', index: index})
+        }>
+        <Icon name="delete" color="gray" size={24} />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 export {ShoppingCart};
 
@@ -272,7 +348,7 @@ const styles = StyleSheet.create({
   cartHeader: {
     position: 'relative',
   },
-  valorVenta: {
+  venta: {
     position: 'relative',
     fontSize: 18,
   },
@@ -282,33 +358,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
   },
+  menuOptions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   soldBtn: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 50,
-    backgroundColor: '#5d80b6',
+    marginTop: 20,
+    marginBottom: 10,
+    backgroundColor: '#101e5a',
+    borderRadius: 4,
     padding: 20,
   },
   removeFromCart: {
     position: 'absolute',
-    right: 20,
-    top: 10,
+    right: 1,
   },
   total: {
     alignItems: 'flex-end',
   },
   cartItem: {
     width: '100%',
-    paddingVertical: 10,
+    paddingVertical: 5,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   cartInput: {
     width: 40,
+    height: 15,
     textAlign: 'center',
-    height: 20,
     marginLeft: 5,
     padding: 0,
     borderWidth: 1,
     borderRadius: 3,
+    fontSize: 12,
   },
 });

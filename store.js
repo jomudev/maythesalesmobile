@@ -1,5 +1,4 @@
 import {createStore} from 'redux';
-import {ProductData} from './src/components/Inventario/data';
 
 const reducers = (state, action) => {
   let newCart = state.cart;
@@ -10,13 +9,18 @@ const reducers = (state, action) => {
     let totalSuma = 0;
     for (let y = 0; y < newCart.length; y++) {
       for (let x = 0; x < newCantidades.length; x++) {
-        if (newCantidades[x].pid === newCart[y].pid) {
-          totalSuma += newCart[y].valorVentaP_U * newCantidades[x].cantidad;
+        if (state.ventaType) {
+          if (newCantidades[x].pid === newCart[y].pid) {
+            totalSuma += newCart[y].ventaP_M * newCantidades[x].cantidad;
+          }
+        } else {
+          if (newCantidades[x].pid === newCart[y].pid) {
+            totalSuma += newCart[y].ventaP_U * newCantidades[x].cantidad;
+          }
         }
       }
     }
-    return totalSuma;
-  }
+  };
 
   const valores = (cantidad, product) => {
     for (let y = 0; y < newCantidades.length; y++) {
@@ -24,7 +28,7 @@ const reducers = (state, action) => {
         newCantidades[y].cantidad = cantidad;
       }
     }
-  }
+  };
 
   // Fin de metodos.
 
@@ -34,9 +38,15 @@ const reducers = (state, action) => {
       title: action.newTitle,
     };
   }
+  if (action.type === 'SET_INVENTORY') {
+    return {
+      ...state,
+      products: action.products ? action.products : state.products,
+    };
+  }
   if (action.type === 'ADD_PRODUCT_TO_CART') {
     const product = action.product;
-    product.valorVenta = parseInt(product.valorVentaP_U);
+    product.ventaP_U = parseInt(product.ventaP_U);
     action.cantidad = parseInt(action.cantidad);
     let productoEnCarrito = {existe: false, index: 0};
     for (let y = 0; y < newCart.length; y++) {
@@ -51,12 +61,10 @@ const reducers = (state, action) => {
       newCart = newCart.concat(product);
       newCantidades = newCantidades.concat({pid: product.pid, cantidad: 1});
     }
-
-    const suma = calcularSuma();
     return {
       ...state,
       cart: newCart,
-      totalVenta: suma,
+      totalVenta: calcularSuma(),
       cantidades: newCantidades,
     };
   }
@@ -69,12 +77,11 @@ const reducers = (state, action) => {
     product.valorVenta = parseInt(product.valorVenta);
     valores(action.cantidad, product);
 
-    const suma = calcularSuma();
     return {
       ...state,
       cantidades: newCantidades,
       cart: newCart,
-      totalVenta: suma,
+      totalVenta: calcularSuma(),
     };
   }
   if (action.type === 'CLEAR_CART') {
@@ -88,14 +95,13 @@ const reducers = (state, action) => {
   }
   if (action.type === 'REMOVE_FROM_CART') {
     const index = action.index;
-    const suma = calcularSuma();
     newCart.splice(index, 1);
     newCantidades.splice(index, 1);
     return {
       ...state,
       cart: newCart,
       cantidades: newCantidades,
-      totalventa: suma,
+      totalventa: calcularSuma(),
     };
   }
   if (action.type === 'SET_CART_CLIENT') {
@@ -104,16 +110,24 @@ const reducers = (state, action) => {
       cartClient: action.clientData,
     };
   }
+  if (action.type === 'SET_VENTA_TYPE') {
+    return {
+      ...state,
+      ventaType: action.ventaType,
+      totalVenta: calcularSuma(),
+    };
+  }
 
   return state;
 };
 
 export default createStore(reducers, {
   ventaOpcion: '',
-  productos: ProductData,
+  products: [],
   title: 'Maythe´s Sales',
   cart: [],
   cartClient: '',
   cantidades: [],
+  ventaType: false,
   totalVenta: 0,
 });

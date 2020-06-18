@@ -13,7 +13,7 @@ import {
   Modal,
   StyleSheet,
 } from 'react-native';
-import {Badge, FormOptions, ProductData, ClientsData, Ventas} from './data';
+import {Badge, FormOptions, ClientsData, Ventas} from './data';
 import {
   AddClient,
   AddProduct,
@@ -85,6 +85,14 @@ const FormInventario: () => React$Node = () => {
 const NuevaVenta: () => React$Node = () => {
   const [searchedProduct, setFundProduct] = useState('');
   const [searchedClient, setFundClient] = useState('');
+  const [products, setProducts] = useState([]);
+
+  store.subscribe(() => {
+    console.log(store.getState().cart);
+    if (products !== store.getState().products) {
+      setProducts(store.getState().products);
+    }
+  });
 
   const ProductItem: () => Rect$Node = ({data, index}) => (
     <TouchableOpacity
@@ -98,7 +106,7 @@ const NuevaVenta: () => React$Node = () => {
         });
       }}>
       <Text style={{fontSize: 14}}>
-        {data.nombre + ' ' + data.valorVentaP_U + ' ' + Badge}
+        {data.nombre + ' ' + data.ventaP_U + ' ' + Badge}
       </Text>
     </TouchableOpacity>
   );
@@ -182,7 +190,7 @@ const NuevaVenta: () => React$Node = () => {
           placeholder="Producto"
         />
         <View style={styles.findProductsList}>
-          <Search List={ProductData} type="products" />
+          <Search List={products} type="products" />
         </View>
       </View>
       <ShoppingCart />
@@ -200,7 +208,7 @@ const VentasDia: () => React$Node = () => {
           </Text>
           {item.listaProductos.map((data, i) => (
             <View key={data + i}>
-              <Text>{data.nombre + ' ' + Badge + data.valorVentaP_U}</Text>
+              <Text>{data.nombre + ' ' + Badge + data.ventaP_U}</Text>
             </View>
           ))}
           <Text style={{fontWeight: 'bold'}}>
