@@ -207,24 +207,18 @@ const OptionMenu: () => React$Node = ({open, closeMenu}) => {
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true} visible={open}>
         <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+          <View
+            style={{
+              ...styles.modalView,
+              alignContent: 'flex-start',
+              alignItems: 'flex-start',
+            }}>
             <Icon
               name="expand-more"
               size={28}
               style={styles.modalCloseMenu}
               onPress={() => closeMenu()}
             />
-            <View style={styles.menuOptions}>
-              <Text>Por unidad</Text>
-              <Switch
-                value={type}
-                onChange={() => {
-                  setVentaType(!type);
-                  setType(!type);
-                }}
-              />
-              <Text>Por mayor</Text>
-            </View>
             <View style={styles.menuOptions}>
               <TouchableOpacity
                 onPress={() => {
@@ -237,6 +231,16 @@ const OptionMenu: () => React$Node = ({open, closeMenu}) => {
                 <Icon name="remove-shopping-cart" size={24} />
                 <Text>Vaciar Carrito</Text>
               </TouchableOpacity>
+            </View>
+            <View style={styles.menuOptions}>
+              <Text>Por unidad/por mayoreo</Text>
+              <Switch
+                value={type}
+                onChange={() => {
+                  setVentaType(!type);
+                  setType(!type);
+                }}
+              />
             </View>
           </View>
         </View>
@@ -256,7 +260,7 @@ const ListItem = ({data, index, cantidad}) => {
     <View style={styles.cartItem}>
       <Text>{data.nombre}</Text>
       <Text style={styles.ventaP_U}>
-        {'Lps. ' +
+        {' Lps. ' +
           (type
             ? data.ventaP_M * cantidad(data)
             : data.ventaP_U * cantidad(data))}
@@ -318,7 +322,7 @@ const styles = StyleSheet.create({
   },
   more: {
     position: 'absolute',
-    right: 0,
+    right: 10,
     top: 0,
     padding: 5,
   },
@@ -327,7 +331,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     width: '100%',
-    minHeight: 100,
+    minHeight: 200,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -356,11 +360,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'center',
     flexDirection: 'row',
-    padding: 20,
+    width: '100%',
   },
   menuOptions: {
     flexDirection: 'row',
-    alignItems: 'center',
+    padding: 20,
+    width: '100%',
   },
   soldBtn: {
     alignItems: 'center',
@@ -386,7 +391,7 @@ const styles = StyleSheet.create({
   },
   cartInput: {
     width: 40,
-    height: 15,
+    height: 30,
     textAlign: 'center',
     marginLeft: 5,
     padding: 0,

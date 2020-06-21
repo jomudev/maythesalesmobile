@@ -9,10 +9,12 @@ import {
   ScrollView,
   Modal,
   SafeAreaView,
+  BackHandler,
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {ProductData, ClientsData, Badge} from './data';
+import store from '../../../store';
 import {
   AddClient,
   AddProduct,
@@ -26,7 +28,7 @@ const ShowComponent: () => React$Node = ({setModalValue, type}) => {
 
   return (
     <>
-      <Header setModalValue={setModalValue} title={`Invantario: ${type}`} />
+      <Header setModalValue={setModalValue} title={`Inventario: ${type}`} />
 
       <ListToShow setAddData={setAddData} type={type} />
       {addData.visible ? (
@@ -47,13 +49,15 @@ const DataComponent: () => React$Node = ({
     Animated.timing(xPosition, {
       toValue: 0,
       duration: 250,
+      useNativeDriver: false,
     }).start();
-  }, []);
+  });
 
   const close = () => {
     Animated.timing(xPosition, {
       toValue: 500,
       duration: 250,
+      useNativeDriver: false,
     }).start();
     setTimeout(() => setShowData(false), 250);
   };
@@ -94,7 +98,7 @@ const DataComponent: () => React$Node = ({
                 placeholder="Precio de costo p/u*"
                 style={styles.txtInput}
                 keyboardType="number-pad"
-                defaultValue={item.valorInvertidoP_U.toString()}
+                defaultValue={item.costoP_U.toString()}
               />
               <Text style={styles.mutedText}>
                 precio de compra por mayoreo:
@@ -103,21 +107,21 @@ const DataComponent: () => React$Node = ({
                 placeholder="Precio de costo p/m*"
                 keyboardType="number-pad"
                 style={styles.txtInput}
-                defaultValue={item.valorInvertidoP_M.toString()}
+                defaultValue={item.costoP_M.toString()}
               />
               <Text style={styles.mutedText}>Precio de venta por uninda:</Text>
               <TextInput
                 placeholder="Precio de venta p/u*"
                 keyboardType="number-pad"
                 style={styles.txtInput}
-                defaultValue={item.valorVentaP_U.toString()}
+                defaultValue={item.ventaP_U.toString()}
               />
               <Text style={styles.mutedText}>Precio de venta por mayoreo:</Text>
               <TextInput
                 placeholder="Precio de venta p/m*"
                 style={styles.txtInput}
                 keyboardType="number-pad"
-                defaultValue={item.valorVentaP_M.toString()}
+                defaultValue={item.ventaP_M.toString()}
               />
             </ScrollView>
           </View>
@@ -163,6 +167,25 @@ const ListToShow: () => React$Node = ({type, setAddData}) => {
   const [search, setSearch] = useState(false);
   const [itemData, setItemData] = useState(null);
   const [showDataComponent, setShowDataComponent] = useState(false);
+  const [clients, setClients] = useState(store.getState().clients);
+  const [products, setProducts] = useState(store.getState().products);
+  const [services, setServices] = useState(store.getState().services);
+  const [providers, setProviders] = useState(store.getState().providers);
+  store.subscribe(() => {
+    if (clients !== store.getState().clients) {
+      setClients(store.getState().clients);
+    }
+    if (products !== store.getState().products) {
+      setProducts(store.getState().products);
+    }
+    if (services !== store.getState().services) {
+      setServices(store.getState().services);
+    }
+    if (providers !== store.getState().providers) {
+      setProviders(store.getState().providers);
+    }
+  });
+
   const setData = data => {
     setItemData(data);
     setShowDataComponent(true);
@@ -172,58 +195,37 @@ const ListToShow: () => React$Node = ({type, setAddData}) => {
 
   switch (type) {
     case 'Clientes':
-    case 'Proveedores':
-      ListComponent = () => (
-        <>
-          {ClientsData.map((item, index) => {
-            if (search) {
-              if (item.nombre.toLowerCase().includes(search)) {
-                return (
-                  <ListItem
-                    setItemData={setItemData}
-                    data={item}
-                    key={item + index + item}
-                    title={item.nombre}
-                    subtitle={[
-                      item.telefono ? `teléfono: ${item.telefono} ` : '',
-                      item.email ? `email: ${item.email} ` : '',
-                      item.comentario ? `\ncomentario: ${item.comentario}` : '',
-                    ]}
-                  />
-                );
-              }
-            } else {
-              return (
-                <ListItem
-                  setItemData={setData}
-                  data={item}
-                  key={item + index + item}
-                  title={item.nombre}
-                  subtitle={[
-                    item.telefono ? `teléfono: ${item.telefono} ` : '',
-                    item.email ? `email: ${item.email} ` : '',
-                    item.comentario ? `\ncomentario: ${item.comentario}` : '',
-                  ]}
-                />
-              );
-            }
-          })}
-        </>
-      );
-      break;
-    case 'Productos':
-    case 'Servicios Adicionales':
-      ListComponent = () => (
-        <>
-          {ProductData.map((item, index) => {
-            if (search) {
-              if (
-                item.nombre.toLowerCase().includes(search) ||
-                item.valorVentaP_U
-                  .toString()
-                  .toLowerCase()
-                  .includes(search)
-              ) {
+      if (!clients.length) {
+        ListComponent = () => {
+          return (
+            <Text style={styles.shomethingHere}>
+              Aquí apareceran los clientes
+            </Text>
+          );
+        };
+      } else {
+        ListComponent = () => (
+          <>
+            {clients.map((item, index) => {
+              if (search) {
+                if (item.nombre.toLowerCase().includes(search)) {
+                  return (
+                    <ListItem
+                      setItemData={setItemData}
+                      data={item}
+                      key={item + index + item}
+                      title={item.nombre}
+                      subtitle={[
+                        item.telefono ? `teléfono: ${item.telefono} ` : '',
+                        item.email ? `email: ${item.email} ` : '',
+                        item.descipcion
+                          ? `\ndescripción: ${item.descipcion}`
+                          : '',
+                      ]}
+                    />
+                  );
+                }
+              } else {
                 return (
                   <ListItem
                     setItemData={setData}
@@ -231,33 +233,180 @@ const ListToShow: () => React$Node = ({type, setAddData}) => {
                     key={item + index + item}
                     title={item.nombre}
                     subtitle={[
-                      `${Badge} ${item.valorVentaP_U} Ganancias: ${Badge} ${
-                        item.gananciaP_U
+                      item.telefono ? `teléfono: ${item.telefono} ` : '',
+                      item.email ? `email: ${item.email} ` : '',
+                      item.descipcion
+                        ? `\ndescripción: ${item.descipcion}`
+                        : '',
+                    ]}
+                  />
+                );
+              }
+            })}
+          </>
+        );
+      }
+      break;
+    case 'Proveedores':
+      if (!providers.length) {
+        ListComponent = () => {
+          return (
+            <Text style={styles.shomethingHere}>
+              Aquí apareceran los proveedores
+            </Text>
+          );
+        };
+      } else {
+        ListComponent = () => (
+          <>
+            {providers.map((item, index) => {
+              if (search) {
+                if (item.nombre.toLowerCase().includes(search)) {
+                  return (
+                    <ListItem
+                      setItemData={setItemData}
+                      data={item}
+                      key={item + index + item}
+                      title={item.nombre}
+                      subtitle={[
+                        item.telefono ? `teléfono: ${item.telefono} ` : '',
+                        item.email ? `email: ${item.email} ` : '',
+                        item.descipcion
+                          ? `\ndescripción: ${item.descipcion}`
+                          : '',
+                      ]}
+                    />
+                  );
+                }
+              } else {
+                return (
+                  <ListItem
+                    setItemData={setData}
+                    data={item}
+                    key={item + index + item}
+                    title={item.nombre}
+                    subtitle={[
+                      item.telefono ? `teléfono: ${item.telefono} ` : '',
+                      item.email ? `email: ${item.email} ` : '',
+                      item.descipcion
+                        ? `\ndescripción: ${item.descipcion}`
+                        : '',
+                    ]}
+                  />
+                );
+              }
+            })}
+          </>
+        );
+      }
+      break;
+    case 'Productos':
+      if (!products.length) {
+        ListComponent = () => {
+          return (
+            <Text style={styles.shomethingHere}>
+              Aquí apareceran los productos
+            </Text>
+          );
+        };
+      } else {
+        ListComponent = () => (
+          <>
+            {products.map((item, index) => {
+              if (search) {
+                if (
+                  item.nombre.toLowerCase().includes(search) ||
+                  item.ventaP_U
+                    .toString()
+                    .toLowerCase()
+                    .includes(search)
+                ) {
+                  return (
+                    <ListItem
+                      setItemData={setData}
+                      data={item}
+                      key={item + index + item}
+                      title={item.nombre}
+                      subtitle={[`${Badge} ${item.ventaP_U}`]}
+                      setAddData={setAddData}
+                    />
+                  );
+                }
+              } else {
+                return (
+                  <ListItem
+                    setItemData={setData}
+                    data={item}
+                    key={item + index + item}
+                    title={item.nombre}
+                    subtitle={[
+                      `${Badge} ${item.ventaP_U} ${
+                        item.descripcion
+                          ? `descripción ${item.descripcion}`
+                          : ' '
                       }`,
                     ]}
                     setAddData={setAddData}
                   />
                 );
               }
-            } else {
-              return (
-                <ListItem
-                  setItemData={setData}
-                  data={item}
-                  key={item + index + item}
-                  title={item.nombre}
-                  subtitle={[
-                    `${Badge} ${item.valorVentaP_U} Ganancias: ${Badge} ${
-                      item.gananciaP_U
-                    }`,
-                  ]}
-                  setAddData={setAddData}
-                />
-              );
-            }
-          })}
-        </>
-      );
+            })}
+          </>
+        );
+      }
+      break;
+    case 'Servicios Adicionales':
+      if (!services.length) {
+        ListComponent = () => (
+          <Text style={styles.shomethingHere}>
+            Aquí apareceran los servicios adicionales
+          </Text>
+        );
+      } else {
+        ListComponent = () => (
+          <>
+            {services.map((item, index) => {
+              if (search) {
+                if (
+                  item.nombre.toLowerCase().includes(search) ||
+                  item.ventaP_U
+                    .toString()
+                    .toLowerCase()
+                    .includes(search)
+                ) {
+                  return (
+                    <ListItem
+                      setItemData={setData}
+                      data={item}
+                      key={item + index + item}
+                      title={item.nombre}
+                      subtitle={[`${Badge} ${item.ventaP_U}`]}
+                      setAddData={setAddData}
+                    />
+                  );
+                }
+              } else {
+                return (
+                  <ListItem
+                    setItemData={setData}
+                    data={item}
+                    key={item + index + item}
+                    title={item.nombre}
+                    subtitle={[
+                      `${Badge} ${item.ventaP_U} ${
+                        item.descripcion
+                          ? `descripción ${item.descripcion}`
+                          : ' '
+                      }`,
+                    ]}
+                    setAddData={setAddData}
+                  />
+                );
+              }
+            })}
+          </>
+        );
+      }
       break;
   }
   return (
@@ -348,6 +497,7 @@ const ListItem: () => React$Node = ({data, title, subtitle, setItemData}) => {
 };
 
 const Header: () => React$Node = ({setModalValue, title}) => {
+
   return (
     <View style={styles.header}>
       <TouchableOpacity
@@ -367,6 +517,12 @@ export {ShowComponent};
 const styles = StyleSheet.create({
   searchComponent: {
     margin: 2,
+  },
+  shomethingHere: {
+    color: 'gray',
+    fontSize: 28,
+    textAlign: 'center',
+    marginTop: '50%',
   },
   txtSearch: {
     textAlign: 'center',

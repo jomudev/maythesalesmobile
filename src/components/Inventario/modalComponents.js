@@ -17,23 +17,136 @@ import {
 import firestore from '@react-native-firebase/firestore';
 
 const products = firestore().collection('productos');
+const clients = firestore().collection('clientes');
+const services = firestore().collection('servicios_adicionales');
+const providers = firestore().collection('proveedores');
 
 // METODOS
-const randomId = () => {
+const randomId = (letrasLength, numLength) => {
+  // Crear una id con 4 letras y 6 digitos del 0 al 9
+
   let id = '';
-  for (let i = 0; i < 6; i++) {
-    const randomNum = () => {
-      Math.floor(Math.random() * (10 - 0) + 0);
-    };
-    let r = Math.random() * (62 - 10) + 0;
+  // numero aleatorio entre maximo y minimo
+  const randomNum = (max, min) => {
+    return Math.floor(Math.random() * (max - min) + min);
+  };
+  // obtenemos las letras aleatorias y las añadimos al id
+  for (let i = 0; i < letrasLength; i++) {
+    let r = Math.random() * (62 - 10) + 10;
     id += String.fromCharCode((r += r > 9 ? (r < 36 ? 55 : 61) : 48));
   }
-  console.log(id);
+
+  //obtenemos los numeros aleatorios y los añadimos a la id
+  for (let j = 0; j < numLength; j++) {
+    id += randomNum(10, 0).toString();
+  }
+
+  // retornamos el id
+  return id;
+};
+
+const save = (type, data, clean) => {
+  if (type === 'product') {
+    if (data.nombre === '' || cantidad < 0) {
+      alert('Ingresa todos los datos correctamente');
+      return;
+    }
+
+    products
+      .doc(data.nombre)
+      .set({
+        pid: randomId(),
+        nombre: data.nombre,
+        cantidad: parseInt(data.cantidad),
+        proveedor: data.proveedor,
+        costoP_U: parseInt(data.costoP_U),
+        costoP_M: parseInt(data.costoP_M),
+        ventaP_U: parseInt(data.ventaP_U),
+        ventaP_M: parseInt(data.ventaP_M),
+        descripcion: data.descripcion,
+      })
+      .then(() => {
+        clean();
+      })
+      .catch(err => {
+        console.warn('error: ' + err.code);
+      });
+  }
+  if (type === 'client') {
+    const id = randomId(5, 10);
+    clients
+      .doc(id)
+      .set({
+        id,
+        nombre: data.nombre,
+        telefono: data.telefono,
+        email: data.email,
+        descripcion: data.descripcion,
+      })
+      .then(() => {
+        clean();
+      })
+      .catch(err => {
+        console.warn('error: ' + err.code);
+      });
+  }
+  if (type === 'service') {
+    const id = randomId(4, 6);
+    services
+      .doc(id)
+      .set({
+        id,
+        nombre: data.nombre,
+        cantidad: parseInt(data.cantidad, 10),
+        proveedor: data.proveedor,
+        costoP_U: parseInt(data.costoP_U, 10),
+        costoP_M: parseInt(data.costoP_M, 10),
+        ventaP_U: parseInt(data.ventaP_U, 10),
+        ventaP_M: parseInt(data.ventaP_M, 10),
+        descripcion: data.descripcion,
+      })
+      .then(() => {
+        clean();
+      })
+      .catch(err => {
+        console.warn('error: ' + err.code);
+      });
+  }
+  if (type === 'provider') {
+    const id = randomId(5, 10);
+    providers
+      .doc(id)
+      .set({
+        id,
+        nombre: data.nombre,
+        telefono: data.telefono,
+        email: data.email,
+        descripcion: data.descripcion,
+      })
+      .then(() => {
+        clean();
+      })
+      .catch(err => {
+        console.warn('error: ' + err.code);
+      });
+  }
 };
 
 // COMPONENTES PRIMARIOS
 // Componentes para agregar al inventario
 const AddClient: () => React$Node = ({setModalValue}) => {
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+
+  const clean = () => {
+    setNombre('');
+    setTelefono('');
+    setEmail('');
+    setDescripcion('');
+  };
+
   return (
     <View>
       <View style={styles.form}>
@@ -41,20 +154,36 @@ const AddClient: () => React$Node = ({setModalValue}) => {
         <TextInput
           placeholder="Nombres ej. Daniela Andrade*"
           style={styles.txtInput}
+          value={nombre}
+          onChangeText={text => setNombre(text)}
         />
         <TextInput
           placeholder="Número de teléfono"
           keyboardType="numeric"
           style={styles.txtInput}
+          value={telefono}
+          onChangeText={text => setTelefono(text)}
         />
         <TextInput
           placeholder="Correo Electrónico"
           keyboardType="email-address"
           style={styles.txtInput}
+          value={email}
+          onChangeText={text => setEmail(text)}
         />
-        <TextInput placeholder="Descripción" style={styles.txtInput} />
+        <TextInput
+          placeholder="Descripción"
+          style={styles.txtInput}
+          value={descripcion}
+          onChangeText={text => setDescripcion(text)}
+        />
       </View>
-      <BtnGroup setModalValue={setModalValue} action={() => randomId()} />
+      <BtnGroup
+        setModalValue={setModalValue}
+        action={() =>
+          save('client', {nombre, telefono, email, descripcion}, clean())
+        }
+      />
     </View>
   );
 };
@@ -80,33 +209,6 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
     setDescripcion('');
   };
 
-  const save = () => {
-    if (nombre === '' || cantidad < 0) {
-      alert('Ingresa todos los datos correctamente');
-      return;
-    }
-
-    products
-      .doc(nombre)
-      .set({
-        nombre,
-        cantidad,
-        proveedor,
-        costoP_U,
-        costoP_M,
-        ventaP_U,
-        ventaP_M,
-        descripcion,
-      })
-      .then(() => {
-        console.log('El producto fue agregado correctamente.');
-        clean();
-      })
-      .catch(err => {
-        console.log('error: ' + err.code);
-      });
-  };
-
   return (
     <View>
       <View style={styles.form}>
@@ -119,12 +221,12 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
             value={nombre}
           />
 
+          <Text style={styles.txtMuted}>Cantidad*</Text>
           <TextInput
-            placeholder="Cantidad a agregar*"
             style={styles.txtInput}
             keyboardType="number-pad"
             onChangeText={text => setCantidad(text)}
-            value={cantidad}
+            value={cantidad.toString()}
           />
 
           <TextInput
@@ -133,37 +235,34 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
             onChangeText={text => setProveedor(text)}
             value={proveedor}
           />
-
+          <Text style={styles.txtMuted}>Precio de costo por unidad*</Text>
           <TextInput
-            placeholder="Precio de costo p/u*"
             style={styles.txtInput}
             keyboardType="number-pad"
             onChangeText={text => setCostoP_U(text)}
-            value={costoP_U}
+            value={costoP_U.toString()}
           />
-
+          <Text style={styles.txtMuted}>Precio de costo por mayoreo*</Text>
           <TextInput
             placeholder="Precio de costo p/m*"
             keyboardType="number-pad"
             style={styles.txtInput}
             onChangeText={text => setCostoP_M(text)}
-            value={costoP_M}
+            value={costoP_M.toString()}
           />
-
+          <Text style={styles.txtMuted}>Precio de venta por unidad*</Text>
           <TextInput
-            placeholder="Precio de venta p/u*"
             keyboardType="number-pad"
             style={styles.txtInput}
             onChangeText={text => setVentaP_U(text)}
-            value={ventaP_U}
+            value={ventaP_U.toString()}
           />
-
+          <Text style={styles.txtMuted}>Precio de venta por mayoreo*</Text>
           <TextInput
-            placeholder="Precio de venta p/m*"
             style={styles.txtInput}
             keyboardType="number-pad"
             onChangeText={text => setVentaP_M(text)}
-            value={ventaP_M}
+            value={ventaP_M.toString()}
           />
 
           <TextInput
@@ -174,12 +273,50 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
           />
         </ScrollView>
       </View>
-      <BtnGroup setModalValue={setModalValue} action={() => save()} />
+      <BtnGroup
+        setModalValue={setModalValue}
+        action={() =>
+          save(
+            'product',
+            {
+              nombre,
+              cantidad,
+              proveedor,
+              costoP_M,
+              costoP_U,
+              ventaP_M,
+              ventaP_U,
+              descripcion,
+            },
+            clean(),
+          )
+        }
+      />
     </View>
   );
 };
 
 const AddService: () => React$Node = ({setModalValue}) => {
+  const [nombre, setNombre] = useState('');
+  const [cantidad, setCantidad] = useState(0);
+  const [proveedor, setProveedor] = useState('');
+  const [costoP_U, setCostoP_U] = useState(0);
+  const [costoP_M, setCostoP_M] = useState(0);
+  const [ventaP_U, setVentaP_U] = useState(0);
+  const [ventaP_M, setVentaP_M] = useState(0);
+  const [descripcion, setDescripcion] = useState('');
+
+  const clean = () => {
+    setNombre('');
+    setCantidad(0);
+    setProveedor('');
+    setCostoP_M(0);
+    setCostoP_U(0);
+    setVentaP_M(0);
+    setVentaP_U(0);
+    setDescripcion('');
+  };
+
   return (
     <View>
       <View style={styles.form}>
@@ -188,41 +325,89 @@ const AddService: () => React$Node = ({setModalValue}) => {
           <TextInput
             placeholder="Nombre de servicio*"
             style={styles.txtInput}
+            value={nombre}
+            onChangeText={text => setNombre(text)}
           />
           <TextInput
             placeholder="Cantidad a agregar*"
             style={styles.txtInput}
+            value={cantidad}
+            onChangeText={text => setCantidad(cantidad)}
           />
-          <TextInput placeholder="Proveedor" style={styles.txtInput} />
+          <TextInput
+            placeholder="Proveedor"
+            style={styles.txtInput}
+            value={proveedor}
+            onChangeText={text => setProveedor(text)}
+          />
           <TextInput
             placeholder="Precio de costo p/u*"
             style={styles.txtInput}
+            value={costoP_U}
+            onChangeText={text => setCostoP_U(text)}
           />
           <TextInput
             placeholder="Precio de costo p/m*"
             style={styles.txtInput}
+            value={costoP_M}
+            onChangeText={text => setCostoP_M(text)}
           />
           <TextInput
             placeholder="Precio de venta p/u*"
             style={styles.txtInput}
+            value={ventaP_U}
+            onChangeText={text => setVentaP_U(text)}
           />
           <TextInput
             placeholder="Precio de venta p/m*"
             style={styles.txtInput}
+            value={ventaP_M}
+            onChangeText={text => setVentaP_M(text)}
           />
           <TextInput
             placeholder="Descripcion"
             numberOfLines={2}
             style={styles.txtInput}
+            value={descripcion}
+            onChangeText={text => setDescripcion(text)}
           />
         </ScrollView>
       </View>
-      <BtnGroup setModalValue={setModalValue} />
+      <BtnGroup
+        setModalValue={setModalValue}
+        action={() =>
+          save(
+            'service',
+            {
+              nombre,
+              cantidad,
+              proveedor,
+              costoP_U,
+              costoP_M,
+              ventaP_U,
+              ventaP_M,
+              descripcion,
+            },
+            clean(),
+          )
+        }
+      />
     </View>
   );
 };
 
 const AddProvider: () => React$Node = ({setModalValue}) => {
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+
+  const clean = () => {
+    setNombre('');
+    setTelefono('');
+    setEmail('');
+    setDescripcion('');
+  };
   return (
     <>
       <View style={styles.form}>
@@ -231,21 +416,46 @@ const AddProvider: () => React$Node = ({setModalValue}) => {
           <TextInput
             placeholder="Nombre de Proveedor*"
             style={styles.txtInput}
+            value={nombre}
+            onChangeText={text => setNombre(text)}
           />
           <TextInput
             placeholder="Número de teléfono"
             keyboardType="numeric"
             style={styles.txtInput}
+            value={telefono}
+            onChangeText={text => setTelefono(text)}
           />
           <TextInput
             placeholder="Email"
             keyboardType="email-address"
             style={styles.txtInput}
+            value={email}
+            onChangeText={text => setEmail(email)}
           />
-          <TextInput placeholder="Descripcion" style={styles.txtInput} />
+          <TextInput
+            placeholder="Descripcion"
+            style={styles.txtInput}
+            value={descripcion}
+            onChangeText={text => setDescripcion(text)}
+          />
         </ScrollView>
       </View>
-      <BtnGroup setModalValue={setModalValue} />
+      <BtnGroup
+        setModalValue={setModalValue}
+        action={() =>
+          save(
+            'provider',
+            {
+              nombre,
+              telefono,
+              email,
+              descripcion,
+            },
+            clean(),
+          )
+        }
+      />
     </>
   );
 };
@@ -325,5 +535,8 @@ const styles = StyleSheet.create({
   },
   succesBtn: {
     backgroundColor: '#5d80b6',
+  },
+  txtMuted: {
+    color: 'gray',
   },
 });

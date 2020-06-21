@@ -19,11 +19,11 @@ import AsyncStorage from '@react-native-community/async-storage';
 import store from './store';
 
 let productsList = [];
+let providersList = [];
+let clientsList = [];
+let servicesList = [];
 
-if (AsyncStorage.getItem('products')) {
-  console.log(productsList);
-}
-
+// Establecer inventario
 firestore()
   .collection('productos')
   .onSnapshot(snap => {
@@ -38,7 +38,54 @@ firestore()
         type: 'SET_INVENTORY',
         products: productsList,
       });
-      AsyncStorage.setItem('products', JSON.stringify(productsList));
+    }
+  });
+firestore()
+  .collection('clientes')
+  .onSnapshot(snap => {
+    if (!snap.empty) {
+      snap.docChanges().forEach(change => {
+        const data = change.doc.data();
+        if (change.type === 'added') {
+          clientsList = clientsList.concat(data);
+        }
+      });
+      store.dispatch({
+        type: 'SET_INVENTORY',
+        clients: clientsList,
+      });
+    }
+  });
+firestore()
+  .collection('proveedores')
+  .onSnapshot(snap => {
+    if (!snap.empty) {
+      snap.docChanges().forEach(change => {
+        const data = change.doc.data();
+        if (change.type === 'added') {
+          providersList = providersList.concat(data);
+        }
+      });
+      store.dispatch({
+        type: 'SET_INVENTORY',
+        providers: providersList,
+      });
+    }
+  });
+firestore()
+  .collection('servicios_adicionales')
+  .onSnapshot(snap => {
+    if (!snap.empty) {
+      snap.docChanges().forEach(change => {
+        const data = change.doc.data();
+        if (change.type === 'added') {
+          servicesList = servicesList.concat(data);
+        }
+      });
+      store.dispatch({
+        type: 'SET_INVENTORY',
+        services: servicesList,
+      });
     }
   });
 

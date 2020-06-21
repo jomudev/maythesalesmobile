@@ -86,14 +86,23 @@ const NuevaVenta: () => React$Node = () => {
   const [searchedProduct, setFundProduct] = useState('');
   const [searchedClient, setFundClient] = useState('');
   const [products, setProducts] = useState([]);
+  const [clients, setClients] = useState([]);
 
   store.subscribe(() => {
-    console.log(store.getState().cart);
     if (products !== store.getState().products) {
       setProducts(store.getState().products);
     }
+    if (clients !== store.getState().clients) {
+      setClients(store.getState().clients);
+    }
   });
 
+  const phoneFormat = number => {
+    number = number.split('');
+    number.splice(4, 0, '-');
+    number = number.join('');
+    return number;
+  };
   const ProductItem: () => Rect$Node = ({data, index}) => (
     <TouchableOpacity
       key={data + index}
@@ -106,7 +115,12 @@ const NuevaVenta: () => React$Node = () => {
         });
       }}>
       <Text style={{fontSize: 14}}>
-        {data.nombre + ' ' + data.ventaP_U + ' ' + Badge}
+        {data.nombre +
+          ' ' +
+          data.ventaP_U +
+          ' ' +
+          Badge +
+          (data.descripcion ? data.descipcion : ' ')}
       </Text>
     </TouchableOpacity>
   );
@@ -124,9 +138,8 @@ const NuevaVenta: () => React$Node = () => {
       }}>
       <Text style={{fontSize: 14}}>
         {data.nombre +
-          ' ' +
-          (data.telefono ? 'cel: ' + data.telefono : '') +
-          (data.email ? 'email: ' + data.email : '')}
+          (data.telefono ? ' cel: ' + phoneFormat(data.telefono) : ' ') +
+          (data.email ? ' email: ' + data.email : ' ')}
       </Text>
     </TouchableOpacity>
   );
@@ -179,7 +192,7 @@ const NuevaVenta: () => React$Node = () => {
           placeholder="Cliente"
         />
         <View style={styles.findProductsList}>
-          {searchedClient ? <Search List={ClientsData} type="clients" /> : null}
+          {searchedClient ? <Search List={clients} type="clients" /> : null}
         </View>
       </View>
       <View style={styles.formGroup}>
@@ -294,7 +307,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   btnFormText: {
-    fontSize: 28,
+    fontSize: 24,
     marginLeft: 25,
   },
   findProductsList: {
@@ -345,6 +358,7 @@ const styles = StyleSheet.create({
     width: '90%',
     borderBottomWidth: 2,
     borderColor: '#ddd',
+    overflow: 'hidden',
   },
   ventaCard: {
     borderWidth: 1,

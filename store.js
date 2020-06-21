@@ -1,15 +1,16 @@
 import {createStore} from 'redux';
+import { ActivityIndicator } from 'react-native-paper';
 
 const reducers = (state, action) => {
   let newCart = state.cart;
   let newCantidades = state.cantidades;
 
   // Metodos
-  const calcularSuma = () => {
+  const calcularSuma = (ventaType) => {
     let totalSuma = 0;
     for (let y = 0; y < newCart.length; y++) {
       for (let x = 0; x < newCantidades.length; x++) {
-        if (state.ventaType) {
+        if (ventaType) {
           if (newCantidades[x].pid === newCart[y].pid) {
             totalSuma += newCart[y].ventaP_M * newCantidades[x].cantidad;
           }
@@ -20,6 +21,7 @@ const reducers = (state, action) => {
         }
       }
     }
+    return totalSuma;
   };
 
   const valores = (cantidad, product) => {
@@ -42,12 +44,15 @@ const reducers = (state, action) => {
     return {
       ...state,
       products: action.products ? action.products : state.products,
+      services: action.services ? action.services : state.services,
+      clients: action.clients ? action.clients : state.clients,
+      providers: action.providers ? action.providers : state.providers,
     };
   }
   if (action.type === 'ADD_PRODUCT_TO_CART') {
     const product = action.product;
-    product.ventaP_U = parseInt(product.ventaP_U);
-    action.cantidad = parseInt(action.cantidad);
+    product.ventaP_U = parseInt(product.ventaP_U, 10);
+    action.cantidad = parseInt(action.cantidad, 10);
     let productoEnCarrito = {existe: false, index: 0};
     for (let y = 0; y < newCart.length; y++) {
       // Recorremos el carrito para ver si el producto ya esta en el carrito.
@@ -70,11 +75,11 @@ const reducers = (state, action) => {
   }
   if (action.type === 'SET_CANTIDAD') {
     const product = action.product;
-    action.cantidad = parseInt(action.cantidad);
+    action.cantidad = parseInt(action.cantidad, 10);
     if (!action.cantidad) {
       action.cantidad = 1;
     }
-    product.valorVenta = parseInt(product.valorVenta);
+    product.valorVenta = parseInt(product.valorVenta, 10);
     valores(action.cantidad, product);
 
     return {
@@ -113,8 +118,7 @@ const reducers = (state, action) => {
   if (action.type === 'SET_VENTA_TYPE') {
     return {
       ...state,
-      ventaType: action.ventaType,
-      totalVenta: calcularSuma(),
+      totalVenta: calcularSuma(action.ventaType),
     };
   }
 
@@ -124,10 +128,12 @@ const reducers = (state, action) => {
 export default createStore(reducers, {
   ventaOpcion: '',
   products: [],
+  clients: [],
+  providers: [],
+  services: [],
   title: 'Maythe´s Sales',
   cart: [],
   cartClient: '',
   cantidades: [],
-  ventaType: false,
   totalVenta: 0,
 });
