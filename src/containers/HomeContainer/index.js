@@ -1,33 +1,20 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react'; 
+import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import store from '../../../store';
 import {
   FormInventario,
-  VentasDia,
   Inventario,
   NuevaVenta,
 } from '../../components/Inventario';
+import Ventas from '../../components/Inventario/ventas';
 import {NavigationContainer} from '@react-navigation/native';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import Header from '../../components/header';
 
 const HomeContainer: () => React$Node = ({navigation}) => {
-  const user = null;
-
-  const tabPress = e => {
-    let target = e.target;
-    target = target.split('-');
-    target = target[0];
-    store.dispatch({
-      type: 'SET_TITLE',
-      newTitle: target,
-    });
-  };
-
   return (
     <NavigationContainer independent={true}>
-      <Header user={user} navigation={navigation} />
+      <Header navigation={navigation} />
       <Tab.Navigator
         adaptive={true}
         barStyle={{backgroundColor: '#f7f8f9'}}
@@ -36,9 +23,8 @@ const HomeContainer: () => React$Node = ({navigation}) => {
         <Tab.Screen
           name="Nueva venta"
           component={NuevaVenta}
-          listeners={{tabPress}}
           options={{
-            tabBarIcon: ({color, size}) => (
+            tabBarIcon: ({color}) => (
               <Icon name={'shopping-cart'} color={color} size={26} />
             ),
           }}
@@ -46,7 +32,6 @@ const HomeContainer: () => React$Node = ({navigation}) => {
         <Tab.Screen
           name="Agregar"
           component={FormInventario}
-          listeners={{tabPress}}
           options={{
             tabBarIcon: ({color, size}) => (
               <Icon name={'note-add'} color={color} size={26} />
@@ -55,8 +40,7 @@ const HomeContainer: () => React$Node = ({navigation}) => {
         />
         <Tab.Screen
           name="Ventas"
-          component={VentasDia}
-          listeners={{tabPress}}
+          component={Ventas}
           options={{
             tabBarIcon: ({color, size}) => (
               <Icon name={'event'} color={color} size={26} />
@@ -66,10 +50,9 @@ const HomeContainer: () => React$Node = ({navigation}) => {
         <Tab.Screen
           name="inventario"
           component={Inventario}
-          listeners={{tabPress}}
           options={{
             tabBarLabel: 'Inventario',
-            tabBarIcon: ({color, size}) => (
+            tabBarIcon: ({color}) => (
               <Icon name={'view-module'} color={color} size={26} />
             ),
           }}

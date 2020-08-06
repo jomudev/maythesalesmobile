@@ -1,19 +1,19 @@
+/* eslint-disable react-native/no-inline-styles */
 /**
  * @format
  * @flow
  */
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
-  ScrollView,
   Text,
   TouchableOpacity,
   TextInput,
   Modal,
   StyleSheet,
 } from 'react-native';
-import {Badge, FormOptions, ClientsData, Ventas} from './data';
+import {Badge, FormOptions} from './data';
 import {
   AddClient,
   AddProduct,
@@ -88,14 +88,18 @@ const NuevaVenta: () => React$Node = () => {
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
 
-  store.subscribe(() => {
-    if (products !== store.getState().products) {
-      setProducts(store.getState().products);
-    }
-    if (clients !== store.getState().clients) {
-      setClients(store.getState().clients);
-    }
-  });
+  useEffect(() => {
+    const subscriber = store.subscribe(() => {
+      if (products !== store.getState().products) {
+        setProducts(store.getState().products);
+      }
+      if (clients !== store.getState().clients) {
+        setClients(store.getState().clients);
+      }
+    });
+
+    return subscriber;
+  }, []);
 
   const phoneFormat = number => {
     number = number.split('');
@@ -120,7 +124,7 @@ const NuevaVenta: () => React$Node = () => {
           data.ventaP_U +
           ' ' +
           Badge +
-          (data.descripcion ? data.descipcion : ' ')}
+          (data.descripcion ? ` ${data.descripcion}` : ' ')}
       </Text>
     </TouchableOpacity>
   );
@@ -211,28 +215,6 @@ const NuevaVenta: () => React$Node = () => {
   );
 };
 
-const VentasDia: () => React$Node = () => {
-  return (
-    <ScrollView>
-      {Ventas.map((item, index) => (
-        <View key={item + index} style={styles.ventaCard}>
-          <Text style={{fontSize: 18, textAlign: 'center', fontWeight: 'bold'}}>
-            {item.fechaLarga}
-          </Text>
-          {item.listaProductos.map((data, i) => (
-            <View key={data + i}>
-              <Text>{data.nombre + ' ' + Badge + data.ventaP_U}</Text>
-            </View>
-          ))}
-          <Text style={{fontWeight: 'bold'}}>
-            {'\n'}Total: {Badge + item.totalVenta}
-          </Text>
-        </View>
-      ))}
-    </ScrollView>
-  );
-};
-
 const Inventario: () => React$Node = () => {
   const [modalValue, setModalValue] = useState({type: '', visible: false});
   return (
@@ -266,7 +248,7 @@ const Inventario: () => React$Node = () => {
   );
 };
 
-export {FormInventario, VentasDia, Inventario, NuevaVenta};
+export {FormInventario, Inventario, NuevaVenta};
 
 const styles = StyleSheet.create({
   form: {
@@ -360,9 +342,17 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     overflow: 'hidden',
   },
+  ventasTitle: {
+    fontSize: 18,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    borderBottomWidth: 1,
+    borderColor: '#cbc6c3',
+  },
   ventaCard: {
     borderWidth: 1,
     borderColor: '#cbc6c3',
+    backgroundColor: '#ffffff',
     margin: 5,
     padding: 10,
     borderRadius: 4,

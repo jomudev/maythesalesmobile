@@ -1,12 +1,11 @@
 import {createStore} from 'redux';
-import { ActivityIndicator } from 'react-native-paper';
 
 const reducers = (state, action) => {
   let newCart = state.cart;
   let newCantidades = state.cantidades;
 
   // Metodos
-  const calcularSuma = (ventaType) => {
+  const calcularSuma = ventaType => {
     let totalSuma = 0;
     for (let y = 0; y < newCart.length; y++) {
       for (let x = 0; x < newCantidades.length; x++) {
@@ -21,7 +20,7 @@ const reducers = (state, action) => {
         }
       }
     }
-    return totalSuma;
+    return Number.parseFloat(totalSuma).toFixed(2);
   };
 
   const valores = (cantidad, product) => {
@@ -33,39 +32,83 @@ const reducers = (state, action) => {
   };
 
   // Fin de metodos.
-
+  if (action.type === 'SET_IS_NEW_USER') {
+    return {
+      ...state,
+      isNewUser: action.data,
+    };
+  }
+  if (action.type === 'SET_USER_DATA') {
+    return {
+      ...state,
+      userData: action.data,
+      user: action.user,
+    };
+  }
   if (action.type === 'SET_TITLE') {
     return {
       ...state,
       title: action.newTitle,
     };
   }
-  if (action.type === 'SET_INVENTORY') {
+  if (action.type === 'SET_PRODUCTS') {
+    let newList = state.products.filter(p => {
+      return action.products.map(actionP => actionP.id.includes(p.id));
+    });
+
+    newList = newList.length > 0 ? newList : action.products;
+
     return {
       ...state,
-      products: action.products ? action.products : state.products,
-      services: action.services ? action.services : state.services,
-      clients: action.clients ? action.clients : state.clients,
-      providers: action.providers ? action.providers : state.providers,
+      products: newList,
+    };
+  }
+  if (action.type === 'SET_CLIENTS') {
+    let newList = state.clients.filter(c => {
+      return action.clients.map(actionC => actionC.id.includes(c.id));
+    });
+
+    newList = newList.length > 0 ? newList : action.clients;
+
+    return {
+      ...state,
+      clients: newList,
+    };
+  }
+  if (action.type === 'SET_PROVIDERS') {
+    return {
+      ...state,
+      providers: action.providers,
+    };
+  }
+  if (action.type === 'SET_SERVICES ') {
+    return {
+      ...state,
+      services: action.services,
     };
   }
   if (action.type === 'ADD_PRODUCT_TO_CART') {
     const product = action.product;
-    product.ventaP_U = parseInt(product.ventaP_U, 10);
-    action.cantidad = parseInt(action.cantidad, 10);
-    let productoEnCarrito = {existe: false, index: 0};
-    for (let y = 0; y < newCart.length; y++) {
-      // Recorremos el carrito para ver si el producto ya esta en el carrito.
-      if (product.pid === newCart[y].pid) {
-        // Establecemos si el producto existe en el carrito.
-        productoEnCarrito = {existe: true, index: y};
+    product.ventaP_U = Number(product.ventaP_U);
+    action.cantidad = Number(action.cantidad);
+    let productoEnCarrito = false;
+    if (newCart.length > 0) {
+      for (let y = 0; y < newCart.length; y++) {
+        // Recorremos el carrito para ver si el producto ya esta en el carrito.
+        if (product.pid === newCart[y].pid) {
+          // Establecemos si el producto existe en el carrito.
+          productoEnCarrito = true;
+        } else {
+          productoEnCarrito = false;
+        }
       }
     }
 
-    if (!productoEnCarrito.existe) {
+    if (!productoEnCarrito) {
       newCart = newCart.concat(product);
       newCantidades = newCantidades.concat({pid: product.pid, cantidad: 1});
     }
+
     return {
       ...state,
       cart: newCart,
@@ -75,11 +118,11 @@ const reducers = (state, action) => {
   }
   if (action.type === 'SET_CANTIDAD') {
     const product = action.product;
-    action.cantidad = parseInt(action.cantidad, 10);
+    action.cantidad = Number(action.cantidad);
     if (!action.cantidad) {
       action.cantidad = 1;
     }
-    product.valorVenta = parseInt(product.valorVenta, 10);
+    product.valorVenta = Number.parseFloat(product.valorVenta).toFixed(2);
     valores(action.cantidad, product);
 
     return {
@@ -127,9 +170,13 @@ const reducers = (state, action) => {
 
 export default createStore(reducers, {
   ventaOpcion: '',
+  user: null,
+  userData: null,
+  isNewUser: false,
   products: [],
   clients: [],
   providers: [],
+  ventas: [],
   services: [],
   title: 'Maythe´s Sales',
   cart: [],

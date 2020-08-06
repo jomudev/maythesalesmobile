@@ -9,11 +9,10 @@ import {
   ScrollView,
   Modal,
   SafeAreaView,
-  BackHandler,
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {ProductData, ClientsData, Badge} from './data';
+import {Badge} from './data';
 import store from '../../../store';
 import {
   AddClient,
@@ -23,20 +22,36 @@ import {
 } from './modalComponents';
 
 // Containers
-const ShowComponent: () => React$Node = ({setModalValue, type}) => {
-  const [addData, setAddData] = useState({visible: false});
+class ShowComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      addData: {
+        visible: false,
+      },
+    };
+    this.setAddData.bind(this);
+  }
+  setAddData = data => {
+    this.setState({addData: data});
+  };
 
-  return (
-    <>
-      <Header setModalValue={setModalValue} title={`Inventario: ${type}`} />
+  render() {
+    return (
+      <>
+        <Header
+          setModalValue={this.props.setModalValue}
+          title={`Inventario: ${this.props.type}`}
+        />
 
-      <ListToShow setAddData={setAddData} type={type} />
-      {addData.visible ? (
-        <AddComponent setAddData={setAddData} type={type} />
-      ) : null}
-    </>
-  );
-};
+        <ListToShow setAddData={this.setAddData} type={this.props.type} />
+        {this.state.addData.visible ? (
+          <AddComponent setAddData={this.setAddData} type={this.props.type} />
+        ) : null}
+      </>
+    );
+  }
+}
 
 const DataComponent: () => React$Node = ({
   item,
@@ -153,7 +168,7 @@ const DataComponent: () => React$Node = ({
                 multiline={true}
                 numberOfLines={2}
                 style={styles.txtInput}
-                defaultValue={item.comentario}
+                defaultValue={item.descripcion}
               />
             </SafeAreaView>
           </View>
@@ -218,8 +233,8 @@ const ListToShow: () => React$Node = ({type, setAddData}) => {
                       subtitle={[
                         item.telefono ? `teléfono: ${item.telefono} ` : '',
                         item.email ? `email: ${item.email} ` : '',
-                        item.descipcion
-                          ? `\ndescripción: ${item.descipcion}`
+                        item.descripcion
+                          ? `\ndescripción: ${item.descripcion}`
                           : '',
                       ]}
                     />
@@ -235,8 +250,8 @@ const ListToShow: () => React$Node = ({type, setAddData}) => {
                     subtitle={[
                       item.telefono ? `teléfono: ${item.telefono} ` : '',
                       item.email ? `email: ${item.email} ` : '',
-                      item.descipcion
-                        ? `\ndescripción: ${item.descipcion}`
+                      item.descripcion
+                        ? `\ndescripción: ${item.descripcion}`
                         : '',
                     ]}
                   />
@@ -497,7 +512,6 @@ const ListItem: () => React$Node = ({data, title, subtitle, setItemData}) => {
 };
 
 const Header: () => React$Node = ({setModalValue, title}) => {
-
   return (
     <View style={styles.header}>
       <TouchableOpacity
@@ -543,6 +557,7 @@ const styles = StyleSheet.create({
   },
   mutedText: {
     color: '#aaa',
+    fontSize: 12,
   },
   showDataComponent: {
     position: 'absolute',
@@ -619,6 +634,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     shadowColor: '#000',
     shadowOpacity: 0.25,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowRadius: 3.84,
     shadowOffset: {
       width: 0,
@@ -627,7 +644,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   txtInput: {
-    fontSize: 28,
+    fontSize: 16,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     borderBottomWidth: 1,
@@ -635,13 +652,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   headerLeftComponent: {
-    marginRight: 10,
+    position: 'absolute',
+    left: 10,
     padding: 5,
   },
   headerCenterComponent: {
     color: 'white',
     fontSize: 24,
-    padding: 4,
+    padding: 5,
+    alignSelf: 'center',
   },
   listItem: {
     borderBottomWidth: 1,

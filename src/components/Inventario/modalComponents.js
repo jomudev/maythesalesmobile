@@ -13,13 +13,37 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import store from '../../../store';
 
-const products = firestore().collection('productos');
-const clients = firestore().collection('clientes');
-const services = firestore().collection('servicios_adicionales');
-const providers = firestore().collection('proveedores');
+let products = null;
+let clients = null;
+let services = null;
+let providers = null;
+
+const init = () => {
+  let uid = store.getState().user.uid;
+  if (uid !== null) {
+    products = firestore()
+      .collection('users')
+      .doc(uid)
+      .collection('productos');
+    clients = firestore()
+      .collection('users')
+      .doc(uid)
+      .collection('clientes');
+    services = firestore()
+      .collection('users')
+      .doc(uid)
+      .collection('servicios');
+    providers = firestore()
+      .collection('users')
+      .doc(uid)
+      .collection('proveedores');
+  }
+};
 
 // METODOS
 const randomId = (letrasLength, numLength) => {
@@ -46,89 +70,105 @@ const randomId = (letrasLength, numLength) => {
 };
 
 const save = (type, data, clean) => {
-  if (type === 'product') {
-    if (data.nombre === '' || cantidad < 0) {
-      alert('Ingresa todos los datos correctamente');
-      return;
+  init();
+  if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
+    if (type === 'product') {
+      products
+        .doc(data.nombre)
+        .set({
+          id: randomId(34),
+          nombre: data.nombre,
+          cantidad: Number(data.cantidad),
+          proveedor: data.proveedor,
+          costoP_U: Number(data.costoP_U),
+          costoP_M: Number(data.costoP_M),
+          ventaP_U: Number(data.ventaP_U),
+          ventaP_M: Number(data.ventaP_M),
+          descripcion: data.descripcion,
+        })
+        .then(() => {
+          clean();
+        })
+        .catch(err => {
+          console.log('error: ', err.code);
+          Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
+        });
     }
-
-    products
-      .doc(data.nombre)
-      .set({
-        pid: randomId(),
-        nombre: data.nombre,
-        cantidad: parseInt(data.cantidad),
-        proveedor: data.proveedor,
-        costoP_U: parseInt(data.costoP_U),
-        costoP_M: parseInt(data.costoP_M),
-        ventaP_U: parseInt(data.ventaP_U),
-        ventaP_M: parseInt(data.ventaP_M),
-        descripcion: data.descripcion,
-      })
-      .then(() => {
-        clean();
-      })
-      .catch(err => {
-        console.warn('error: ' + err.code);
-      });
-  }
-  if (type === 'client') {
-    const id = randomId(5, 10);
-    clients
-      .doc(id)
-      .set({
-        id,
-        nombre: data.nombre,
-        telefono: data.telefono,
-        email: data.email,
-        descripcion: data.descripcion,
-      })
-      .then(() => {
-        clean();
-      })
-      .catch(err => {
-        console.warn('error: ' + err.code);
-      });
-  }
-  if (type === 'service') {
-    const id = randomId(4, 6);
-    services
-      .doc(id)
-      .set({
-        id,
-        nombre: data.nombre,
-        cantidad: parseInt(data.cantidad, 10),
-        proveedor: data.proveedor,
-        costoP_U: parseInt(data.costoP_U, 10),
-        costoP_M: parseInt(data.costoP_M, 10),
-        ventaP_U: parseInt(data.ventaP_U, 10),
-        ventaP_M: parseInt(data.ventaP_M, 10),
-        descripcion: data.descripcion,
-      })
-      .then(() => {
-        clean();
-      })
-      .catch(err => {
-        console.warn('error: ' + err.code);
-      });
-  }
-  if (type === 'provider') {
-    const id = randomId(5, 10);
-    providers
-      .doc(id)
-      .set({
-        id,
-        nombre: data.nombre,
-        telefono: data.telefono,
-        email: data.email,
-        descripcion: data.descripcion,
-      })
-      .then(() => {
-        clean();
-      })
-      .catch(err => {
-        console.warn('error: ' + err.code);
-      });
+    if (type === 'client') {
+      const id = randomId(5, 3);
+      clients
+        .doc(id)
+        .set({
+          id,
+          nombre: data.nombre,
+          telefono: data.telefono,
+          email: data.email,
+          descripcion: data.descripcion,
+        })
+        .then(() => {
+          clean();
+        })
+        .catch(err => {
+          console.log('error: ', err.code);
+          Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
+        });
+    }
+    if (type === 'service') {
+      const id = randomId(4, 6);
+      services
+        .doc(id)
+        .set({
+          id,
+          nombre: data.nombre,
+          cantidad: Number(data.cantidad),
+          proveedor: data.proveedor,
+          costoP_U: Number(data.costoP_U),
+          costoP_M: Number(data.costoP_M),
+          ventaP_U: Number(data.ventaP_U),
+          ventaP_M: Number(data.ventaP_M),
+          descripcion: data.descripcion,
+        })
+        .then(() => {
+          clean();
+        })
+        .catch(err => {
+          console.log('error: ', err.code);
+          Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
+        });
+    }
+    if (type === 'provider') {
+      const id = randomId(5);
+      providers
+        .doc(id)
+        .set({
+          id,
+          nombre: data.nombre,
+          telefono: data.telefono,
+          email: data.email,
+          descripcion: data.descripcion,
+        })
+        .then(() => {
+          clean();
+        })
+        .catch(err => {
+          console.log('error: ', err.code);
+          Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
+        });
+    }
+  } else {
+    Alert.alert(
+      'Campos incompletos',
+      'Rellena los campos obligatorios',
+      [
+        {
+          text: 'Ok',
+          onPress: () => console.log('ok'),
+        },
+      ],
+      {
+        cancelable: false,
+      },
+    );
   }
 };
 
@@ -221,12 +261,12 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
             value={nombre}
           />
 
-          <Text style={styles.txtMuted}>Cantidad*</Text>
+          <Text style={styles.txtMuted}>Cantidad</Text>
           <TextInput
             style={styles.txtInput}
             keyboardType="number-pad"
             onChangeText={text => setCantidad(text)}
-            value={cantidad.toString()}
+            value={`${cantidad}`}
           />
 
           <TextInput
@@ -235,34 +275,35 @@ const AddProduct: () => React$Node = ({setModalValue}) => {
             onChangeText={text => setProveedor(text)}
             value={proveedor}
           />
-          <Text style={styles.txtMuted}>Precio de costo por unidad*</Text>
+          <Text style={styles.txtMuted}>Precio de costo por unidad</Text>
           <TextInput
             style={styles.txtInput}
             keyboardType="number-pad"
             onChangeText={text => setCostoP_U(text)}
-            value={costoP_U.toString()}
+            value={`${costoP_U}`}
           />
-          <Text style={styles.txtMuted}>Precio de costo por mayoreo*</Text>
+          <Text style={styles.txtMuted}>Precio de costo por mayoreo</Text>
           <TextInput
-            placeholder="Precio de costo p/m*"
+            placeholder="Precio de costo p/m"
             keyboardType="number-pad"
             style={styles.txtInput}
             onChangeText={text => setCostoP_M(text)}
-            value={costoP_M.toString()}
+            value={`${costoP_M}`}
           />
-          <Text style={styles.txtMuted}>Precio de venta por unidad*</Text>
+          <Text style={styles.txtMuted}>Precio de venta por unidad</Text>
           <TextInput
             keyboardType="number-pad"
             style={styles.txtInput}
             onChangeText={text => setVentaP_U(text)}
-            value={ventaP_U.toString()}
+            value={`${ventaP_U}`}
           />
-          <Text style={styles.txtMuted}>Precio de venta por mayoreo*</Text>
+          <Text style={styles.txtMuted}>Precio de venta por mayoreo</Text>
           <TextInput
             style={styles.txtInput}
             keyboardType="number-pad"
+            cantidad
             onChangeText={text => setVentaP_M(text)}
-            value={ventaP_M.toString()}
+            value={`${ventaP_M}`}
           />
 
           <TextInput
@@ -323,53 +364,62 @@ const AddService: () => React$Node = ({setModalValue}) => {
         <ScrollView>
           <Text style={styles.formTitle}>Agregar Servicio</Text>
           <TextInput
-            placeholder="Nombre de servicio*"
+            placeholder="Nombre del producto*"
             style={styles.txtInput}
-            value={nombre}
             onChangeText={text => setNombre(text)}
+            value={nombre}
           />
+
+          <Text style={styles.txtMuted}>Cantidad</Text>
           <TextInput
-            placeholder="Cantidad a agregar*"
             style={styles.txtInput}
-            value={cantidad}
-            onChangeText={text => setCantidad(cantidad)}
+            keyboardType="number-pad"
+            onChangeText={text => setCantidad(text)}
+            value={`${cantidad}`}
           />
+
           <TextInput
             placeholder="Proveedor"
             style={styles.txtInput}
-            value={proveedor}
             onChangeText={text => setProveedor(text)}
+            value={proveedor}
           />
+          <Text style={styles.txtMuted}>Precio de costo por unidad</Text>
           <TextInput
-            placeholder="Precio de costo p/u*"
             style={styles.txtInput}
-            value={costoP_U}
+            keyboardType="number-pad"
             onChangeText={text => setCostoP_U(text)}
+            value={`${costoP_U}`}
           />
+          <Text style={styles.txtMuted}>Precio de costo por mayoreo</Text>
           <TextInput
-            placeholder="Precio de costo p/m*"
+            placeholder="Precio de costo p/m"
+            keyboardType="number-pad"
             style={styles.txtInput}
-            value={costoP_M}
             onChangeText={text => setCostoP_M(text)}
+            value={`${costoP_M}`}
           />
+          <Text style={styles.txtMuted}>Precio de venta por unidad</Text>
           <TextInput
-            placeholder="Precio de venta p/u*"
+            keyboardType="number-pad"
             style={styles.txtInput}
-            value={ventaP_U}
             onChangeText={text => setVentaP_U(text)}
+            value={`${ventaP_U}`}
           />
+          <Text style={styles.txtMuted}>Precio de venta por mayoreo</Text>
           <TextInput
-            placeholder="Precio de venta p/m*"
             style={styles.txtInput}
-            value={ventaP_M}
+            keyboardType="number-pad"
+            cantidad
             onChangeText={text => setVentaP_M(text)}
+            value={`${ventaP_M}`}
           />
+
           <TextInput
-            placeholder="Descripcion"
-            numberOfLines={2}
+            placeholder="Descripción"
             style={styles.txtInput}
-            value={descripcion}
             onChangeText={text => setDescripcion(text)}
+            value={descripcion}
           />
         </ScrollView>
       </View>

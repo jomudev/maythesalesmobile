@@ -1,61 +1,78 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, StyleSheet, SafeAreaView, Text, StatusBar} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
 
 const Header = ({navigation}) => {
-  const [title, setTitle] = useState('Maythe´s Sales');
-  const [user, setUser] = useState(null);
-
-  store.subscribe(() => {
-    if (store.getState().title) {
-      setTitle(store.getState().title);
-    } else {
-      setTitle('Maythe´s Sales');
-    }
-    if (store.getState().user) {
-      setUser(store.getState().user);
-    }
-  });
-
-  if (user) {
-    return (
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Header</Text>
-      </View>
-    );
-  }
+  const [nombreNegocio, setNombreNegocio] = useState("Maythe's Sales");
+  useEffect(() => {
+    const subscriber = store.subscribe(() => {
+      if (!nombreNegocio.includes(store.getState().negocio)) {
+        setNombreNegocio(store.getState().negocio);
+      }
+    });
+    return subscriber;
+  }, []);
   return (
-    <View style={styles.header}>
-      <Icon
-        style={styles.headerLeftComponent}
-        onPress={() => {
-          navigation.toggleDrawer();
-        }}
-        name="menu"
-        color="white"
-        size={24}
+    <SafeAreaView style={styles.header}>
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"
       />
-      <Text style={styles.headerTitle}>{title}</Text>
-    </View>
+      <View style={styles.headerComponents}>
+        <View style={styles.headerLeftComponent}>
+          <Icon
+            onPress={() => {
+              navigation.toggleDrawer();
+            }}
+            name="menu"
+            color="white"
+            size={28}
+          />
+        </View>
+        <View style={styles.centerComponent}>
+          <Text style={styles.headerTitle}>{nombreNegocio}</Text>
+        </View>
+        <View style={styles.headerRightComponent} />
+      </View>
+    </SafeAreaView>
   );
 };
 
 export default Header;
 
 const styles = StyleSheet.create({
+  headerComponents: {
+    width: '100%',
+    flexDirection: 'row',
+    marginTop: 20,
+  },
   headerTitle: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 24,
+    fontSize: 18,
+    alignSelf: 'center',
+  },
+  centerComponent: {
+    width: '50%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerLeftComponent: {
-    position: 'absolute',
-    left: 20,
-    padding: 10,
+    width: '25%',
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerRightComponent: {
+    width: '25%',
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   header: {
-    height: 60,
+    height: '10%',
     flexDirection: 'row',
     backgroundColor: '#101e5a',
     alignItems: 'center',

@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   ScrollView,
   TouchableOpacity,
@@ -10,16 +11,16 @@ import {
   Modal,
   Switch,
   Animated,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
-import {TouchableHighlight} from 'react-native-gesture-handler';
+import firestore from '@react-native-firebase/firestore';
 
 class ShoppingCart extends React.Component {
   constructor() {
     super();
     this.state = {
-      _isMounted: false,
       cartClient: {},
       cart: [],
       cantidades: [],
@@ -31,43 +32,44 @@ class ShoppingCart extends React.Component {
       optionMenu: false,
       appear: new Animated.Value(0),
     };
-  }
-
-  componentWillUnmount() {
-    this.setState({
-      _isMounted: false,
-    });
-  }
-
-  UNSAFE_componentWillMount() {
-    this.setState({
-      _isMounted: true,
-    });
+    this.ventasRef = null;
+    this.subscriber = this.subscriber.bind(this);
   }
 
   componentDidMount() {
-    if (this.state._isMounted) {
-      store.subscribe(() => {
-        const newCart = store.getState().cart;
-        const newCantidades = store.getState().cantidades;
-        const totalVenta = store.getState().totalVenta;
-        const cliente = store.getState().cartClient;
-
-        if (cliente !== this.state.cartClient) {
-          this.setState({cartClient: cliente});
-        }
-        if (totalVenta !== this.state.totalVenta) {
-          this.setState({total: totalVenta});
-        }
-        if (newCart !== this.state.newCart) {
-          this.setState({cart: newCart});
-        }
-        if (newCantidades !== this.state.newCantidades) {
-          this.setState({cantidades: newCantidades});
-        }
-      });
-    }
+    this.ventaRef = firestore()
+      .collection('users')
+      .doc(store.getState().user.uid)
+      .collection('ventas');
+    this.subscriber;
   }
+
+  componentWillUnmount() {
+    this.subscriber;
+    store.dispatch({
+      type: 'CLEAR_CART',
+    });
+  }
+
+  subscriber = store.subscribe(() => {
+    const newCart = store.getState().cart;
+    const newCantidades = store.getState().cantidades;
+    const totalVenta = store.getState().totalVenta;
+    const cliente = store.getState().cartClient;
+
+    if (cliente !== this.state.cartClient) {
+      this.setState({cartClient: cliente});
+    }
+    if (totalVenta !== this.state.totalVenta) {
+      this.setState({total: totalVenta});
+    }
+    if (newCart !== this.state.newCart) {
+      this.setState({cart: newCart});
+    }
+    if (newCantidades !== this.state.newCantidades) {
+      this.setState({cantidades: newCantidades});
+    }
+  });
 
   componentDidUpdate() {
     if (!this.state.open) {
@@ -78,6 +80,111 @@ class ShoppingCart extends React.Component {
       }).start();
     }
   }
+
+  fechaFormat = format => {
+    const date = new Date();
+    const fechaCorta = `${date.getDate()}/${date.getMonth() +
+      1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`;
+    let dia,
+      mes,
+      anio = null;
+
+    dia = date.getDate();
+    anio = date.getFullYear();
+
+    switch (date.getMonth() + 1) {
+      case 1:
+        mes = 'enero';
+        break;
+      case 2:
+        mes = 'febrero';
+        break;
+      case 3:
+        mes = 'marzo';
+        break;
+      case 4:
+        mes = 'abril';
+        break;
+      case 5:
+        mes = 'mayo';
+        break;
+      case 6:
+        mes = 'junio';
+        break;
+      case 7:
+        mes = 'julio';
+        break;
+      case 8:
+        mes = 'agosto';
+        break;
+      case 9:
+        mes = 'septiembre';
+        break;
+      case 10:
+        mes = 'octubre';
+        break;
+      case 11:
+        mes = 'noviembre';
+        break;
+      case 12:
+        mes = 'diciembre';
+        break;
+    }
+
+    const fechaLarga = `${dia} de ${mes} del ${anio}`;
+
+    if (format === 'short') {
+      return fechaCorta;
+    }
+    if (format === 'long') {
+      return fechaLarga;
+    }
+  };
+
+  saveVenta = () => {
+    const cart = this.state.cart;
+    for (let x = 0; x < cart.length; x++) {
+      if (cart[x].pid === this.state.cantidades[x].pid) {
+        cart[x].cantidad = this.state.cantidades[x].cantidad;
+      }
+    }
+
+    let venta = {
+      lista: cart,
+      cliente: {
+        id: this.state.cartClient.id,
+        nombre: this.state.cartClient.nombre,
+      },
+      total: this.state.total,
+      fecha: this.fechaFormat('short'),
+      fechaLarga: this.fechaFormat('long'),
+    };
+
+    if (venta.lista.length < 1 || venta.total < 0) {
+      return;
+    }
+    this.ventasRef
+      .add(venta)
+      .then(() => {
+        store.dispatch({
+          type: 'CLEAR_CART',
+        });
+      })
+      .catch(err => {
+        console.log(err.code);
+        Alert(
+          'Problemas de conexión',
+          'Ha ocurrido un problema al tratar de realizar la transacción, intenta de nuevo',
+          [
+            {
+              text: 'Ok',
+              onPress: () => console.log('Ok pressed'),
+            },
+          ],
+          {cancelable: false},
+        );
+      });
+  };
 
   // Mostrar la cantidad respectiva de cada producto
   cantidad = data => {
@@ -180,11 +287,13 @@ class ShoppingCart extends React.Component {
               Total ponderado: {this.state.total}lps.
             </Text>
           </View>
-          <TouchableHighlight style={styles.soldBtn}>
+          <TouchableOpacity
+            style={styles.soldBtn}
+            onPress={() => this.saveVenta()}>
             <Text style={{color: 'white', fontWeight: 'bold'}}>
               Realizar venta
             </Text>
-          </TouchableHighlight>
+          </TouchableOpacity>
         </View>
         <OptionMenu
           open={this.state.optionMenu}
@@ -251,19 +360,24 @@ const OptionMenu: () => React$Node = ({open, closeMenu}) => {
 
 const ListItem = ({data, index, cantidad}) => {
   const [type, setType] = useState(false);
-  store.subscribe(() => {
-    if (store.getState().ventaType !== type) {
-      setType(store.getState().ventaType);
-    }
-  });
+  useEffect(() => {
+    let subscriber = () =>
+      store.subscribe(() => {
+        if (store.getState().ventaType !== type) {
+          setType(store.getState().ventaType);
+        }
+      });
+
+    return subscriber();
+  }, []);
   return (
     <View style={styles.cartItem}>
-      <Text>{data.nombre}</Text>
-      <Text style={styles.ventaP_U}>
+      <Text style={{textAlign: 'left', width: '35%', flexDirection: 'row'}}>
+        <Text>{data.nombre}</Text>
         {' Lps. ' +
           (type
-            ? data.ventaP_M * cantidad(data)
-            : data.ventaP_U * cantidad(data))}
+            ? Number.parseFloat(data.ventaP_M).toFixed(2)
+            : Number.parseFloat(data.ventaP_U).toFixed(2))}
       </Text>
       <TextInput
         style={styles.cartInput}
@@ -277,11 +391,11 @@ const ListItem = ({data, index, cantidad}) => {
           })
         }
       />
-      <Text>
+      <Text style={{width: '40%', textAlign: 'right'}}>
         {' subTotal: Lps. ' +
           (type
-            ? data.ventaP_M * cantidad(data)
-            : data.ventaP_U * cantidad(data))}
+            ? Number.parseFloat(data.ventaP_M * cantidad(data)).toFixed(2)
+            : Number.parseFloat(data.ventaP_U * cantidad(data)).toFixed(2))}
       </Text>
       <TouchableOpacity
         style={styles.removeFromCart}
@@ -333,14 +447,6 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 200,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   toggleCart: {
     position: 'relative',
@@ -348,13 +454,10 @@ const styles = StyleSheet.create({
   },
   cartBody: {
     position: 'relative',
+    width: '100%',
   },
   cartHeader: {
     position: 'relative',
-  },
-  venta: {
-    position: 'relative',
-    fontSize: 18,
   },
   menuOptionBtn: {
     alignItems: 'center',
@@ -371,14 +474,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
-    marginBottom: 10,
     backgroundColor: '#101e5a',
     borderRadius: 4,
     padding: 20,
   },
   removeFromCart: {
-    position: 'absolute',
-    right: 1,
+    width: '10%',
   },
   total: {
     alignItems: 'flex-end',
@@ -390,10 +491,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cartInput: {
-    width: 40,
+    width: '15%',
     height: 30,
     textAlign: 'center',
-    marginLeft: 5,
     padding: 0,
     borderWidth: 1,
     borderRadius: 3,
