@@ -9,14 +9,16 @@ import {
   TextInput,
   StyleSheet,
   Modal,
-  Switch,
   Animated,
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
 import firestore from '@react-native-firebase/firestore';
+import moment from 'moment';
 
+moment.locale('es');
+const hoy = moment();
 class ShoppingCart extends React.Component {
   constructor() {
     super();
@@ -31,16 +33,12 @@ class ShoppingCart extends React.Component {
       cartHeight: 0,
       optionMenu: false,
       appear: new Animated.Value(0),
+      ventasRef: null,
     };
-    this.ventasRef = null;
     this.subscriber = this.subscriber.bind(this);
   }
 
-  componentDidMount() {
-    this.ventaRef = firestore()
-      .collection('users')
-      .doc(store.getState().user.uid)
-      .collection('ventas');
+  UNSAFE_componentWillMount() {
     this.subscriber;
   }
 
@@ -56,7 +54,15 @@ class ShoppingCart extends React.Component {
     const newCantidades = store.getState().cantidades;
     const totalVenta = store.getState().totalVenta;
     const cliente = store.getState().cartClient;
-
+    const user = store.getState().user;
+    this.setState({
+      ventasRef: user
+        ? firestore()
+            .collection('users')
+            .doc(user.uid)
+            .collection('ventas')
+        : null,
+    });
     if (cliente !== this.state.cartClient) {
       this.setState({cartClient: cliente});
     }
@@ -81,74 +87,18 @@ class ShoppingCart extends React.Component {
     }
   }
 
-  fechaFormat = format => {
-    const date = new Date();
-    const fechaCorta = `${date.getDate()}/${date.getMonth() +
-      1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`;
-    let dia,
-      mes,
-      anio = null;
-
-    dia = date.getDate();
-    anio = date.getFullYear();
-
-    switch (date.getMonth() + 1) {
-      case 1:
-        mes = 'enero';
-        break;
-      case 2:
-        mes = 'febrero';
-        break;
-      case 3:
-        mes = 'marzo';
-        break;
-      case 4:
-        mes = 'abril';
-        break;
-      case 5:
-        mes = 'mayo';
-        break;
-      case 6:
-        mes = 'junio';
-        break;
-      case 7:
-        mes = 'julio';
-        break;
-      case 8:
-        mes = 'agosto';
-        break;
-      case 9:
-        mes = 'septiembre';
-        break;
-      case 10:
-        mes = 'octubre';
-        break;
-      case 11:
-        mes = 'noviembre';
-        break;
-      case 12:
-        mes = 'diciembre';
-        break;
-    }
-
-    const fechaLarga = `${dia} de ${mes} del ${anio}`;
-
-    if (format === 'short') {
-      return fechaCorta;
-    }
-    if (format === 'long') {
-      return fechaLarga;
-    }
-  };
-
   saveVenta = () => {
+    const docId = () => {
+      const id = moment().format('DDMMYYYYhhmmss');
+      return id;
+    };
+    const ventasRef = this.state.ventasRef.doc(docId());
     const cart = this.state.cart;
     for (let x = 0; x < cart.length; x++) {
       if (cart[x].pid === this.state.cantidades[x].pid) {
         cart[x].cantidad = this.state.cantidades[x].cantidad;
       }
     }
-
     let venta = {
       lista: cart,
       cliente: {
@@ -156,15 +106,14 @@ class ShoppingCart extends React.Component {
         nombre: this.state.cartClient.nombre,
       },
       total: this.state.total,
-      fecha: this.fechaFormat('short'),
-      fechaLarga: this.fechaFormat('long'),
+      fecha: hoy.format(),
     };
-
+    console.log(venta);
     if (venta.lista.length < 1 || venta.total < 0) {
       return;
     }
-    this.ventasRef
-      .add(venta)
+    ventasRef
+      .set(venta)
       .then(() => {
         store.dispatch({
           type: 'CLEAR_CART',
@@ -188,21 +137,14 @@ class ShoppingCart extends React.Component {
 
   // Mostrar la cantidad respectiva de cada producto
   cantidad = data => {
-    let cantidadToShow = 0;
-    for (let i = 0; i < this.state.cantidades.length; i++) {
-      if (data.pid === this.state.cantidades[i].pid) {
-        cantidadToShow = this.state.cantidades[i].cantidad;
-      }
-    }
-
-    return cantidadToShow;
+    return this.state.cantidades.filter(c => data.id === c.id)[0].cantidad;
   };
 
   // Mostrar u ocultar el Carrito de compras
   toggleCart = () => {
     if (this.state.open) {
       Animated.timing(this.state.cartPosition, {
-        toValue: this.state.cartHeight - this.state.cartHeight * 0.2,
+        toValue: this.state.cartHeight - this.state.cartHeight - 10,
         duration: 250,
         useNativeDriver: true,
       }).start();
@@ -223,7 +165,7 @@ class ShoppingCart extends React.Component {
     }
   };
 
-  render() {
+  appearAnimation = () => {
     if (this.state.cart.length > 0) {
       Animated.timing(this.state.appear, {
         toValue: 1,
@@ -237,6 +179,10 @@ class ShoppingCart extends React.Component {
         useNativeDriver: true,
       }).start();
     }
+  };
+
+  render() {
+    this.appearAnimation();
     return (
       <Animated.View
         style={[
@@ -284,7 +230,8 @@ class ShoppingCart extends React.Component {
         <View>
           <View style={styles.total}>
             <Text style={{fontSize: 18, marginRight: 20, marginTop: 20}}>
-              Total ponderado: {this.state.total}lps.
+              Total ponderado: {Number.parseFloat(this.state.total).toFixed(2)}
+              lps.
             </Text>
           </View>
           <TouchableOpacity
@@ -304,53 +251,36 @@ class ShoppingCart extends React.Component {
   }
 }
 
-const OptionMenu: () => React$Node = ({open, closeMenu}) => {
-  const [type, setType] = useState(store.getState().ventaType);
-  const setVentaType = ventaType => {
-    store.dispatch({
-      type: 'SET_VENTA_TYPE',
-      ventaType,
-    });
-  };
+const OptionMenu = ({open, closeMenu}) => {
   return (
-    <View style={styles.centeredView}>
+    <View style={styles.centeredView} onTouchEnd={() => closeMenu()}>
       <Modal animationType="slide" transparent={true} visible={open}>
         <View style={styles.centeredView}>
-          <View
-            style={{
-              ...styles.modalView,
-              alignContent: 'flex-start',
-              alignItems: 'flex-start',
-            }}>
-            <Icon
-              name="expand-more"
-              size={28}
-              style={styles.modalCloseMenu}
-              onPress={() => closeMenu()}
-            />
-            <View style={styles.menuOptions}>
-              <TouchableOpacity
-                onPress={() => {
-                  closeMenu();
-                  store.dispatch({
-                    type: 'CLEAR_CART',
-                  });
-                }}
-                style={styles.menuOptionBtn}>
-                <Icon name="remove-shopping-cart" size={24} />
-                <Text>Vaciar Carrito</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.menuOptions}>
-              <Text>Por unidad/por mayoreo</Text>
-              <Switch
-                value={type}
-                onChange={() => {
-                  setVentaType(!type);
-                  setType(!type);
-                }}
+          <View style={styles.modalView}>
+            <TouchableOpacity
+              onPress={() => {
+                closeMenu();
+                store.dispatch({
+                  type: 'CLEAR_CART',
+                });
+              }}
+              style={styles.menuOptions}>
+              <Icon
+                name="remove-shopping-cart"
+                style={styles.menuOptionsIcon}
               />
-            </View>
+              <Text style={styles.menuOptionsText}>Vaciar Carrito</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                closeMenu();
+              }}
+              style={styles.menuOptions}>
+              <Icon name="close" style={styles.menuOptionsIcon} color="red" />
+              <Text style={[styles.menuOptionsText, {color: 'red'}]}>
+                Cancelar
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -372,9 +302,15 @@ const ListItem = ({data, index, cantidad}) => {
   }, []);
   return (
     <View style={styles.cartItem}>
-      <Text style={{textAlign: 'left', width: '35%', flexDirection: 'row'}}>
-        <Text>{data.nombre}</Text>
-        {' Lps. ' +
+      <Text
+        style={{
+          fontSize: 12,
+          textAlign: 'center',
+          width: '35%',
+          flexDirection: 'row',
+        }}>
+        {data.nombre}
+        {' L' +
           (type
             ? Number.parseFloat(data.ventaP_M).toFixed(2)
             : Number.parseFloat(data.ventaP_U).toFixed(2))}
@@ -391,8 +327,8 @@ const ListItem = ({data, index, cantidad}) => {
           })
         }
       />
-      <Text style={{width: '40%', textAlign: 'right'}}>
-        {' subTotal: Lps. ' +
+      <Text style={{width: '40%', fontSize: 12, textAlign: 'center'}}>
+        {' subtotal: L' +
           (type
             ? Number.parseFloat(data.ventaP_M * cantidad(data)).toFixed(2)
             : Number.parseFloat(data.ventaP_U * cantidad(data)).toFixed(2))}
@@ -408,21 +344,35 @@ const ListItem = ({data, index, cantidad}) => {
   );
 };
 
-export {ShoppingCart};
+/**
+ * Elementos descartados temporalmente
+ * <View style={styles.menuOptions}>
+              <Text>Por unidad/por mayoreo</Text>
+              <Switch
+                value={type}
+                onChange={() => {
+                  setVentaType(!type);
+                  setType(!type);
+                }}
+              />
+            </View>
+ */
+
+export default ShoppingCart;
 
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     maxHeight: 400,
-    bottom: 0,
-    width: '100%',
-    borderTopWidth: 1,
-    borderColor: '#ddd',
+    bottom: 10,
+    width: '90%',
+    borderRadius: 10,
+    padding: 10,
     backgroundColor: '#fff',
   },
   modalCloseMenu: {
     position: 'relative',
-    top: 0,
+    marginTop: 10,
     width: '100%',
     textAlign: 'center',
   },
@@ -441,12 +391,14 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   modalView: {
-    backgroundColor: 'rgb(243,243,243)',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    bottom: 0,
     width: '100%',
-    minHeight: 200,
     alignItems: 'center',
+    position: 'absolute',
+    zIndex: 1000,
   },
   toggleCart: {
     position: 'relative',
@@ -455,31 +407,40 @@ const styles = StyleSheet.create({
   cartBody: {
     position: 'relative',
     width: '100%',
+    borderRadius: 10,
   },
   cartHeader: {
     position: 'relative',
   },
-  menuOptionBtn: {
-    alignItems: 'center',
-    alignContent: 'center',
-    flexDirection: 'row',
-    width: '100%',
-  },
   menuOptions: {
     flexDirection: 'row',
-    padding: 20,
+    paddingVertical: 16,
     width: '100%',
+    alignContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  menuOptionsIcon: {
+    fontSize: 26,
+    paddingHorizontal: 10,
+  },
+  menuOptionsText: {
+    fontSize: 16,
+    alignSelf: 'center',
+    textAlign: 'center',
   },
   soldBtn: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    margin: 20,
     backgroundColor: '#101e5a',
-    borderRadius: 4,
+    borderRadius: 10,
     padding: 20,
   },
   removeFromCart: {
     width: '10%',
+    alignContent: 'center',
+    alignItems: 'center',
   },
   total: {
     alignItems: 'flex-end',

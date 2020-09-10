@@ -1,17 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {
-  FormInventario,
-  Inventario,
-  NuevaVenta,
-} from '../../components/Inventario';
+import {FormInventario, Inventario} from '../../components/Inventario';
+import NuevaVenta from '../../components/Inventario/nuevaVenta';
 import Ventas from '../../components/Inventario/ventas';
 import {NavigationContainer} from '@react-navigation/native';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import Header from '../../components/header';
 
-const HomeContainer: () => React$Node = ({navigation}) => {
+const HomeContainer = ({navigation}) => {
   return (
     <NavigationContainer independent={true}>
       <Header navigation={navigation} />

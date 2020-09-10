@@ -1,0 +1,96 @@
+import {StyleSheet} from 'react-native';
+
+const styles = StyleSheet.create({
+  form: {
+    flex: 1,
+    width: '100%',
+    padding: 2,
+    maxWidth: 600,
+    alignContent: 'center',
+    alignItems: 'center',
+  },
+  formGroup: {
+    width: '100%',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  centeredViewShowData: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    backgroundColor: '#ffffff',
+  },
+  modalViewShowData: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  },
+  formTitle: {
+    fontSize: 46,
+    marginBottom: 50,
+  },
+  btnFormText: {
+    fontSize: 24,
+    marginLeft: 25,
+  },
+  findProductsList: {
+    alignSelf: 'center',
+    width: '90%',
+    padding: 0,
+    backgroundColor: 'white',
+    borderRadius: 10,
+  },
+  itemList: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderColor: 'rgb(243,243,243)',
+    paddingVertical: 15,
+    flexDirection: 'row',
+    marginHorizontal: 0.5,
+  },
+  txtInput: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    margin: 10,
+  },
+  modalView: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    width: '98%',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  ventaBtn: {
+    display: 'flex',
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    padding: 20,
+    margin: 10,
+    alignItems: 'center',
+    width: '90%',
+    borderRadius: 10,
+    borderColor: '#ddd',
+    overflow: 'hidden',
+  },
+});
+export default styles;

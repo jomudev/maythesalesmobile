@@ -1,178 +1,11 @@
 import {createStore} from 'redux';
 
-const reducers = (state, action) => {
-  let newCart = state.cart;
-  let newCantidades = state.cantidades;
-
-  // Metodos
-  const calcularSuma = ventaType => {
-    let totalSuma = 0;
-    for (let y = 0; y < newCart.length; y++) {
-      for (let x = 0; x < newCantidades.length; x++) {
-        if (ventaType) {
-          if (newCantidades[x].pid === newCart[y].pid) {
-            totalSuma += newCart[y].ventaP_M * newCantidades[x].cantidad;
-          }
-        } else {
-          if (newCantidades[x].pid === newCart[y].pid) {
-            totalSuma += newCart[y].ventaP_U * newCantidades[x].cantidad;
-          }
-        }
-      }
-    }
-    return Number.parseFloat(totalSuma).toFixed(2);
-  };
-
-  const valores = (cantidad, product) => {
-    for (let y = 0; y < newCantidades.length; y++) {
-      if (newCantidades[y].pid === product.pid) {
-        newCantidades[y].cantidad = cantidad;
-      }
-    }
-  };
-
-  // Fin de metodos.
-  if (action.type === 'SET_IS_NEW_USER') {
-    return {
-      ...state,
-      isNewUser: action.data,
-    };
-  }
-  if (action.type === 'SET_USER_DATA') {
-    return {
-      ...state,
-      userData: action.data,
-      user: action.user,
-    };
-  }
-  if (action.type === 'SET_TITLE') {
-    return {
-      ...state,
-      title: action.newTitle,
-    };
-  }
-  if (action.type === 'SET_PRODUCTS') {
-    let newList = state.products.filter(p => {
-      return action.products.map(actionP => actionP.id.includes(p.id));
-    });
-
-    newList = newList.length > 0 ? newList : action.products;
-
-    return {
-      ...state,
-      products: newList,
-    };
-  }
-  if (action.type === 'SET_CLIENTS') {
-    let newList = state.clients.filter(c => {
-      return action.clients.map(actionC => actionC.id.includes(c.id));
-    });
-
-    newList = newList.length > 0 ? newList : action.clients;
-
-    return {
-      ...state,
-      clients: newList,
-    };
-  }
-  if (action.type === 'SET_PROVIDERS') {
-    return {
-      ...state,
-      providers: action.providers,
-    };
-  }
-  if (action.type === 'SET_SERVICES ') {
-    return {
-      ...state,
-      services: action.services,
-    };
-  }
-  if (action.type === 'ADD_PRODUCT_TO_CART') {
-    const product = action.product;
-    product.ventaP_U = Number(product.ventaP_U);
-    action.cantidad = Number(action.cantidad);
-    let productoEnCarrito = false;
-    if (newCart.length > 0) {
-      for (let y = 0; y < newCart.length; y++) {
-        // Recorremos el carrito para ver si el producto ya esta en el carrito.
-        if (product.pid === newCart[y].pid) {
-          // Establecemos si el producto existe en el carrito.
-          productoEnCarrito = true;
-        } else {
-          productoEnCarrito = false;
-        }
-      }
-    }
-
-    if (!productoEnCarrito) {
-      newCart = newCart.concat(product);
-      newCantidades = newCantidades.concat({pid: product.pid, cantidad: 1});
-    }
-
-    return {
-      ...state,
-      cart: newCart,
-      totalVenta: calcularSuma(),
-      cantidades: newCantidades,
-    };
-  }
-  if (action.type === 'SET_CANTIDAD') {
-    const product = action.product;
-    action.cantidad = Number(action.cantidad);
-    if (!action.cantidad) {
-      action.cantidad = 1;
-    }
-    product.valorVenta = Number.parseFloat(product.valorVenta).toFixed(2);
-    valores(action.cantidad, product);
-
-    return {
-      ...state,
-      cantidades: newCantidades,
-      cart: newCart,
-      totalVenta: calcularSuma(),
-    };
-  }
-  if (action.type === 'CLEAR_CART') {
-    return {
-      ...state,
-      cart: [],
-      cantidades: [],
-      totalVenta: 0,
-      cartClient: '',
-    };
-  }
-  if (action.type === 'REMOVE_FROM_CART') {
-    const index = action.index;
-    newCart.splice(index, 1);
-    newCantidades.splice(index, 1);
-    return {
-      ...state,
-      cart: newCart,
-      cantidades: newCantidades,
-      totalventa: calcularSuma(),
-    };
-  }
-  if (action.type === 'SET_CART_CLIENT') {
-    return {
-      ...state,
-      cartClient: action.clientData,
-    };
-  }
-  if (action.type === 'SET_VENTA_TYPE') {
-    return {
-      ...state,
-      totalVenta: calcularSuma(action.ventaType),
-    };
-  }
-
-  return state;
-};
-
-export default createStore(reducers, {
+const initialState = {
   ventaOpcion: '',
-  user: null,
-  userData: null,
+  user: undefined,
+  userData: undefined,
   isNewUser: false,
+  newUserData: null,
   products: [],
   clients: [],
   providers: [],
@@ -183,4 +16,150 @@ export default createStore(reducers, {
   cartClient: '',
   cantidades: [],
   totalVenta: 0,
-});
+};
+
+// Metodos
+const calcularSuma = (ventaType, newCantidades, newCart) => {
+  let totalSuma = 0;
+  newCart.forEach((producto, index) => {
+    ventaType
+      ? (totalSuma += newCantidades[index].cantidad * producto.ventaP_M)
+      : (totalSuma += newCantidades[index].cantidad * producto.ventaP_U);
+  });
+  return Number(totalSuma);
+};
+
+const valores = (cantidad, product, newCantidades) => {
+  newCantidades.map((c, i) => {
+    c.id === product.id ? (newCantidades[i].cantidad = cantidad) : null;
+  });
+};
+
+const reducers = (prevState, action) => {
+  let newCart = prevState.cart;
+  let newCantidades = prevState.cantidades;
+  let newState = prevState;
+
+  if (action.type === 'SET_IS_NEW_USER') {
+    newState = {
+      ...prevState,
+      isNewUser: action.data,
+      newUserData: action.newUserData,
+    };
+  }
+  if (action.type === 'SET_USER') {
+    newState = {
+      ...prevState,
+      userData: action.userData,
+      user: action.user,
+    };
+  }
+  if (action.type === 'SET_TITLE') {
+    newState = {
+      ...prevState,
+      title: action.newTitle,
+    };
+  }
+  if (action.type === 'SET_PRODUCTS') {
+    newState = {
+      ...prevState,
+      products: action.products,
+    };
+  }
+  if (action.type === 'SET_CLIENTS') {
+    newState = {
+      ...prevState,
+      clients: action.clients,
+    };
+  }
+  if (action.type === 'SET_PROVIDERS') {
+    newState = {
+      ...prevState,
+      providers: action.providers,
+    };
+  }
+  if (action.type === 'SET_SERVICES ') {
+    newState = {
+      ...prevState,
+      services: action.services,
+    };
+  }
+  if (action.type === 'SET_VENTAS') {
+    newState = {
+      ...prevState,
+      ventas: action.ventas,
+    };
+  }
+  if (action.type === 'ADD_PRODUCT_TO_CART') {
+    const product = action.product;
+    product.ventaP_U = Number(product.ventaP_U);
+    action.cantidad = Number(action.cantidad);
+
+    const existeEnCarrito =
+      newCart.filter(busqueda => busqueda.id === product.id).length > 0
+        ? true
+        : false;
+
+    existeEnCarrito
+      ? null
+      : (newCart = newCart.concat(product)) &&
+        (newCantidades = newCantidades.concat({id: product.id, cantidad: 1}));
+
+    newState = {
+      ...prevState,
+      cart: newCart,
+      totalVenta: calcularSuma(false, newCantidades, newCart),
+      cantidades: newCantidades,
+    };
+  }
+  if (action.type === 'SET_CANTIDAD') {
+    const product = action.product;
+    action.cantidad = Number(action.cantidad);
+    !action.cantidad ? (action.cantidad = 1) : null;
+    product.valorVenta = Number(product.ventaP_U);
+    valores(action.cantidad, product, newCantidades);
+
+    newState = {
+      ...prevState,
+      cantidades: newCantidades,
+      cart: newCart,
+      totalVenta: calcularSuma(false, newCantidades, newCart),
+    };
+  }
+  if (action.type === 'CLEAR_CART') {
+    newState = {
+      ...prevState,
+      cart: [],
+      cantidades: [],
+      totalVenta: 0,
+      cartClient: '',
+    };
+  }
+  if (action.type === 'REMOVE_FROM_CART') {
+    const index = action.index;
+    newCart.splice(index, 1);
+    newCantidades.splice(index, 1);
+    newState = {
+      ...prevState,
+      cart: newCart,
+      cantidades: newCantidades,
+      totalventa: calcularSuma(false, newCantidades, newCart),
+    };
+  }
+  if (action.type === 'SET_CART_CLIENT') {
+    newState = {
+      ...prevState,
+      cartClient: action.clientData,
+    };
+  }
+  if (action.type === 'SET_VENTA_TYPE') {
+    newState = {
+      ...prevState,
+      totalVenta: calcularSuma(action.ventaType),
+    };
+  }
+
+  return newState;
+};
+
+export default createStore(reducers, initialState);

@@ -1,5 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, SafeAreaView, Text, StatusBar} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  Text,
+  StatusBar,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
 
@@ -11,8 +18,8 @@ const Header = ({navigation}) => {
         setNombreNegocio(store.getState().negocio);
       }
     });
-    return subscriber;
-  }, []);
+    return subscriber();
+  }, [nombreNegocio]);
   return (
     <SafeAreaView style={styles.header}>
       <StatusBar
@@ -21,19 +28,14 @@ const Header = ({navigation}) => {
         backgroundColor="transparent"
       />
       <View style={styles.headerComponents}>
-        <View style={styles.headerLeftComponent}>
-          <Icon
-            onPress={() => {
-              navigation.toggleDrawer();
-            }}
-            name="menu"
-            color="white"
-            size={28}
-          />
-        </View>
-        <View style={styles.centerComponent}>
-          <Text style={styles.headerTitle}>{nombreNegocio}</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.headerLeftComponent}
+          onPress={() => {
+            navigation.toggleDrawer();
+          }}>
+          <Icon name="menu" color="white" size={28} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, styles.centerComponent]}>{nombreNegocio}</Text>
         <View style={styles.headerRightComponent} />
       </View>
     </SafeAreaView>
@@ -56,18 +58,22 @@ const styles = StyleSheet.create({
   },
   centerComponent: {
     width: '50%',
+    height: '100%',
+    textAlignVertical: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center',
   },
   headerLeftComponent: {
     width: '25%',
-    padding: 5,
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 10,
   },
   headerRightComponent: {
     width: '25%',
-    padding: 5,
+    padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -75,15 +81,6 @@ const styles = StyleSheet.create({
     height: '10%',
     flexDirection: 'row',
     backgroundColor: '#101e5a',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
+    elevation: 5,
   },
 });
