@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import {Text, TextInput, View, ScrollView} from 'react-native';
 import BtnGroup from './buttonGroup';
+import {save} from './modalMetodos';
 import styles from './modalStyles';
 
-const AddServicio = ({setModalValue}) => {
+const AddServicio = () => {
   const [nombre, setNombre] = useState('');
   const [cantidad, setCantidad] = useState(0);
   const [proveedor, setProveedor] = useState('');
@@ -88,26 +89,25 @@ const AddServicio = ({setModalValue}) => {
             value={descripcion}
           />
         </ScrollView>
+        <BtnGroup
+          action={() =>
+            save(
+              'service',
+              {
+                nombre,
+                cantidad,
+                proveedor,
+                costoP_U,
+                costoP_M,
+                ventaP_U,
+                ventaP_M,
+                descripcion,
+              },
+              clean(),
+            )
+          }
+        />
       </View>
-      <BtnGroup
-        setModalValue={setModalValue}
-        action={() =>
-          save(
-            'service',
-            {
-              nombre,
-              cantidad,
-              proveedor,
-              costoP_U,
-              costoP_M,
-              ventaP_U,
-              ventaP_M,
-              descripcion,
-            },
-            clean(),
-          )
-        }
-      />
     </View>
   );
 };

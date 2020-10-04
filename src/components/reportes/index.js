@@ -3,6 +3,19 @@ import React, {useState, useEffect} from 'react';
 import store from '../../../store';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import moment from 'moment';
+import firestore from '@react-native-firebase/firestore';
+
+async function getList() {
+  try {
+    return await firestore()
+      .collection('users')
+      .doc(store.getState().user.uid)
+      .collection('ventas')
+      .get();
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 const Index = ({navigation}) => {
   const [listaVentas, setListaVentas] = useState([]);
@@ -24,18 +37,16 @@ const Index = ({navigation}) => {
   };
 
   useEffect(() => {
-    let state = store.getState();
-    setMeses(state.ventas);
-    setListaVentas(state.ventas);
-    const unsubscribe = store.subscribe(() => {
-      state = store.getState();
-      if (listaVentas.length !== state.ventas.length) {
-        setMeses(state.ventas);
-        setListaVentas(state.ventas);
-      }
+    const unsubscribe = getList().then(res => {
+      let newList = [];
+      res.docs.forEach(doc => newList.push(doc.data()));
+      setMeses(newList);
+      setListaVentas(newList);
     });
-    return unsubscribe();
-  }, [listaVentas.length]);
+    return () => {
+      unsubscribe;
+    };
+  }, []);
 
   const ListItem = ({item, fatherNavigation}) => {
     return (
@@ -45,9 +56,7 @@ const Index = ({navigation}) => {
           fatherNavigation.navigate('reporteMes', {
             params: {
               ventas: listaVentas.filter(venta => {
-                return moment(`${venta.fecha.split('-')[1]}`, 'MM').format(
-                  'MMMM YYYY',
-                ) === item
+                return moment(venta.fecha).format('MMMM YYYY') === item
                   ? venta
                   : null;
               }),

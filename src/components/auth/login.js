@@ -8,6 +8,9 @@ import {
   Image,
   Alert,
   TextInput,
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
 } from 'react-native';
 import Button from './button';
 import auth from '@react-native-firebase/auth';
@@ -28,63 +31,80 @@ const onSigninButtonPress = async ({email, password}) => {
 const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [initializando, setInitializando] = useState(false);
   return (
     <View
       style={{
-        backgroundColor: '#fff',
-        height: '100%',
-        width: '100%',
+        backgroundColor: 'white',
         flex: 1,
         alignItems: 'center',
       }}>
-      <StatusBar backgroundColor="#fff" barStyle="dark-content" />
-      <Image
-        source={require('../../assets/AditionalMedia/logo.png')}
-        style={styles.loginBG}
+      {initializando ? (
+        <View style={styles.loadingScreen}>
+          <ActivityIndicator
+            style={{marginTop: 25}}
+            size={38}
+            color="#101e5a"
+          />
+        </View>
+      ) : null}
+      <StatusBar
+        barStyle="dark-content"
+        translucent
+        backgroundColor="rgba(0,0,0,0)"
       />
-      <ScrollView style={{width: '100%'}}>
-        <TextInput
-          style={styles.textInput}
-          value={email}
-          onChangeText={text => setEmail(text)}
-          keyboardType="email-address"
-          placeholder="Correo electrónico"
+      <View style={styles.imageContainer}>
+        <Image
+          source={require('../../assets/AditionalMedia/2345.png')}
+          style={styles.loginBG}
+          progressiveRenderingEnabled
+          resizeMethod="scale"
         />
-        <TextInput
-          style={styles.textInput}
-          value={password}
-          onChangeText={text => setPassword(text)}
-          secureTextEntry={true}
-          textContentType="password"
-          placeholder="Contraseña"
-        />
+      </View>
+      <ScrollView style={styles.container}>
+        <View style={styles.textInputContainer}>
+          <TextInput
+            style={styles.textInput}
+            value={email}
+            onChangeText={text => setEmail(text)}
+            keyboardType="email-address"
+            placeholder="Correo electrónico"
+          />
+          <TextInput
+            style={styles.textInput}
+            value={password}
+            onChangeText={text => setPassword(text)}
+            secureTextEntry={true}
+            textContentType="password"
+            placeholder="Contraseña"
+          />
+        </View>
         <Button
-          onPress={() =>
-            onSigninButtonPress({email, password})
-              .then(() => {
+          onPress={async () => {
+            setInitializando(true);
+            try {
+              await onSigninButtonPress({email, password}).then(() => {
                 setEmail('');
                 setPassword('');
-              })
-              .catch(err => {
-                err.code === 'auth/user-not-found'
-                  ? Alert.alert(
-                      'Error de autenticación',
-                      'el usuario no fue encontrado, intente de nuevo',
-                    )
-                  : Alert.alert(
-                      'Error de autenticación',
-                      'Ha ocurrido un error, intenta de nuevo',
-                    );
-              })
-          }
+              });
+            } catch (err) {
+              setInitializando(false);
+              err.code === 'auth/user-not-found'
+                ? Alert.alert(
+                    'Error de autenticación',
+                    'el usuario no fue encontrado, intente de nuevo',
+                  )
+                : Alert.alert(
+                    'Error de autenticación',
+                    'Ha ocurrido un error, intenta de nuevo',
+                  );
+            }
+          }}
           text="Iniciar Sesion"
         />
-        <Button
-          onPress={() => {
-            navigation.navigate('signin');
-          }}
-          text="Registrarse"
-        />
+        <TouchableOpacity onPress={() => navigation.navigate('signin')}>
+          <Text style={styles.registrarse}>Registrarse</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

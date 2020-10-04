@@ -1,85 +1,86 @@
-/* eslint-disable react-native/no-inline-styles */
-/**
- * @format
- * @flow
- */
-
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, Modal} from 'react-native';
-import {FormOptions} from './data';
+import React from 'react';
+import {View, Text, TouchableOpacity, FlatList} from 'react-native';
+import FormOptions from './data';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import modalContent from './modalComponents/modalContent';
+import {createStackNavigator} from '@react-navigation/stack';
 import styles from './styles';
+import AddCliente from './modalComponents/addCliente';
+import AddProducto from './modalComponents/addProducto';
+import AddServicio from './modalComponents/addServicio';
+import AddProveedor from './modalComponents/addProveedor';
+import ShowItem from './showInformacionComponents/ShowItem';
+import CamScanner from '../CamScanner';
+import {
+  ShowClientes,
+  ShowProductos,
+  ShowServicios,
+  ShowProveedores,
+} from './showInformacionComponents/ShowList';
 
-const FormInventario = () => {
-  const [modalValue, setModalValue] = useState({
-    type: '',
-    mode: null,
-    visible: false,
-  });
+const Stack = createStackNavigator();
+
+const ItemList = ({navigation, item}) => {
   return (
-    <View style={styles.form}>
-      <View
-        style={styles.centeredView}
-        onPress={() => setModalValue({visible: false})}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalValue.visible}>
-          <View style={styles.centeredView}>
-            <View style={[styles.modalView, {borderTopRightRadius: 20}]}>
-              {modalContent(modalValue, setModalValue)}
-            </View>
-          </View>
-        </Modal>
+    <View style={styles.menuListItem}>
+      <View style={styles.menuListHeader}>
+        <Icon name={item.icon} size={18} style={styles.menuListIcon} />
+        <Text style={styles.menuListTitle}>{item.type}</Text>
       </View>
-      {FormOptions.map((item, index) => (
+      <View style={styles.menuListBody}>
+        <Text style={styles.menuListBodyText}>{item.descripcion}</Text>
+      </View>
+      <View style={styles.menuListFooter}>
         <TouchableOpacity
-          key={item + index}
-          style={styles.ventaBtn}
-          onPress={() =>
-            setModalValue({type: item.funcType, mode: 'ADD', visible: true})
-          }>
-          <Icon name={item.icon} size={36} color="#5d80b6" />
-          <Text style={styles.btnFormText}>{item.name}</Text>
+          style={[styles.btn, styles.leftBtn]}
+          onPress={() => navigation.navigate(item.type)}>
+          <Text style={styles.btnTxt}>Añadir</Text>
         </TouchableOpacity>
-      ))}
-      <Text>p/u: por unidad - p/m: por mayoria</Text>
+        <TouchableOpacity
+          style={[styles.btn, styles.rightBtn]}
+          onPress={() =>
+            navigation.navigate(`Show${item.type}`, {type: item.type})
+          }>
+          <Text style={styles.btnTxt}>Mostrar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-const Inventario = () => {
-  const [modalValue, setModalValue] = useState({type: '', visible: false});
+const OptionsScreen = ({navigation}) => {
   return (
     <View style={styles.form}>
-      <View
-        style={styles.centeredView}
-        onPress={() => setModalValue({visible: false})}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalValue.visible}>
-          <View style={styles.centeredViewShowData}>
-            <View style={styles.modalViewShowData}>
-              {modalContent(modalValue, setModalValue)}
-            </View>
-          </View>
-        </Modal>
-      </View>
-      {FormOptions.map((item, index) => (
-        <TouchableOpacity
-          key={index + item}
-          style={styles.ventaBtn}
-          onPress={() =>
-            setModalValue({type: item.type, mode: 'SHOW', visible: true})
-          }>
-          <Icon name={item.icon} size={36} color="#5d80b6" />
-          <Text style={styles.btnFormText}>{item.type}</Text>
-        </TouchableOpacity>
-      ))}
+      <FlatList
+        data={FormOptions}
+        style={styles.flatList}
+        renderItem={({item}) => (
+          <ItemList navigation={navigation} item={item} />
+        )}
+        keyExtractor={item => item.type}
+      />
     </View>
   );
 };
 
-export {FormInventario, Inventario};
+const Inventario = props => {
+  return (
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen name="Main" component={OptionsScreen} {...props} />
+      <Stack.Screen name="Clientes" component={AddCliente} />
+      <Stack.Screen name="ShowClientes" component={ShowClientes} />
+      <Stack.Screen name="Productos" component={AddProducto} />
+      <Stack.Screen name="ShowProductos" component={ShowProductos} />
+      <Stack.Screen name="Servicios Adicionales" component={AddServicio} />
+      <Stack.Screen
+        name="ShowServicios Adicionales"
+        component={ShowServicios}
+      />
+      <Stack.Screen name="Proveedores" component={AddProveedor} />
+      <Stack.Screen name="ShowProveedores" component={ShowProveedores} />
+      <Stack.Screen name="ShowItem" component={ShowItem} />
+      <Stack.Screen name="CamScanner" component={CamScanner} />
+    </Stack.Navigator>
+  );
+};
+
+export default Inventario;

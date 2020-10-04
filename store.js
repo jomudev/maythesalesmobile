@@ -6,38 +6,45 @@ const initialState = {
   userData: undefined,
   isNewUser: false,
   newUserData: null,
-  products: [],
-  clients: [],
-  providers: [],
-  ventas: [],
-  services: [],
   title: 'Maythe´s Sales',
   cart: [],
+  servicesCart: [],
   cartClient: '',
-  cantidades: [],
   totalVenta: 0,
+  tipoVenta: false,
 };
 
-// Metodos
-const calcularSuma = (ventaType, newCantidades, newCart) => {
+const calcularSuma = (ventaType, CarritoDeProductos, CarritoDeServicios) => {
   let totalSuma = 0;
-  newCart.forEach((producto, index) => {
-    ventaType
-      ? (totalSuma += newCantidades[index].cantidad * producto.ventaP_M)
-      : (totalSuma += newCantidades[index].cantidad * producto.ventaP_U);
-  });
+  if (CarritoDeProductos) {
+    CarritoDeProductos.forEach(producto => {
+      totalSuma += ventaType
+        ? producto.ventaP_M * producto.cantidad
+        : producto.ventaP_U * producto.cantidad;
+    });
+  }
+  if (CarritoDeServicios) {
+    CarritoDeServicios.forEach(servicio => {
+      totalSuma += ventaType
+        ? servicio.ventaP_M * servicio.cantidad
+        : servicio.ventaP_U * servicio.cantidad;
+    });
+  }
   return Number(totalSuma);
 };
 
-const valores = (cantidad, product, newCantidades) => {
-  newCantidades.map((c, i) => {
-    c.id === product.id ? (newCantidades[i].cantidad = cantidad) : null;
-  });
+const valores = (cantidad, productoOServicio, carritoProductos) => {
+  carritoProductos.map(producto =>
+    producto.id === productoOServicio.id
+      ? (producto.cantidad = cantidad)
+      : producto,
+  );
+  return carritoProductos;
 };
 
 const reducers = (prevState, action) => {
   let newCart = prevState.cart;
-  let newCantidades = prevState.cantidades;
+  let newServicesCart = prevState.servicesCart;
   let newState = prevState;
 
   if (action.type === 'SET_IS_NEW_USER') {
@@ -93,57 +100,71 @@ const reducers = (prevState, action) => {
   if (action.type === 'ADD_PRODUCT_TO_CART') {
     const product = action.product;
     product.ventaP_U = Number(product.ventaP_U);
-    action.cantidad = Number(action.cantidad);
+    product.cantidad = 1;
 
     const existeEnCarrito =
       newCart.filter(busqueda => busqueda.id === product.id).length > 0
         ? true
         : false;
 
-    existeEnCarrito
-      ? null
-      : (newCart = newCart.concat(product)) &&
-        (newCantidades = newCantidades.concat({id: product.id, cantidad: 1}));
-
+    if (!existeEnCarrito) {
+      newCart.push(product);
+    }
     newState = {
       ...prevState,
       cart: newCart,
-      totalVenta: calcularSuma(false, newCantidades, newCart),
-      cantidades: newCantidades,
+      totalVenta: calcularSuma(false, newCart, newServicesCart),
+    };
+  }
+  if (action.type === 'ADD_SERVICE_TO_CART') {
+    const service = action.service;
+    service.ventaP_U = Number(service.ventaP_U);
+    service.cantidad = 1;
+
+    const existeEnCarrito =
+      newServicesCart.filter(busqueda => busqueda.id === service.id).length > 0
+        ? true
+        : false;
+
+    if (!existeEnCarrito) {
+      newServicesCart.push(service);
+    }
+
+    newState = {
+      ...prevState,
+      servicesCart: newServicesCart,
+      totalVenta: calcularSuma(false, newCart, newServicesCart),
     };
   }
   if (action.type === 'SET_CANTIDAD') {
-    const product = action.product;
-    action.cantidad = Number(action.cantidad);
-    !action.cantidad ? (action.cantidad = 1) : null;
-    product.valorVenta = Number(product.ventaP_U);
-    valores(action.cantidad, product, newCantidades);
-
+    const objeto = action.objeto;
+    action.cantidad = !action.cantidad ? 1 : Number(action.cantidad);
+    newCart = valores(action.cantidad, objeto, newCart);
     newState = {
       ...prevState,
-      cantidades: newCantidades,
       cart: newCart,
-      totalVenta: calcularSuma(false, newCantidades, newCart),
+      totalVenta: calcularSuma(false, newCart, newServicesCart),
     };
   }
   if (action.type === 'CLEAR_CART') {
     newState = {
       ...prevState,
       cart: [],
-      cantidades: [],
+      servicesCart: [],
       totalVenta: 0,
       cartClient: '',
     };
   }
   if (action.type === 'REMOVE_FROM_CART') {
-    const index = action.index;
-    newCart.splice(index, 1);
-    newCantidades.splice(index, 1);
+    newCart = newCart.filter(item => item.id !== action.id);
+    newServicesCart = newServicesCart.filter(item => item.id !== action.id);
+
+    const newSuma = calcularSuma(false, newCart, newServicesCart);
     newState = {
       ...prevState,
       cart: newCart,
-      cantidades: newCantidades,
-      totalventa: calcularSuma(false, newCantidades, newCart),
+      servicesCart: newServicesCart,
+      totalVenta: newSuma,
     };
   }
   if (action.type === 'SET_CART_CLIENT') {
@@ -155,7 +176,21 @@ const reducers = (prevState, action) => {
   if (action.type === 'SET_VENTA_TYPE') {
     newState = {
       ...prevState,
+      tipoVenta: action.data,
       totalVenta: calcularSuma(action.ventaType),
+    };
+  }
+  if (action.type === 'SIGNOUT') {
+    newState = {
+      ventaOpcion: '',
+      user: undefined,
+      userData: undefined,
+      isNewUser: false,
+      newUserData: null,
+      title: 'Maythe´s Sales',
+      cart: [],
+      cartClient: '',
+      totalVenta: 0,
     };
   }
 

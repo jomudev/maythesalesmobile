@@ -64,7 +64,7 @@ const save = (type, data, clean) => {
             descripcion: data.descripcion,
           })
           .then(() => {
-            clean();
+            clean;
           })
           .catch(err => {
             console.log('error: ', err.code);

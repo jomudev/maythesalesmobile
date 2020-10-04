@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
-  ScrollView,
   TouchableOpacity,
   View,
   Text,
@@ -15,241 +14,235 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
 import firestore from '@react-native-firebase/firestore';
+import {FlatList} from 'react-native-gesture-handler';
 import moment from 'moment';
 
-moment.locale('es');
-const hoy = moment();
-class ShoppingCart extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      cartClient: {},
-      cart: [],
-      cantidades: [],
-      total: 0,
-      toggleIcon: 'expand-more',
-      open: true,
-      cartPosition: new Animated.Value(0),
-      cartHeight: 0,
-      optionMenu: false,
-      appear: new Animated.Value(0),
-      ventasRef: null,
-    };
-    this.subscriber = this.subscriber.bind(this);
+async function postearVenta({productCart, servicesCart, total, cliente}) {
+  try {
+    const uid = await store.getState().user.uid;
+    return await firestore()
+      .collection('users')
+      .doc(uid)
+      .collection('ventas')
+      .doc(moment().format('DDMMYYYYhhmmss'))
+      .set({
+        fecha: moment().format(),
+        lista: productCart,
+        servicios: servicesCart,
+        total,
+        cliente,
+      });
+  } catch (err) {
+    console.log(err);
   }
+}
 
-  UNSAFE_componentWillMount() {
-    this.subscriber;
-  }
+function ShoppingCart() {
+  const [productCart, setProductCart] = useState(store.getState().cart || []);
+  const [servicesCart, setServicesCart] = useState(
+    store.getState().servicesCart || [],
+  );
+  const [cliente, setCliente] = useState(null);
+  const [total, setTotal] = useState(store.getState().totalVenta || 0);
+  const [cartHeight, setCartHeight] = useState(0);
+  const cartPosition = useRef(new Animated.Value(+500)).current;
+  const [isOpen, setIsOpen] = useState(false);
+  const [toggleIcon, setToggleIcon] = useState('keyboard-arrow-down');
+  const [menuOpen, toggleMenu] = useState(false);
 
-  componentWillUnmount() {
-    this.subscriber;
+  const limpiarCampos = () => {
     store.dispatch({
       type: 'CLEAR_CART',
     });
-  }
+  };
 
-  subscriber = store.subscribe(() => {
-    const newCart = store.getState().cart;
-    const newCantidades = store.getState().cantidades;
-    const totalVenta = store.getState().totalVenta;
-    const cliente = store.getState().cartClient;
-    const user = store.getState().user;
-    this.setState({
-      ventasRef: user
-        ? firestore()
-            .collection('users')
-            .doc(user.uid)
-            .collection('ventas')
-        : null,
-    });
-    if (cliente !== this.state.cartClient) {
-      this.setState({cartClient: cliente});
-    }
-    if (totalVenta !== this.state.totalVenta) {
-      this.setState({total: totalVenta});
-    }
-    if (newCart !== this.state.newCart) {
-      this.setState({cart: newCart});
-    }
-    if (newCantidades !== this.state.newCantidades) {
-      this.setState({cantidades: newCantidades});
-    }
-  });
+  const showCart = () => {
+    Animated.spring(cartPosition, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+    setIsOpen(true);
+    setToggleIcon('keyboard-arrow-down');
+  };
 
-  componentDidUpdate() {
-    if (!this.state.open) {
-      Animated.timing(this.state.cartPosition, {
-        toValue: this.state.cartHeight - this.state.cartHeight * 0.16,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-    }
-  }
+  const hideCart = full => {
+    Animated.spring(cartPosition, {
+      toValue: full ? +500 : +cartHeight - 50,
+      useNativeDriver: true,
+    }).start();
+    setIsOpen(false);
+    setToggleIcon('keyboard-arrow-up');
+  };
 
-  saveVenta = () => {
-    const docId = () => {
-      const id = moment().format('DDMMYYYYhhmmss');
-      return id;
-    };
-    const ventasRef = this.state.ventasRef.doc(docId());
-    const cart = this.state.cart;
-    for (let x = 0; x < cart.length; x++) {
-      if (cart[x].pid === this.state.cantidades[x].pid) {
-        cart[x].cantidad = this.state.cantidades[x].cantidad;
+  const toggle = () => {
+    if (isOpen) {
+      hideCart();
+    } else {
+      showCart();
+    }
+  };
+
+  const verifyCart = (productCartToVerify, servicesCartToVerify) => {
+    const productCartAndServiceCartHaveProducts =
+      productCartToVerify.length > 0 || servicesCartToVerify.length > 0;
+    if (productCartAndServiceCartHaveProducts) {
+      showCart();
+    } else {
+      hideCart(true);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      const state = store.getState();
+      verifyCart(state.cart, state.servicesCart);
+      if (state.cart !== productCart) {
+        setProductCart(state.cart);
       }
-    }
-    let venta = {
-      lista: cart,
-      cliente: {
-        id: this.state.cartClient.id,
-        nombre: this.state.cartClient.nombre,
-      },
-      total: this.state.total,
-      fecha: hoy.format(),
+      if (state.servicesCart !== servicesCart) {
+        setServicesCart(state.servicesCart);
+      }
+      if (state.totalVentas !== total) {
+        setTotal(state.totalVenta);
+      }
+      if (state.cartCliente !== cliente) {
+        setCliente(state.cartCliente);
+      }
+    });
+    return () => {
+      unsubscribe();
     };
-    console.log(venta);
-    if (venta.lista.length < 1 || venta.total < 0) {
-      return;
-    }
-    ventasRef
-      .set(venta)
-      .then(() => {
-        store.dispatch({
-          type: 'CLEAR_CART',
-        });
-      })
-      .catch(err => {
-        console.log(err.code);
-        Alert(
-          'Problemas de conexión',
-          'Ha ocurrido un problema al tratar de realizar la transacción, intenta de nuevo',
-          [
-            {
-              text: 'Ok',
-              onPress: () => console.log('Ok pressed'),
-            },
-          ],
-          {cancelable: false},
-        );
-      });
-  };
+  }, []);
 
-  // Mostrar la cantidad respectiva de cada producto
-  cantidad = data => {
-    return this.state.cantidades.filter(c => data.id === c.id)[0].cantidad;
-  };
+  const ListHeader = ({title}) => (
+    <View>
+      <Text style={{fontWeight: 'bold'}}>{title}</Text>
+    </View>
+  );
 
-  // Mostrar u ocultar el Carrito de compras
-  toggleCart = () => {
-    if (this.state.open) {
-      Animated.timing(this.state.cartPosition, {
-        toValue: this.state.cartHeight - this.state.cartHeight - 10,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-      this.setState({
-        open: false,
-        toggleIcon: 'expand-less',
-      });
-    } else {
-      Animated.timing(this.state.cartPosition, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-      this.setState({
-        open: true,
-        toggleIcon: 'expand-more',
-      });
-    }
-  };
-
-  appearAnimation = () => {
-    if (this.state.cart.length > 0) {
-      Animated.timing(this.state.appear, {
-        toValue: 1,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(this.state.appear, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-    }
-  };
-
-  render() {
-    this.appearAnimation();
-    return (
-      <Animated.View
-        style={[
-          styles.container,
-          {translateY: this.state.cartPosition, opacity: this.state.appear},
-        ]}
-        onLayout={Event =>
-          this.setState({cartHeight: Event.nativeEvent.layout.height})
-        }>
-        <View style={styles.cartHeader}>
-          <Icon
-            name={this.state.toggleIcon}
-            size={28}
-            style={styles.toggleCart}
-            onPress={() => this.toggleCart()}
-          />
-          <Icon
-            name="more-horiz"
-            size={28}
-            style={styles.more}
-            onPress={() => this.setState({optionMenu: true})}
-          />
-        </View>
-        <ScrollView style={styles.cartBody}>
-          <Text style={{fontSize: 24}}>
-            {this.state.cartClient.nombre ? (
-              <>
-                Carrito:{' '}
-                <Text style={{textDecorationLine: 'underline'}}>
-                  {this.state.cartClient.nombre}
-                </Text>
-              </>
-            ) : null}
-          </Text>
-          {this.state.cart.map((data, index) => (
-            <ListItem
-              key={data + index}
-              data={data}
-              index={index}
-              cantidad={this.cantidad.bind(this, data)}
-              ventaType={this.state.ventaType}
-            />
-          ))}
-        </ScrollView>
-        <View>
-          <View style={styles.total}>
-            <Text style={{fontSize: 18, marginRight: 20, marginTop: 20}}>
-              Total ponderado: {Number.parseFloat(this.state.total).toFixed(2)}
-              lps.
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.soldBtn}
-            onPress={() => this.saveVenta()}>
-            <Text style={{color: 'white', fontWeight: 'bold'}}>
-              Realizar venta
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <OptionMenu
-          open={this.state.optionMenu}
-          closeMenu={() => this.setState({optionMenu: false})}
+  return (
+    <Animated.View
+      onLayout={Event => setCartHeight(Event.nativeEvent.layout.height)}
+      style={{
+        ...styles.container,
+        translateY: cartPosition,
+      }}>
+      <View style={styles.cartHeader}>
+        <Icon
+          name={toggleIcon}
+          style={styles.toggle}
+          size={28}
+          onPress={() => toggle()}
         />
-      </Animated.View>
-    );
-  }
+        <Icon
+          name="more-horiz"
+          size={28}
+          style={styles.more}
+          onPress={() => toggleMenu(!menuOpen)}
+        />
+      </View>
+      <View style={{flexDirection: 'row'}}>
+        <Text style={{flex: 1, fontSize: 18}}>
+          Cliente: {cliente ? cliente.nombre : 'Anonimo'}
+        </Text>
+        <Text style={{flex: 1, textAlign: 'right', fontSize: 18}}>
+          Total: L{Number.parseFloat(total).toFixed(2)}
+        </Text>
+      </View>
+      <FlatList
+        ListHeaderComponent={() => <ListHeader title="Lista de productos" />}
+        style={styles.cartBody}
+        data={productCart}
+        renderItem={({item}) => {
+          return <ListItem item={item} />;
+        }}
+      />
+      <FlatList
+        ListHeaderComponent={() => <ListHeader title="Lista de servicios" />}
+        style={styles.cartBody}
+        data={servicesCart}
+        renderItem={({item}) => {
+          return <ListItem item={item} />;
+        }}
+      />
+      <View />
+      <TouchableOpacity
+        style={styles.soldBtn}
+        onPress={() =>
+          postearVenta({total, cliente, productCart, servicesCart})
+            .then(() => limpiarCampos())
+            .catch(err => {
+              Alert.alert(
+                'Error de conexión',
+                'lo sentimos algo no ha salido bien, intenta de nuevo',
+              );
+              console.log(err);
+            })
+        }>
+        <Text style={{color: '#f7f8f9', textTransform: 'uppercase'}}>
+          Postear
+        </Text>
+      </TouchableOpacity>
+      <OptionMenu open={menuOpen} closeMenu={() => toggleMenu(!menuOpen)} />
+    </Animated.View>
+  );
 }
+
+const ListItem = ({item, cantidad}) => {
+  const [type, setType] = useState(false);
+  useEffect(() => {
+    let subscriber = () =>
+      store.subscribe(() => {
+        if (store.getState().ventaType !== type) {
+          setType(store.getState().ventaType);
+        }
+      });
+
+    return () => {
+      subscriber;
+    };
+  }, []);
+  return (
+    <View style={styles.cartItem}>
+      <Text
+        style={{
+          fontSize: 12,
+          textAlign: 'left',
+          width: '35%',
+          flexDirection: 'row',
+        }}>
+        {item.nombre}
+        {' L' +
+          (type
+            ? Number.parseFloat(item.ventaP_M).toFixed(2)
+            : Number.parseFloat(item.ventaP_U).toFixed(2))}
+      </Text>
+      <TextInput
+        style={styles.cartInput}
+        keyboardType="numeric"
+        defaultValue={'1'}
+        onChangeText={text =>
+          store.dispatch({
+            type: 'SET_CANTIDAD',
+            objeto: item,
+            cantidad: text,
+          })
+        }
+      />
+      <Text style={{width: '40%', fontSize: 12, textAlign: 'center'}}>
+        {' subtotal: L' +
+          (type
+            ? Number.parseFloat(item.ventaP_M * item.cantidad).toFixed(2)
+            : Number.parseFloat(item.ventaP_U * item.cantidad).toFixed(2))}
+      </Text>
+      <TouchableOpacity
+        style={styles.removeFromCart}
+        onPress={() => store.dispatch({type: 'REMOVE_FROM_CART', id: item.id})}>
+        <Icon name="delete" style={styles.removeFromCart} size={24} />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const OptionMenu = ({open, closeMenu}) => {
   return (
@@ -259,17 +252,31 @@ const OptionMenu = ({open, closeMenu}) => {
           <View style={styles.modalView}>
             <TouchableOpacity
               onPress={() => {
-                closeMenu();
-                store.dispatch({
-                  type: 'CLEAR_CART',
-                });
+                Alert.alert(
+                  'Cancelar venta',
+                  'esto vaciara el carrito, presiona aceptar si estas de acuerdo',
+                  [
+                    {
+                      text: 'Cancelar',
+                    },
+                    {
+                      text: 'Aceptar',
+                      onPress: () => {
+                        closeMenu();
+                        store.dispatch({
+                          type: 'CLEAR_CART',
+                        });
+                      },
+                    },
+                  ],
+                );
               }}
               style={styles.menuOptions}>
               <Icon
                 name="remove-shopping-cart"
                 style={styles.menuOptionsIcon}
               />
-              <Text style={styles.menuOptionsText}>Vaciar Carrito</Text>
+              <Text style={styles.menuOptionsText}>Cancelar Venta</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -287,63 +294,6 @@ const OptionMenu = ({open, closeMenu}) => {
     </View>
   );
 };
-
-const ListItem = ({data, index, cantidad}) => {
-  const [type, setType] = useState(false);
-  useEffect(() => {
-    let subscriber = () =>
-      store.subscribe(() => {
-        if (store.getState().ventaType !== type) {
-          setType(store.getState().ventaType);
-        }
-      });
-
-    return subscriber();
-  }, []);
-  return (
-    <View style={styles.cartItem}>
-      <Text
-        style={{
-          fontSize: 12,
-          textAlign: 'center',
-          width: '35%',
-          flexDirection: 'row',
-        }}>
-        {data.nombre}
-        {' L' +
-          (type
-            ? Number.parseFloat(data.ventaP_M).toFixed(2)
-            : Number.parseFloat(data.ventaP_U).toFixed(2))}
-      </Text>
-      <TextInput
-        style={styles.cartInput}
-        keyboardType="numeric"
-        defaultValue={cantidad(data).toString()}
-        onChangeText={text =>
-          store.dispatch({
-            type: 'SET_CANTIDAD',
-            product: data,
-            cantidad: text,
-          })
-        }
-      />
-      <Text style={{width: '40%', fontSize: 12, textAlign: 'center'}}>
-        {' subtotal: L' +
-          (type
-            ? Number.parseFloat(data.ventaP_M * cantidad(data)).toFixed(2)
-            : Number.parseFloat(data.ventaP_U * cantidad(data)).toFixed(2))}
-      </Text>
-      <TouchableOpacity
-        style={styles.removeFromCart}
-        onPress={() =>
-          store.dispatch({type: 'REMOVE_FROM_CART', index: index})
-        }>
-        <Icon name="delete" color="gray" size={24} />
-      </TouchableOpacity>
-    </View>
-  );
-};
-
 /**
  * Elementos descartados temporalmente
  * <View style={styles.menuOptions}>
@@ -365,10 +315,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     maxHeight: 400,
     bottom: 10,
+    alignSelf: 'center',
     width: '90%',
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 10,
     backgroundColor: '#fff',
+    elevation: 30,
+    shadowColor: '#8d8b8b',
+    shadowOffset: {
+      width: 0,
+      height: 30,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 60.0,
   },
   modalCloseMenu: {
     position: 'relative',
@@ -385,15 +344,21 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   more: {
-    position: 'absolute',
-    right: 10,
-    top: 0,
-    padding: 5,
+    borderRadius: 10,
+    flex: 1,
+    padding: 10,
+    textAlign: 'right',
+  },
+  toggle: {
+    flex: 9,
+    borderRadius: 10,
+    textAlign: 'left',
+    padding: 10,
   },
   modalView: {
     backgroundColor: 'white',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     bottom: 0,
     width: '100%',
     alignItems: 'center',
@@ -407,10 +372,12 @@ const styles = StyleSheet.create({
   cartBody: {
     position: 'relative',
     width: '100%',
-    borderRadius: 10,
+    height: 100,
+    backgroundColor: 'white',
   },
   cartHeader: {
     position: 'relative',
+    flexDirection: 'row',
   },
   menuOptions: {
     flexDirection: 'row',
@@ -432,15 +399,14 @@ const styles = StyleSheet.create({
   soldBtn: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 20,
     backgroundColor: '#101e5a',
-    borderRadius: 10,
+    borderRadius: 20,
+    elevation: 5,
     padding: 20,
   },
   removeFromCart: {
-    width: '10%',
-    alignContent: 'center',
-    alignItems: 'center',
+    elevation: 5,
+    color: '#cbc6c3',
   },
   total: {
     alignItems: 'flex-end',
@@ -457,6 +423,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     padding: 0,
     borderWidth: 1,
+    borderColor: '#cbc6c3',
+    color: 'black',
     borderRadius: 3,
     fontSize: 12,
   },

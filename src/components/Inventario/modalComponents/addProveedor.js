@@ -4,7 +4,7 @@ import styles from './modalStyles';
 import {save} from './modalMetodos';
 import BtnGroup from './buttonGroup';
 
-const AddProveedor = ({setModalValue}) => {
+const AddProveedor = () => {
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
@@ -48,22 +48,21 @@ const AddProveedor = ({setModalValue}) => {
             onChangeText={text => setDescripcion(text)}
           />
         </ScrollView>
+        <BtnGroup
+          action={() =>
+            save(
+              'provider',
+              {
+                nombre,
+                telefono,
+                email,
+                descripcion,
+              },
+              clean(),
+            )
+          }
+        />
       </View>
-      <BtnGroup
-        setModalValue={setModalValue}
-        action={() =>
-          save(
-            'provider',
-            {
-              nombre,
-              telefono,
-              email,
-              descripcion,
-            },
-            clean(),
-          )
-        }
-      />
     </>
   );
 };

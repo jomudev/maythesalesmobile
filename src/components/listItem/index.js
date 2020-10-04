@@ -1,30 +1,56 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, Text} from 'react-native';
-import RenderItemVenta from './Item';
+import {RenderItemProducto, RenderItemServicio} from './Item';
 import styles from './listStyles';
 import moment from 'moment';
 
-const RenderItem = ({item}) => {
+const subtotal = lista => {
+  let sum = 0;
+  lista.forEach(item => (sum += item.ventaP_U));
+  return Number.parseFloat(sum).toFixed(2);
+};
+
+const RenderVentasCollection = ({venta}) => {
+  console.log(venta);
   return (
-    <View style={styles.listItem}>
-      <View style={styles.itemHeader}>
-        <Text style={styles.itemTitleText}>
-          {moment(item.fecha).calendar()}
+    <View style={styles.venta}>
+      <View style={styles.ventaHeader}>
+        <Text style={styles.ventaTitleText}>
+          {moment(venta.fecha).format('DD/MM/YYYY')}{' '}
+          {moment(venta.fecha).fromNow()}
         </Text>
-        {item.cliente.nombre ? <Text>{item.cliente.nombre}</Text> : null}
+        {venta.cliente ? venta.cliente.nombre : null}
       </View>
-      {item.lista.map((data, i) => (
-        <RenderItemVenta key={data + i} item={data} />
+      {venta.servicios.length > 0 ? (
+        <Text style={styles.ventaTitleText}>Productos</Text>
+      ) : null}
+      {venta.lista.map(producto => {
+        return <RenderItemProducto key={producto.id} producto={producto} />;
+      })}
+      <View style={styles.subtotalContainer}>
+        <Text style={styles.subtotalTitle}>subtotal productos:</Text>
+        <Text style={styles.subtotal}>L{subtotal(venta.lista)}</Text>
+      </View>
+      {venta.servicios.length > 0 ? (
+        <Text style={styles.ventaTitleText}>Servicios adicionales</Text>
+      ) : null}
+      {venta.servicios.map(servicio => (
+        <RenderItemServicio key={servicio.id} servicio={servicio} />
       ))}
+      <View style={styles.subtotalContainer}>
+        <Text style={styles.subtotalTitle}>
+          subtotal servicios adicionales:
+        </Text>
+        <Text style={styles.subtotal}>L{subtotal(venta.servicios)}</Text>
+      </View>
       <View>
-        <Text style={{textAlign: 'right'}}>
-          <Text style={{fontWeight: 'bold'}}>Total: </Text>L
-          {Number.parseFloat(item.total).toFixed(2)}
+        <Text style={{textAlign: 'right', fontWeight: 'bold'}}>
+          Total: L{Number.parseFloat(venta.total).toFixed(2)}
         </Text>
       </View>
     </View>
   );
 };
 
-export default RenderItem;
+export default RenderVentasCollection;

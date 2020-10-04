@@ -8,18 +8,8 @@ import {
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import store from '../../../store';
 
 const Header = ({navigation}) => {
-  const [nombreNegocio, setNombreNegocio] = useState("Maythe's Sales");
-  useEffect(() => {
-    const subscriber = store.subscribe(() => {
-      if (!nombreNegocio.includes(store.getState().negocio)) {
-        setNombreNegocio(store.getState().negocio);
-      }
-    });
-    return subscriber();
-  }, [nombreNegocio]);
   return (
     <SafeAreaView style={styles.header}>
       <StatusBar
@@ -35,7 +25,6 @@ const Header = ({navigation}) => {
           }}>
           <Icon name="menu" color="white" size={28} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, styles.centerComponent]}>{nombreNegocio}</Text>
         <View style={styles.headerRightComponent} />
       </View>
     </SafeAreaView>
@@ -47,6 +36,7 @@ export default Header;
 const styles = StyleSheet.create({
   headerComponents: {
     width: '100%',
+    flex: 1,
     flexDirection: 'row',
     marginTop: 20,
   },
@@ -57,28 +47,27 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   centerComponent: {
-    width: '50%',
     height: '100%',
-    textAlignVertical: 'center',
-    alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
+    flex: 2,
   },
   headerLeftComponent: {
-    width: '25%',
     height: '100%',
-    alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
+    flex: 1,
   },
   headerRightComponent: {
-    width: '25%',
+    flex: 1,
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   header: {
     height: '10%',
+    justifyContent: 'center',
+    alignItems: 'center',
     flexDirection: 'row',
     backgroundColor: '#101e5a',
     elevation: 5,

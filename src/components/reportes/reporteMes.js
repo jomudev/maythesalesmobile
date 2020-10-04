@@ -1,13 +1,14 @@
 import React from 'react';
 import {ScrollView} from 'react-native';
-import RenderItem from '../listItem';
+import RenderVentasCollection from '../listItem';
+import styles from '../listItem/listStyles';
 
 const ReporteMes = ({route}) => {
-  const ventas = route.params.params.ventas;
+  const ventas = route.params.params.ventas.reverse();
   return (
-    <ScrollView>
+    <ScrollView style={styles.listVentas}>
       {ventas.map(item => (
-        <RenderItem item={item} key={Math.random()} />
+        <RenderVentasCollection venta={item} key={Math.random()} />
       ))}
     </ScrollView>
   );

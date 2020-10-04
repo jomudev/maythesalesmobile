@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {View, Text, TextInput, Image, Alert, ScrollView} from 'react-native';
+import {View, Text, TextInput, Image, Alert, ScrollView, ActivityIndicator} from 'react-native';
 import Button from './button';
 import store from '../../../store';
 import styles from './authStyles';
@@ -24,6 +24,7 @@ const Signin = () => {
   const [apellidos, setApellidos] = useState('');
   const [negocio, setNegocio] = useState('');
   const [passwordConfirmed, confirmPassword] = useState(null);
+  const [initializando, setInitializando] = useState(false);
 
   const confirmIfPasswordAreTheSame = text => {
     if (text === password) {
@@ -42,62 +43,75 @@ const Signin = () => {
         flex: 1,
         alignItems: 'center',
       }}>
-      <Image
-        source={require('../../assets/AditionalMedia/logo.png')}
-        style={styles.loginBG}
-      />
-      <ScrollView
-        style={{
-          width: '100%',
-        }}>
-        <TextInput
-          placeholder="Nombres"
-          style={styles.textInput}
-          value={`${nombres}`}
-          onChangeText={text => setNombres(text)}
-        />
-        <TextInput
-          placeholder="Apellidos"
-          style={styles.textInput}
-          value={`${apellidos}`}
-          onChangeText={text => setApellidos(text)}
-        />
-        <TextInput
-          placeholder="Correo electrónico"
-          style={styles.textInput}
-          value={`${email}`}
-          keyboardType="email-address"
-          onChangeText={text => setEmail(text)}
-        />
-        <TextInput
-          placeholder="Nombre del negocio"
-          style={styles.textInput}
-          value={`${negocio}`}
-          onChangeText={text => setNegocio(text)}
-        />
-        <TextInput
-          placeholder="Contraseña"
-          style={styles.textInput}
-          secureTextEntry={true}
-          value={`${password}`}
-          onChangeText={text => {
-            setPassword(text);
-            confirmIfPasswordAreTheSame(text);
-          }}
-        />
-        <TextInput
-          placeholder="Repite la contraseña"
-          style={styles.textInput}
-          secureTextEntry={true}
-          onChangeText={text => confirmIfPasswordAreTheSame(text)}
-        />
-        {passwordConfirmed ? (
-          <Text style={{color: 'red', textAlign: 'center'}}>
-            {passwordConfirmed}
-          </Text>
+      <View style={styles.imageContainer}>
+        {initializando ? (
+          <View style={styles.loadingScreen}>
+            <ActivityIndicator
+              style={{marginTop: 25}}
+              size={38}
+              color="#101e5a"
+            />
+          </View>
         ) : null}
+        <Image
+          source={require('../../assets/AditionalMedia/33571.jpg')}
+          style={styles.loginBG}
+          progressiveRenderingEnabled
+          resizeMethod="scale"
+        />
+      </View>
+      <ScrollView style={styles.container}>
+        <View style={styles.textInputContainer}>
+          <TextInput
+            placeholder="Nombres"
+            style={styles.textInput}
+            value={`${nombres}`}
+            onChangeText={text => setNombres(text)}
+          />
+          <TextInput
+            placeholder="Apellidos"
+            style={styles.textInput}
+            value={`${apellidos}`}
+            onChangeText={text => setApellidos(text)}
+          />
+          <TextInput
+            placeholder="Correo electrónico"
+            style={styles.textInput}
+            value={`${email}`}
+            keyboardType="email-address"
+            onChangeText={text => setEmail(text)}
+          />
+          <TextInput
+            placeholder="Nombre del negocio"
+            style={styles.textInput}
+            value={`${negocio}`}
+            onChangeText={text => setNegocio(text)}
+          />
+          <TextInput
+            placeholder="Contraseña"
+            style={styles.textInput}
+            secureTextEntry={true}
+            value={`${password}`}
+            onChangeText={text => {
+              setPassword(text);
+              confirmIfPasswordAreTheSame(text);
+            }}
+          />
+          <TextInput
+            placeholder="Repite la contraseña"
+            style={styles.textInput}
+            secureTextEntry={true}
+            onChangeText={text => confirmIfPasswordAreTheSame(text)}
+          />
+          {passwordConfirmed ? (
+            <Text style={{color: 'red', textAlign: 'center'}}>
+              {passwordConfirmed}
+            </Text>
+          ) : null}
+        </View>
         <Button
           onPress={() => {
+            setInitializando(true);
             if (nombres !== '' && apellidos !== '' && negocio !== '') {
               if (passwordConfirmed) {
                 Alert.alert('Las contraseñas no coinciden verifica nuevamente');
@@ -132,6 +146,7 @@ const Signin = () => {
                   }
                 });
             } else {
+              setInitializando(false);
               Alert.alert('Llena todos los campos');
             }
           }}

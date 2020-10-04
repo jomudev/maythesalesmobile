@@ -4,7 +4,7 @@ import {save} from './modalMetodos';
 import styles from './modalStyles';
 import BtnGroup from './buttonGroup';
 
-const AddCliente = ({setModalValue}) => {
+const AddCliente = () => {
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
@@ -47,13 +47,12 @@ const AddCliente = ({setModalValue}) => {
           value={descripcion}
           onChangeText={text => setDescripcion(text)}
         />
+        <BtnGroup
+          action={() =>
+            save('client', {nombre, telefono, email, descripcion}, clean())
+          }
+        />
       </View>
-      <BtnGroup
-        setModalValue={setModalValue}
-        action={() =>
-          save('client', {nombre, telefono, email, descripcion}, clean())
-        }
-      />
     </View>
   );
 };

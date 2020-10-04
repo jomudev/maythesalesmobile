@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {FormInventario, Inventario} from '../../components/Inventario';
+import Inventario from '../../components/Inventario';
 import NuevaVenta from '../../components/Inventario/nuevaVenta';
 import Ventas from '../../components/Inventario/ventas';
 import {NavigationContainer} from '@react-navigation/native';
@@ -23,15 +23,6 @@ const HomeContainer = ({navigation}) => {
           options={{
             tabBarIcon: ({color}) => (
               <Icon name={'shopping-cart'} color={color} size={26} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Agregar"
-          component={FormInventario}
-          options={{
-            tabBarIcon: ({color, size}) => (
-              <Icon name={'note-add'} color={color} size={26} />
             ),
           }}
         />

@@ -2,34 +2,46 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, ScrollView} from 'react-native';
 import store from '../../../store';
-import RenderItem from '../listItem';
+import firestore from '@react-native-firebase/firestore';
+import RenderVentasCollection from '../listItem';
 import moment from 'moment';
 
-const subscriberFunction = () => {
-  let fechaActual = moment().format('DDMMYYYY');
-  let nuevaLista = [];
-  store.getState().ventas.forEach(v => {
-    const fechaVenta = moment(v.fecha).format('DDMMYYYY');
-    fechaVenta === fechaActual ? (nuevaLista = nuevaLista.concat(v)) : null;
-  });
-  return nuevaLista;
-};
+async function getData() {
+  try {
+    return await firestore()
+      .collection('users')
+      .doc(store.getState().user.uid)
+      .collection('ventas')
+      .get();
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 const Ventas = () => {
   const [listaVentas, setListaVentas] = useState([]);
 
   useEffect(() => {
-    setListaVentas(subscriberFunction);
-    const unsubscriber = store.subscribe(() => {
-      setListaVentas(subscriberFunction);
+    const unsubscriber = getData().then(res => {
+      let newList = [];
+      res.docs.forEach(doc => {
+        if (
+          moment(doc.data().fecha).format('DD/MM/YYYY') ===
+          moment().format('DD/MM/YYYY')
+        ) {
+          newList.push(doc.data());
+        }
+      });
+      setListaVentas(newList.reverse());
     });
-
-    return unsubscriber;
+    return () => {
+      unsubscriber;
+    };
   }, []);
 
   if (listaVentas.length === 0) {
     return (
-      <View style={{alignContent: 'center', alignItems: 'center'}}>
+      <View style={{justifyContent: 'center', alignItems: 'center'}}>
         <Text style={{fontSize: 16, color: '#777'}}>
           Aquí se muestran las ventas del día
         </Text>
@@ -38,8 +50,8 @@ const Ventas = () => {
   }
   return (
     <ScrollView>
-      {listaVentas.map(item => (
-        <RenderItem item={item} key={Math.random()} />
+      {listaVentas.map(venta => (
+        <RenderVentasCollection venta={venta} key={venta.fecha} />
       ))}
     </ScrollView>
   );

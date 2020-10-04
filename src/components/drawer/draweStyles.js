@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
     marginTop: -10,
   },
   userInfo: {
+    position: 'relative',
+    flex: 1,
     marginLeft: 5,
     flexDirection: 'column',
     alignSelf: 'center',
