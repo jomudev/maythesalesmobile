@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, FlatList} from 'react-native';
+import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import FormOptions from './data';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -50,14 +50,11 @@ const ItemList = ({navigation, item}) => {
 const OptionsScreen = ({navigation}) => {
   return (
     <View style={styles.form}>
-      <FlatList
-        data={FormOptions}
-        style={styles.flatList}
-        renderItem={({item}) => (
-          <ItemList navigation={navigation} item={item} />
-        )}
-        keyExtractor={item => item.type}
-      />
+      <ScrollView style={styles.flatList}>
+        {FormOptions.map(item => (
+          <ItemList navigation={navigation} item={item} key={item.name} />
+        ))}
+      </ScrollView>
     </View>
   );
 };

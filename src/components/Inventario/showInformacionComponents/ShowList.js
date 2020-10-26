@@ -1,23 +1,17 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {View, Text} from 'react-native';
 import styles from './styles';
 import store from '../../../../store';
 import ListItem from './listItem';
 import firestore from '@react-native-firebase/firestore';
-
-function formato(telefono) {
-  telefono = telefono
-    .split('')
-    .map((d, i) => (i === 3 ? `${i}-` : d))
-    .join('');
-  return telefono;
-}
+import auth from '@react-native-firebase/auth';
 
 async function getList(type) {
   try {
     return await firestore()
       .collection('users')
-      .doc(store.getState().user.uid)
+      .doc(auth().currentUser.uid)
       .collection(type)
       .get();
   } catch (err) {
@@ -48,7 +42,7 @@ function ShowClientes({navigation, route}) {
             subtitles.push(`email: ${item.email}`);
           }
           if (item.telefono) {
-            subtitles.push(`cel: ${formato(item.telefono)}`);
+            subtitles.push(`cel: ${item.telefono}`);
           }
           return (
             <ListItem
@@ -62,7 +56,9 @@ function ShowClientes({navigation, route}) {
           );
         })
       ) : (
-        <Text>Aquí se mostraran los clientes a los que vendes</Text>
+        <Text style={{color: '#00000055'}}>
+          Aquí se mostraran los clientes a los que vendes
+        </Text>
       )}
     </View>
   );
@@ -102,7 +98,9 @@ function ShowProductos({navigation, route}) {
           );
         })
       ) : (
-        <Text>Aquí se mostraran los productos que vendes</Text>
+        <Text style={{color: '#00000055'}}>
+          Aquí se mostraran los productos que vendes
+        </Text>
       )}
     </View>
   );
@@ -113,7 +111,6 @@ function ShowServicios({navigation, route}) {
   useEffect(() => {
     const unsubscriber = getList('servicios').then(res => {
       let newList = [];
-      console.log(res.docs.forEach(doc => console.log(doc.data())));
       res.docs.forEach(doc => newList.push(doc.data()));
       setList(newList);
     });
@@ -142,14 +139,15 @@ function ShowServicios({navigation, route}) {
           );
         })
       ) : (
-        <Text>Aquí se mostraran los servicios adicionales</Text>
+        <Text style={{color: '#00000055'}}>
+          Aquí se mostraran los servicios adicionales
+        </Text>
       )}
     </View>
   );
 }
 
 function ShowProveedores({navigation, route}) {
-  console.log(route, 'rutas');
   const list = store.getState().clients || [];
   return (
     <View style={styles.container}>
@@ -162,14 +160,16 @@ function ShowProveedores({navigation, route}) {
             title={`${item.nombre}`}
             subtitle={[
               `${item.email}`,
-              `${item.telefono ? ' - ' + formato(item.telefono) : ''}`,
+              `${item.telefono ? ' - ' + item.telefono : ''}`,
             ]}
             navigation={navigation}
             route={route}
           />
         ))
       ) : (
-        <Text>Aquí se mostraran los proveedores a los que tu compras</Text>
+        <Text style={{color: '#00000055'}}>
+          Aquí se mostraran los proveedores a los que tu compras
+        </Text>
       )}
     </View>
   );

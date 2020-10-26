@@ -6,12 +6,12 @@ import HomeContainer from '../../containers/HomeContainer';
 //import CotizacionContainer from './src/containers/CotizacionContainer';
 import ReportesContainer from '../../containers/ReportesContainer';
 import CamScanner from '../CamScanner';
-import store from '../../../store';
+import auth from '@react-native-firebase/auth';
 
 const DrawerApp = createDrawerNavigator();
 
 const DrawerNavigator = () => {
-  const user = store.getState().user;
+  const user = auth().currentUser;
   return (
     <DrawerApp.Navigator
       edgeWidth={50}

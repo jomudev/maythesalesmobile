@@ -17,7 +17,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     maxHeight: 200,
-    overflow: 'scroll',
   },
   textContainer: {
     flexDirection: 'row',
@@ -46,9 +45,8 @@ const styles = StyleSheet.create({
     flex: 9,
   },
   flatList: {
-    height: '100%',
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: '#efefef',
-    width: '100%',
   },
   menuListItem: {
     backgroundColor: '#fff',

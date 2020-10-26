@@ -8,87 +8,85 @@ const AddServicio = () => {
   const [nombre, setNombre] = useState('');
   const [cantidad, setCantidad] = useState(0);
   const [proveedor, setProveedor] = useState('');
-  const [costoP_U, setCostoP_U] = useState(0);
-  const [costoP_M, setCostoP_M] = useState(0);
-  const [ventaP_U, setVentaP_U] = useState(0);
-  const [ventaP_M, setVentaP_M] = useState(0);
+  const [costoPU, setCostoPU] = useState(0);
+  const [costoPM, setCostoPM] = useState(0);
+  const [ventaPU, setVentaPU] = useState(0);
+  const [ventaPM, setVentaPM] = useState(0);
   const [descripcion, setDescripcion] = useState('');
 
   const clean = () => {
     setNombre('');
     setCantidad(0);
     setProveedor('');
-    setCostoP_M(0);
-    setCostoP_U(0);
-    setVentaP_M(0);
-    setVentaP_U(0);
+    setCostoPM(0);
+    setCostoPU(0);
+    setVentaPM(0);
+    setVentaPU(0);
     setDescripcion('');
   };
 
   return (
-    <View>
+    <ScrollView>
       <View style={styles.form}>
-        <ScrollView>
-          <Text style={styles.formTitle}>Agregar Servicio</Text>
-          <TextInput
-            placeholder="Nombre del producto*"
-            style={styles.txtInput}
-            onChangeText={text => setNombre(text)}
-            value={nombre}
-          />
+        <Text style={styles.formTitle}>Agregar Servicio</Text>
+        <TextInput
+          placeholder="Nombre del producto*"
+          style={styles.txtInput}
+          onChangeText={text => setNombre(text)}
+          value={nombre}
+        />
 
-          <Text style={styles.txtMuted}>Cantidad</Text>
-          <TextInput
-            style={styles.txtInput}
-            keyboardType="number-pad"
-            onChangeText={text => setCantidad(text)}
-            value={`${cantidad}`}
-          />
+        <Text style={styles.txtMuted}>Cantidad</Text>
+        <TextInput
+          style={styles.txtInput}
+          keyboardType="number-pad"
+          onChangeText={text => setCantidad(text)}
+          value={`${cantidad}`}
+        />
 
-          <TextInput
-            placeholder="Proveedor"
-            style={styles.txtInput}
-            onChangeText={text => setProveedor(text)}
-            value={proveedor}
-          />
-          <Text style={styles.txtMuted}>Precio de costo por unidad</Text>
-          <TextInput
-            style={styles.txtInput}
-            keyboardType="number-pad"
-            onChangeText={text => setCostoP_U(text)}
-            value={`${costoP_U}`}
-          />
-          <Text style={styles.txtMuted}>Precio de costo por mayoreo</Text>
-          <TextInput
-            placeholder="Precio de costo p/m"
-            keyboardType="number-pad"
-            style={styles.txtInput}
-            onChangeText={text => setCostoP_M(text)}
-            value={`${costoP_M}`}
-          />
-          <Text style={styles.txtMuted}>Precio de venta por unidad</Text>
-          <TextInput
-            keyboardType="number-pad"
-            style={styles.txtInput}
-            onChangeText={text => setVentaP_U(text)}
-            value={`${ventaP_U}`}
-          />
-          <Text style={styles.txtMuted}>Precio de venta por mayoreo</Text>
-          <TextInput
-            style={styles.txtInput}
-            keyboardType="number-pad"
-            cantidad
-            onChangeText={text => setVentaP_M(text)}
-            value={`${ventaP_M}`}
-          />
+        <TextInput
+          placeholder="Proveedor"
+          style={styles.txtInput}
+          onChangeText={text => setProveedor(text)}
+          value={proveedor}
+        />
+        <Text style={styles.txtMuted}>Precio de costo por unidad</Text>
+        <TextInput
+          style={styles.txtInput}
+          keyboardType="number-pad"
+          onChangeText={text => setCostoPU(text)}
+          value={`${costoPU}`}
+        />
+        <Text style={styles.txtMuted}>Precio de costo por mayoreo</Text>
+        <TextInput
+          placeholder="Precio de costo p/m"
+          keyboardType="number-pad"
+          style={styles.txtInput}
+          onChangeText={text => setCostoPM(text)}
+          value={`${costoPM}`}
+        />
+        <Text style={styles.txtMuted}>Precio de venta por unidad</Text>
+        <TextInput
+          keyboardType="number-pad"
+          style={styles.txtInput}
+          onChangeText={text => setVentaPU(text)}
+          value={`${ventaPU}`}
+        />
+        <Text style={styles.txtMuted}>Precio de venta por mayoreo</Text>
+        <TextInput
+          style={styles.txtInput}
+          keyboardType="number-pad"
+          cantidad
+          onChangeText={text => setVentaPM(text)}
+          value={`${ventaPM}`}
+        />
 
-          <TextInput
-            placeholder="Descripción"
-            style={styles.txtInput}
-            onChangeText={text => setDescripcion(text)}
-            value={descripcion}
-          />
-        </ScrollView>
+        <TextInput
+          placeholder="Descripción"
+          style={styles.txtInput}
+          onChangeText={text => setDescripcion(text)}
+          value={descripcion}
+        />
         <BtnGroup
           action={() =>
             save(
@@ -97,10 +95,10 @@ const AddServicio = () => {
                 nombre,
                 cantidad,
                 proveedor,
-                costoP_U,
-                costoP_M,
-                ventaP_U,
-                ventaP_M,
+                costoPU,
+                costoPM,
+                ventaPU,
+                ventaPM,
                 descripcion,
               },
               clean(),
@@ -108,7 +106,7 @@ const AddServicio = () => {
           }
         />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

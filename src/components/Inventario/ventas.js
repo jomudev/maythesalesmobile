@@ -1,16 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
-import {View, Text, ScrollView} from 'react-native';
-import store from '../../../store';
+import {View, Text, ScrollView, StyleSheet} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import RenderVentasCollection from '../listItem';
 import moment from 'moment';
+import auth from '@react-native-firebase/auth';
 
 async function getData() {
   try {
     return await firestore()
       .collection('users')
-      .doc(store.getState().user.uid)
+      .doc(auth().currentUser.uid)
       .collection('ventas')
       .get();
   } catch (err) {
@@ -41,8 +41,13 @@ const Ventas = () => {
 
   if (listaVentas.length === 0) {
     return (
-      <View style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={{fontSize: 16, color: '#777'}}>
+      <View
+        style={{
+          ...StyleSheet.absoluteFillObject,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Text style={{fontSize: 20, color: '#00000055'}}>
           Aquí se muestran las ventas del día
         </Text>
       </View>

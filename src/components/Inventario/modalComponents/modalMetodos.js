@@ -46,6 +46,14 @@ const randomId = (letrasLength, numerosLength) => {
   return id;
 };
 
+//formatear numero de telefono
+const formatoTelefono = numero => {
+  return numero
+    .split('')
+    .map((digito, index) => (index === 3 ? `${digito}-` : digito))
+    .join('');
+};
+
 const save = (type, data, clean) => {
   recolectarDatos();
   if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
@@ -54,13 +62,14 @@ const save = (type, data, clean) => {
           .doc(data.nombre)
           .set({
             id: randomId(0, 6),
+            codigoDeBarras: data.barcode,
             nombre: data.nombre,
             cantidad: Number(data.cantidad),
             proveedor: data.proveedor,
-            costoP_U: Number(data.costoP_U),
-            costoP_M: Number(data.costoP_M),
-            ventaP_U: Number(data.ventaP_U),
-            ventaP_M: Number(data.ventaP_M),
+            costoPU: Number(data.costoPU),
+            costoPM: Number(data.costoPM),
+            ventaPU: Number(data.ventaPU),
+            ventaPM: Number(data.ventaPM),
             descripcion: data.descripcion,
           })
           .then(() => {
@@ -78,7 +87,7 @@ const save = (type, data, clean) => {
         .set({
           id,
           nombre: data.nombre,
-          telefono: data.telefono,
+          telefono: formatoTelefono(data.telefono),
           email: data.email,
           descripcion: data.descripcion,
         })
@@ -99,10 +108,10 @@ const save = (type, data, clean) => {
           nombre: data.nombre,
           cantidad: Number(data.cantidad),
           proveedor: data.proveedor,
-          costoP_U: Number(data.costoP_U),
-          costoP_M: Number(data.costoP_M),
-          ventaP_U: Number(data.ventaP_U),
-          ventaP_M: Number(data.ventaP_M),
+          costoPU: Number(data.costoPU),
+          costoPM: Number(data.costoPM),
+          ventaPU: Number(data.ventaPU),
+          ventaPM: Number(data.ventaPM),
           descripcion: data.descripcion,
         })
         .then(() => {
@@ -120,7 +129,7 @@ const save = (type, data, clean) => {
         .set({
           id,
           nombre: data.nombre,
-          telefono: data.telefono,
+          telefono: formatoTelefono(data.telefono),
           email: data.email,
           descripcion: data.descripcion,
         })

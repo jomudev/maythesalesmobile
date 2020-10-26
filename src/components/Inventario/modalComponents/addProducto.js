@@ -11,10 +11,10 @@ const AddProducto = ({navigation, route}) => {
   const [nombre, setNombre] = useState('');
   const [cantidad, setCantidad] = useState(0);
   const [proveedor, setProveedor] = useState('');
-  const [costoP_U, setCostoP_U] = useState(0);
-  const [costoP_M, setCostoP_M] = useState(0);
-  const [ventaP_U, setVentaP_U] = useState(0);
-  const [ventaP_M, setVentaP_M] = useState(0);
+  const [costoPU, setCostoPU] = useState(0);
+  const [costoPM, setCostoPM] = useState(0);
+  const [ventaPU, setVentaPU] = useState(0);
+  const [ventaPM, setVentaPM] = useState(0);
   const [descripcion, setDescripcion] = useState('');
 
   if (route.params) {
@@ -25,11 +25,12 @@ const AddProducto = ({navigation, route}) => {
     setNombre('');
     setCantidad(0);
     setProveedor('');
-    setCostoP_M(0);
-    setCostoP_U(0);
-    setVentaP_M(0);
-    setVentaP_U(0);
+    setCostoPM(0);
+    setCostoPU(0);
+    setVentaPM(0);
+    setVentaPU(0);
     setDescripcion('');
+    setBarcode('');
   };
 
   return (
@@ -81,31 +82,31 @@ const AddProducto = ({navigation, route}) => {
         <TextInput
           style={styles.txtInput}
           keyboardType="number-pad"
-          onChangeText={text => setCostoP_U(text)}
-          value={`${costoP_U}`}
+          onChangeText={text => setCostoPU(text)}
+          value={`${costoPU}`}
         />
         <Text style={styles.txtMuted}>Precio de costo por mayoreo</Text>
         <TextInput
           placeholder="Precio de costo p/m"
           keyboardType="number-pad"
           style={styles.txtInput}
-          onChangeText={text => setCostoP_M(text)}
-          value={`${costoP_M}`}
+          onChangeText={text => setCostoPM(text)}
+          value={`${costoPM}`}
         />
         <Text style={styles.txtMuted}>Precio de venta por unidad</Text>
         <TextInput
           keyboardType="number-pad"
           style={styles.txtInput}
-          onChangeText={text => setVentaP_U(text)}
-          value={`${ventaP_U}`}
+          onChangeText={text => setVentaPU(text)}
+          value={`${ventaPU}`}
         />
         <Text style={styles.txtMuted}>Precio de venta por mayoreo</Text>
         <TextInput
           style={styles.txtInput}
           keyboardType="number-pad"
           cantidad
-          onChangeText={text => setVentaP_M(text)}
-          value={`${ventaP_M}`}
+          onChangeText={text => setVentaPM(text)}
+          value={`${ventaPM}`}
         />
 
         <TextInput
@@ -122,11 +123,12 @@ const AddProducto = ({navigation, route}) => {
                 nombre,
                 cantidad,
                 proveedor,
-                costoP_M,
-                costoP_U,
-                ventaP_M,
-                ventaP_U,
+                costoPM,
+                costoPU,
+                ventaPM,
+                ventaPU,
                 descripcion,
+                barcode,
               },
               clean(),
             )

@@ -9,29 +9,43 @@ import {
   StyleSheet,
   Modal,
   Animated,
+  FlatList,
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../store';
 import firestore from '@react-native-firebase/firestore';
-import {FlatList} from 'react-native-gesture-handler';
+import auth from '@react-native-firebase/auth';
 import moment from 'moment';
 
 async function postearVenta({productCart, servicesCart, total, cliente}) {
   try {
-    const uid = await store.getState().user.uid;
-    return await firestore()
+    const productosRef = firestore()
       .collection('users')
-      .doc(uid)
-      .collection('ventas')
-      .doc(moment().format('DDMMYYYYhhmmss'))
-      .set({
-        fecha: moment().format(),
-        lista: productCart,
-        servicios: servicesCart,
-        total,
-        cliente,
+      .doc(auth().currentUser.uid)
+      .collection('productos');
+
+    return productosRef.get().then(docs => {
+      docs.forEach(doc => {
+        let product = doc.data();
+        firestore().runTransaction(trans => {
+          return trans
+            .get(productosRef.doc(product.id))
+            .then(document => {
+              const productoAvender = productCart.filter(
+                p => p.id === product.id,
+              );
+              const newCantidad =
+                parseInt(document.data().cantidad, 10) -
+                parseInt(productoAvender.cantidad, 10);
+              trans.update(productosRef.doc(productoAvender.nombre), {
+                cantidad: newCantidad,
+              });
+            })
+            .catch(err => console.log(err));
+        });
       });
+    });
   } catch (err) {
     console.log(err);
   }
@@ -42,7 +56,7 @@ function ShoppingCart() {
   const [servicesCart, setServicesCart] = useState(
     store.getState().servicesCart || [],
   );
-  const [cliente, setCliente] = useState(null);
+  const [cliente, setCliente] = useState(store.getState().cartClient || null);
   const [total, setTotal] = useState(store.getState().totalVenta || 0);
   const [cartHeight, setCartHeight] = useState(0);
   const cartPosition = useRef(new Animated.Value(+500)).current;
@@ -105,8 +119,8 @@ function ShoppingCart() {
       if (state.totalVentas !== total) {
         setTotal(state.totalVenta);
       }
-      if (state.cartCliente !== cliente) {
-        setCliente(state.cartCliente);
+      if (state.cartClient !== cliente) {
+        setCliente(state.cartClient);
       }
     });
     return () => {

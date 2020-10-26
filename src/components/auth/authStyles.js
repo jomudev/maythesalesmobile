@@ -9,15 +9,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 20,
     backgroundColor: '#101e5a',
-    marginVertical: 2.5,
+    marginBottom: 10,
     marginTop: 20,
   },
   imageContainer: {
     alignItems: 'center',
     width: '100%',
-    flex: 2,
-    borderBottomRightRadius: 60,
-    borderBottomLeftRadius: 60,
+    height: '30%',
+    flex: 1,
+    borderBottomLeftRadius: 100,
     overflow: 'hidden',
   },
   loadingScreen: {
@@ -38,6 +38,15 @@ const styles = StyleSheet.create({
   },
   textInputContainer: {
     flex: 1,
+    paddingTop: 50,
+  },
+  errorMsg: {
+    width: '70%',
+    alignSelf: 'center',
+    margin: 3,
+    padding: 5,
+    backgroundColor: '#ffaaaaaa',
+    borderRadius: 4,
   },
   registrarse: {
     textAlign: 'center',

@@ -1,50 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {View, TouchableOpacity, Text, TextInput} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-async function getStorage() {
-  try {
-    const jsonValue = await AsyncStorage.getItem('message');
-    return jsonValue !== null ? JSON.parse(jsonValue) : null;
-  } catch (e) {
-    console.warn('error en AsyncStorage linea 8 ', e);
-  }
-}
-
-async function setStorage() {
-  try {
-    const jsonValue = JSON.stringify(true);
-    return await AsyncStorage.setItem('message', jsonValue);
-  } catch (e) {
-    console.warn('error al almacenar los datos en el storage', e);
-  }
-}
-
 function ShowClienteItem({data}) {
-  const [close, setClose] = useState(false);
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState('edit');
-
-  useEffect(() => {
-    getStorage().then(res => {
-      setClose(res);
-    });
-  }, []);
-
-  const toggle = () => {
-    setClose(true);
-  };
-
-  const dontShowAgain = () => {
-    setStorage()
-      .then(() => {
-        setClose(true);
-      })
-      .chatch(err => console.log(err));
-  };
 
   const toggleEdit = () => {
     setEdit(!edit);
@@ -76,53 +38,14 @@ function ShowClienteItem({data}) {
         <TextInput placeholder={data.email} style={styles.txtInput} />
         <Text>Descripción</Text>
         <TextInput placeholder={data.descripcion} style={styles.txtInput} />
-        {!close ? (
-          <View style={styles.message}>
-            <Icon
-              name="clear-all"
-              size={24}
-              style={styles.closeMessage}
-              onPress={() => {
-                toggle();
-              }}
-            />
-            <Text style={{alignItems: 'center', justifyContent: 'center'}}>
-              Aquí también puedes actualizar los datos
-            </Text>
-            <TouchableOpacity
-              onPress={() => dontShowAgain()}
-              style={{paddingTop: 20, paddingBottom: 10}}>
-              <Text>No mostrar de nuevo </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
       </View>
     </View>
   );
 }
 
 function ShowProductoItem({data}) {
-  const [close, setClose] = useState(false);
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState('edit');
-
-  useEffect(() => {
-    getStorage().then(res => {
-      setClose(res);
-    });
-  }, []);
-
-  const toggle = () => {
-    setClose(true);
-  };
-
-  const dontShowAgain = () => {
-    setStorage()
-      .then(() => {
-        setClose(true);
-      })
-      .chatch(err => console.log(err));
-  };
 
   const toggleEdit = () => {
     setEdit(!edit);
@@ -146,58 +69,19 @@ function ShowProductoItem({data}) {
         </View>
         <Text>Precio de venta por unidad</Text>
         <TextInput
-          placeholder={data.valorP_U.toString()}
+          placeholder={data.valorPU.toString()}
           style={styles.txtInput}
         />
         <Text>Precio de venta por mayoreo</Text>
-        <TextInput placeholder={data.valorP_M} style={styles.txtInput} />
-        {!close ? (
-          <View style={styles.message}>
-            <Icon
-              name="clear-all"
-              size={24}
-              style={styles.closeMessage}
-              onPress={() => {
-                toggle();
-              }}
-            />
-            <Text style={{alignItems: 'center', justifyContent: 'center'}}>
-              Aquí también puedes actualizar los datos
-            </Text>
-            <TouchableOpacity
-              onPress={() => dontShowAgain()}
-              style={{paddingTop: 20, paddingBottom: 10}}>
-              <Text>No mostrar de nuevo </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
+        <TextInput placeholder={data.valorPM} style={styles.txtInput} />
       </View>
     </View>
   );
 }
 
 function ShowServicioItem({data}) {
-  const [close, setClose] = useState(false);
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState('edit');
-
-  useEffect(() => {
-    getStorage().then(res => {
-      setClose(res);
-    });
-  }, []);
-
-  const toggle = () => {
-    setClose(true);
-  };
-
-  const dontShowAgain = () => {
-    setStorage()
-      .then(() => {
-        setClose(true);
-      })
-      .chatch(err => console.log(err));
-  };
 
   const toggleEdit = () => {
     setEdit(!edit);
@@ -223,53 +107,14 @@ function ShowServicioItem({data}) {
         <TextInput placeholder={data.email} style={styles.txtInput} />
         <Text>Descripción</Text>
         <TextInput placeholder={data.descripcion} style={styles.txtInput} />
-        {!close ? (
-          <View style={styles.message}>
-            <Icon
-              name="clear-all"
-              size={24}
-              style={styles.closeMessage}
-              onPress={() => {
-                toggle();
-              }}
-            />
-            <Text style={{alignItems: 'center', justifyContent: 'center'}}>
-              Aquí también puedes actualizar los datos
-            </Text>
-            <TouchableOpacity
-              onPress={() => dontShowAgain()}
-              style={{paddingTop: 20, paddingBottom: 10}}>
-              <Text>No mostrar de nuevo </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
       </View>
     </View>
   );
 }
 
 function ShowProveedorItem({data}) {
-  const [close, setClose] = useState(false);
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState('edit');
-
-  useEffect(() => {
-    getStorage().then(res => {
-      setClose(res);
-    });
-  }, []);
-
-  const toggle = () => {
-    setClose(true);
-  };
-
-  const dontShowAgain = () => {
-    setStorage()
-      .then(() => {
-        setClose(true);
-      })
-      .chatch(err => console.log(err));
-  };
 
   const toggleEdit = () => {
     setEdit(!edit);
@@ -301,26 +146,6 @@ function ShowProveedorItem({data}) {
         <TextInput placeholder={data.email} style={styles.txtInput} />
         <Text>Descripción</Text>
         <TextInput placeholder={data.descripcion} style={styles.txtInput} />
-        {!close ? (
-          <View style={styles.message}>
-            <Icon
-              name="clear-all"
-              size={24}
-              style={styles.closeMessage}
-              onPress={() => {
-                toggle();
-              }}
-            />
-            <Text style={{alignItems: 'center', justifyContent: 'center'}}>
-              Aquí también puedes actualizar los datos
-            </Text>
-            <TouchableOpacity
-              onPress={() => dontShowAgain()}
-              style={{paddingTop: 20, paddingBottom: 10}}>
-              <Text>No mostrar de nuevo </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
       </View>
     </View>
   );

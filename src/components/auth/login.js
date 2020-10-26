@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   StatusBar,
@@ -10,36 +10,58 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
+  StyleSheet,
   ActivityIndicator,
 } from 'react-native';
 import Button from './button';
 import auth from '@react-native-firebase/auth';
 import styles from './authStyles';
-
-// Login o SignUp al presionar el boton de logeo
-const onSigninButtonPress = async ({email, password}) => {
-  email = email.trim();
-  password = password.trim();
-  if (email === '' && password === '') {
-    Alert.alert('Campos vacios', 'Inserta tus credenciales');
-    return;
-  }
-  const task = await auth().signInWithEmailAndPassword(email, password);
-  return task;
-};
+import {useForm} from 'react-hook-form';
 
 const Login = ({navigation}) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [initializando, setInitializando] = useState(false);
+  const {handleSubmit, register, setValue, errors} = useForm();
+  const [inicializando, setInicializando] = useState(false);
+  const email = useRef();
+  const password = useRef();
+
+  useEffect(() => {
+    register('email', {required: true});
+    register('password', {required: true});
+  }, [register]);
+
+  const onSubmit = data => {
+    const isValidEmail = data.email.match(/[@.]/g).length === 2;
+    if (!isValidEmail) {
+      Alert.alert(
+        'Correo Electrónico invalido',
+        'Ingresa una dirección de correo electrónico valida',
+      );
+    } else {
+      auth()
+        .signInWithEmailAndPassword(data.email, data.password)
+        .catch(err => {
+          let msg;
+          switch (err.code) {
+            case 'auth/user-not-found':
+              msg = 'El usuario no fue encontrado intenta de nuevo';
+              break;
+            default:
+              msg = 'Ha ocurrido un problema inesperado intenta de nuevo';
+              break;
+          }
+          Alert.alert('Error de autenticación', msg);
+        });
+    }
+  };
+
   return (
     <View
       style={{
+        ...StyleSheet.absoluteFillObject,
         backgroundColor: 'white',
-        flex: 1,
         alignItems: 'center',
       }}>
-      {initializando ? (
+      {inicializando ? (
         <View style={styles.loadingScreen}>
           <ActivityIndicator
             style={{marginTop: 25}}
@@ -58,50 +80,34 @@ const Login = ({navigation}) => {
           source={require('../../assets/AditionalMedia/2345.png')}
           style={styles.loginBG}
           progressiveRenderingEnabled
-          resizeMethod="scale"
         />
       </View>
       <ScrollView style={styles.container}>
         <View style={styles.textInputContainer}>
           <TextInput
             style={styles.textInput}
-            value={email}
-            onChangeText={text => setEmail(text)}
+            onChangeText={text => setValue('email', text)}
             keyboardType="email-address"
+            autoFocus={true}
+            ref={email}
+            onEndEditing={() => password.current.focus()}
+            returnKeyType="next"
             placeholder="Correo electrónico"
           />
+          {errors.email && (
+            <Error text="Debes proporcionar el correo de inicio de sesion" />
+          )}
           <TextInput
             style={styles.textInput}
-            value={password}
-            onChangeText={text => setPassword(text)}
+            onChangeText={text => setValue('password', text)}
             secureTextEntry={true}
             textContentType="password"
             placeholder="Contraseña"
+            ref={password}
           />
+          {errors.password && <Error text="debes proporcionar la contraseña" />}
         </View>
-        <Button
-          onPress={async () => {
-            setInitializando(true);
-            try {
-              await onSigninButtonPress({email, password}).then(() => {
-                setEmail('');
-                setPassword('');
-              });
-            } catch (err) {
-              setInitializando(false);
-              err.code === 'auth/user-not-found'
-                ? Alert.alert(
-                    'Error de autenticación',
-                    'el usuario no fue encontrado, intente de nuevo',
-                  )
-                : Alert.alert(
-                    'Error de autenticación',
-                    'Ha ocurrido un error, intenta de nuevo',
-                  );
-            }
-          }}
-          text="Iniciar Sesion"
-        />
+        <Button onPress={handleSubmit(onSubmit)} text="Iniciar Sesion" />
         <TouchableOpacity onPress={() => navigation.navigate('signin')}>
           <Text style={styles.registrarse}>Registrarse</Text>
         </TouchableOpacity>
@@ -109,5 +115,11 @@ const Login = ({navigation}) => {
     </View>
   );
 };
+
+const Error = ({text}) => (
+  <View style={styles.errorMsg}>
+    <Text style={{fontSize: 10}}>{text}</Text>
+  </View>
+);
 
 export default Login;

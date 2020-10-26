@@ -1,10 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {
   View,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  Text,
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -50,7 +49,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     textAlign: 'center',
-    flex: 2,
+    flex: 3,
   },
   headerLeftComponent: {
     height: '100%',

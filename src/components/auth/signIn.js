@@ -1,50 +1,91 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
-import {View, Text, TextInput, Image, Alert, ScrollView, ActivityIndicator} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  View,
+  TextInput,
+  Image,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import Button from './button';
-import store from '../../../store';
 import styles from './authStyles';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import {useForm} from 'react-hook-form';
 
-const onSigninButtonPress = async ({email, password}) => {
-  email = email.trim();
-  password = password.trim();
-  if (email === '' && password === '') {
-    Alert.alert('Campos vacios', 'rellena todos los campos para poder unirte');
-    return;
-  }
-  const task = await auth().createUserWithEmailAndPassword(email, password);
-  return task;
+const formatoTelefono = numero => {
+  return numero
+    .split('')
+    .map((digito, index) => (index === 3 ? `${digito}-` : digito))
+    .join('');
 };
 
-const Signin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [nombres, setNombres] = useState('');
-  const [apellidos, setApellidos] = useState('');
-  const [negocio, setNegocio] = useState('');
-  const [passwordConfirmed, confirmPassword] = useState(null);
-  const [initializando, setInitializando] = useState(false);
+const Signin = ({navigation}) => {
+  const {handleSubmit, setValue, register} = useForm();
+  const [inicializando, setInicializando] = useState();
 
-  const confirmIfPasswordAreTheSame = text => {
-    if (text === password) {
-      confirmPassword(null);
-    } else {
-      confirmPassword('las contraseñas no coinciden');
+  const email = useRef();
+  const password = useRef();
+  const repeatPassword = useRef();
+
+  useEffect(() => {
+    register('email');
+    register('negocio');
+    register('password');
+    register('repeatPassword');
+  }, [register]);
+
+  const onSubmit = data => {
+    console.log(data);
+    setInicializando(true);
+    if (data.email !== '' && data.password !== '' && data.nombre !== '') {
+      if (data.password !== data.repeatPassword) {
+        Alert.alert(
+          'Error en contraseñas',
+          'Las contaseñas no coinciden verifica',
+        );
+      } else {
+        auth()
+          .createUserWithEmailAndPassword(data.email, data.password)
+          .then(res => {
+            const negocioRef = firestore()
+              .collection('negocios')
+              .doc(res.user.uid);
+
+            negocioRef
+              .set({
+                email: data.email,
+                nombre: data.nombre,
+                apellido: data.apellido,
+                telefono: formatoTelefono(data.telefono),
+              })
+              .then(() => {
+                res.user.updateProfile({
+                  displayName: data.nombre.split(' ')[0],
+                });
+              });
+          })
+          .catch(err => {
+            setInicializando(false);
+            console.log(err);
+          });
+      }
     }
   };
 
   return (
     <View
       style={{
+        ...StyleSheet.absoluteFillObject,
         backgroundColor: '#fff',
-        height: '100%',
-        width: '100%',
-        flex: 1,
         alignItems: 'center',
       }}>
       <View style={styles.imageContainer}>
-        {initializando ? (
+        {inicializando ? (
           <View style={styles.loadingScreen}>
             <ActivityIndicator
               style={{marginTop: 25}}
@@ -63,95 +104,43 @@ const Signin = () => {
       <ScrollView style={styles.container}>
         <View style={styles.textInputContainer}>
           <TextInput
-            placeholder="Nombres"
-            style={styles.textInput}
-            value={`${nombres}`}
-            onChangeText={text => setNombres(text)}
-          />
-          <TextInput
-            placeholder="Apellidos"
-            style={styles.textInput}
-            value={`${apellidos}`}
-            onChangeText={text => setApellidos(text)}
-          />
-          <TextInput
             placeholder="Correo electrónico"
             style={styles.textInput}
-            value={`${email}`}
             keyboardType="email-address"
-            onChangeText={text => setEmail(text)}
-          />
-          <TextInput
-            placeholder="Nombre del negocio"
-            style={styles.textInput}
-            value={`${negocio}`}
-            onChangeText={text => setNegocio(text)}
+            textContentType="emailAddress"
+            returnKeyType="next"
+            onChangeText={text => setValue('email', text)}
+            autoCapitalize="none"
+            autoFocus={true}
+            onSubmitEditing={() => password.current.focus()}
+            ref={email}
           />
           <TextInput
             placeholder="Contraseña"
             style={styles.textInput}
             secureTextEntry={true}
-            value={`${password}`}
             onChangeText={text => {
-              setPassword(text);
-              confirmIfPasswordAreTheSame(text);
+              setValue('password', text);
             }}
+            returnKeyType="next"
+            onSubmitEditing={() => repeatPassword.current.focus()}
+            ref={password}
           />
           <TextInput
             placeholder="Repite la contraseña"
             style={styles.textInput}
             secureTextEntry={true}
-            onChangeText={text => confirmIfPasswordAreTheSame(text)}
+            returnKeyType="done"
+            onChangeText={text => {
+              setValue('repeatPassword', text);
+            }}
+            ref={repeatPassword}
           />
-          {passwordConfirmed ? (
-            <Text style={{color: 'red', textAlign: 'center'}}>
-              {passwordConfirmed}
-            </Text>
-          ) : null}
         </View>
-        <Button
-          onPress={() => {
-            setInitializando(true);
-            if (nombres !== '' && apellidos !== '' && negocio !== '') {
-              if (passwordConfirmed) {
-                Alert.alert('Las contraseñas no coinciden verifica nuevamente');
-                return;
-              }
-              onSigninButtonPress({email, password})
-                .then(result => {
-                  let nombre = nombres.split(' ');
-                  let apellido = apellidos.split(' ');
-                  let displayName = `${nombre[0]} ${apellido[0]}`;
-                  result.user.updateProfile({
-                    displayName,
-                  });
-                  let newUserData = {
-                    nombres,
-                    apellidos,
-                    email,
-                    negocio,
-                  };
-                  store.dispatch({
-                    type: 'SET_IS_NEW_USER',
-                    data: true,
-                    newUserData,
-                  });
-                })
-                .catch(err => {
-                  console.warn(err.code);
-                  if (err.code === 'auth/email-alredy-in-use') {
-                    Alert.alert(
-                      'El correo electrónico ya esta siendo utilizado.',
-                    );
-                  }
-                });
-            } else {
-              setInitializando(false);
-              Alert.alert('Llena todos los campos');
-            }
-          }}
-          text="Registrarse"
-        />
+        <Button onPress={handleSubmit(onSubmit)} text="Registrarse" />
+        <TouchableOpacity onPress={() => navigation.navigate('login')}>
+          <Text style={styles.registrarse}>Iniciar sesion</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

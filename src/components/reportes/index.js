@@ -1,15 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
-import store from '../../../store';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import moment from 'moment';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 async function getList() {
   try {
     return await firestore()
       .collection('users')
-      .doc(store.getState().user.uid)
+      .doc(auth().currentUser.uid)
       .collection('ventas')
       .get();
   } catch (err) {
@@ -72,8 +72,8 @@ const Index = ({navigation}) => {
 
   if (listaMeses.length < 1) {
     return (
-      <View style={{alignContent: 'center', alignItems: 'center'}}>
-        <Text style={{fontSize: 16, color: '#777'}}>
+      <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+        <Text style={{fontSize: 20, color: '#777'}}>
           Aquí se mostrara la lista de meses
         </Text>
       </View>

@@ -8,6 +8,27 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderBottomColor: '#ddd',
   },
+  contextMenu: {
+    paddingVertical: 20,
+  },
+  contextMenuBtn: {
+    textAlign: 'right',
+    width: 100,
+    alignSelf: 'flex-end',
+    right: 0,
+  },
+  contextMenuOption: {
+    padding: 10,
+    backgroundColor: 'white',
+  },
+  contextMenuOptions: {
+    backgroundColor: 'white',
+    width: '100%',
+    borderTopStartRadius: 20,
+    borderTopEndRadius: 20,
+    padding: 10,
+    elevation: 60,
+  },
   venta: {
     margin: 10,
     elevation: 2,
@@ -38,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
     fontWeight: 'bold',
-  }
+  },
 });
 
 export default styles;

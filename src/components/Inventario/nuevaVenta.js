@@ -18,12 +18,13 @@ import AddProducto from './modalComponents/addProducto';
 import AddServicio from './modalComponents/addServicio';
 import CamScanner from './../CamScanner';
 import {NavigationContainer} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 
 const Stack = createStackNavigator();
 
 async function getData(type) {
   try {
-    const uid = await store.getState().user.uid;
+    const uid = auth().currentUser.uid;
     return await firestore()
       .collection('users')
       .doc(uid)
@@ -252,15 +253,13 @@ const NuevaVenta = props => {
     );
   };
   return (
-    <NavigationContainer independent={true}>
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen name="index" component={Component} {...props} />
-        <Stack.Screen name="addCliente" component={AddCliente} />
-        <Stack.Screen name="addProducto" component={AddProducto} />
-        <Stack.Screen name="addServicio" component={AddServicio} />
-        <Stack.Screen name="CamScanner" component={CamScanner} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen name="index" component={Component} {...props} />
+      <Stack.Screen name="addCliente" component={AddCliente} />
+      <Stack.Screen name="addProducto" component={AddProducto} />
+      <Stack.Screen name="addServicio" component={AddServicio} />
+      <Stack.Screen name="CamScanner" component={CamScanner} />
+    </Stack.Navigator>
   );
 };
 export default NuevaVenta;

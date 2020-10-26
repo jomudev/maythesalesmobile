@@ -2,10 +2,6 @@ import {createStore} from 'redux';
 
 const initialState = {
   ventaOpcion: '',
-  user: undefined,
-  userData: undefined,
-  isNewUser: false,
-  newUserData: null,
   title: 'Maythe´s Sales',
   cart: [],
   servicesCart: [],
@@ -46,21 +42,6 @@ const reducers = (prevState, action) => {
   let newCart = prevState.cart;
   let newServicesCart = prevState.servicesCart;
   let newState = prevState;
-
-  if (action.type === 'SET_IS_NEW_USER') {
-    newState = {
-      ...prevState,
-      isNewUser: action.data,
-      newUserData: action.newUserData,
-    };
-  }
-  if (action.type === 'SET_USER') {
-    newState = {
-      ...prevState,
-      userData: action.userData,
-      user: action.user,
-    };
-  }
   if (action.type === 'SET_TITLE') {
     newState = {
       ...prevState,
@@ -181,17 +162,7 @@ const reducers = (prevState, action) => {
     };
   }
   if (action.type === 'SIGNOUT') {
-    newState = {
-      ventaOpcion: '',
-      user: undefined,
-      userData: undefined,
-      isNewUser: false,
-      newUserData: null,
-      title: 'Maythe´s Sales',
-      cart: [],
-      cartClient: '',
-      totalVenta: 0,
-    };
+    newState = initialState;
   }
 
   return newState;

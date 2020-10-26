@@ -148,11 +148,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#00000055',
   },
   container: {
-    width: '100%',
+    flex: 1,
     padding: 4,
-    flex: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
