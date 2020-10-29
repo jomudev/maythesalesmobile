@@ -17,13 +17,6 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {useForm} from 'react-hook-form';
 
-const formatoTelefono = numero => {
-  return numero
-    .split('')
-    .map((digito, index) => (index === 3 ? `${digito}-` : digito))
-    .join('');
-};
-
 const Signin = ({navigation}) => {
   const {handleSubmit, setValue, register} = useForm();
   const [inicializando, setInicializando] = useState();
@@ -34,7 +27,6 @@ const Signin = ({navigation}) => {
 
   useEffect(() => {
     register('email');
-    register('negocio');
     register('password');
     register('repeatPassword');
   }, [register]);
@@ -55,19 +47,11 @@ const Signin = ({navigation}) => {
             const negocioRef = firestore()
               .collection('negocios')
               .doc(res.user.uid);
-
             negocioRef
               .set({
                 email: data.email,
-                nombre: data.nombre,
-                apellido: data.apellido,
-                telefono: formatoTelefono(data.telefono),
               })
-              .then(() => {
-                res.user.updateProfile({
-                  displayName: data.nombre.split(' ')[0],
-                });
-              });
+              .catch(err => console.log(err.code));
           })
           .catch(err => {
             setInicializando(false);
@@ -138,10 +122,10 @@ const Signin = ({navigation}) => {
           />
         </View>
         <Button onPress={handleSubmit(onSubmit)} text="Registrarse" />
-        <TouchableOpacity onPress={() => navigation.navigate('login')}>
-          <Text style={styles.registrarse}>Iniciar sesion</Text>
-        </TouchableOpacity>
       </ScrollView>
+      <TouchableOpacity onPress={() => navigation.navigate('login')}>
+        <Text style={styles.registrarse}>Iniciar sesion</Text>
+      </TouchableOpacity>
     </View>
   );
 };

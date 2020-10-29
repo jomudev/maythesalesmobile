@@ -4,6 +4,7 @@ const styles = StyleSheet.create({
   form: {
     maxWidth: 700,
     borderRadius: 20,
+    padding: 20,
     flex: 1,
   },
   formTitle: {

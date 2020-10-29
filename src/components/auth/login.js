@@ -88,6 +88,7 @@ const Login = ({navigation}) => {
             style={styles.textInput}
             onChangeText={text => setValue('email', text)}
             keyboardType="email-address"
+            autoCapitalize="none"
             autoFocus={true}
             ref={email}
             onEndEditing={() => password.current.focus()}
@@ -108,10 +109,10 @@ const Login = ({navigation}) => {
           {errors.password && <Error text="debes proporcionar la contraseña" />}
         </View>
         <Button onPress={handleSubmit(onSubmit)} text="Iniciar Sesion" />
-        <TouchableOpacity onPress={() => navigation.navigate('signin')}>
-          <Text style={styles.registrarse}>Registrarse</Text>
-        </TouchableOpacity>
       </ScrollView>
+      <TouchableOpacity onPress={() => navigation.navigate('signin')}>
+        <Text style={styles.registrarse}>Registrarse</Text>
+      </TouchableOpacity>
     </View>
   );
 };

@@ -5,9 +5,9 @@
  * @var {userData} Object = Datos e información del usuario.
  */
 import React, {useState, useEffect} from 'react';
-import {View, Image, StatusBar} from 'react-native';
+import {View} from 'react-native';
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
-import {Title, Caption, Drawer} from 'react-native-paper';
+import {Title, Caption, Avatar, Drawer} from 'react-native-paper';
 import store from '../../../store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './draweStyles';
@@ -28,15 +28,14 @@ async function getUser() {
     let userData = null;
 
     user = auth().currentUser;
-    await firestore()
-      .collection('users')
+    return await firestore()
+      .collection('negocios')
       .doc(user.uid)
       .get()
       .then(doc => {
         userData = doc.data();
+        return {userData, user};
       });
-
-    return {userData, user};
   } catch (err) {
     console.log('error al obtener los datos del usuario', err);
   }
@@ -48,6 +47,7 @@ const DrawerContent = props => {
 
   useEffect(() => {
     const unsubscriber = getUser().then(data => {
+      //console.log(data);
       setUser(data.user);
       setUserData(data.userData);
     });
@@ -62,11 +62,14 @@ const DrawerContent = props => {
         <View style={styles.drawerContent}>
           {user && userData ? (
             <View style={styles.userSection}>
+              <Avatar.Icon icon="account" style={styles.avatar} />
               <View style={styles.userInfo}>
                 <View style={{marginLeft: 15, flexDirection: 'column'}}>
                   <Title style={{fontWeight: 'bold'}}>{user.displayName}</Title>
                   <Caption style={{fontWeight: 'bold'}}>
                     {userData ? userData.negocio : ''}
+                  </Caption>
+                  <Caption style={{fontWeight: 'bold'}}>
                     {userData ? userData.email : ''}
                   </Caption>
                 </View>

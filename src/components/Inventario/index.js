@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
+import {View, Text, TouchableOpacity, ScrollView, StyleSheet} from 'react-native';
 import FormOptions from './data';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -49,7 +49,7 @@ const ItemList = ({navigation, item}) => {
 
 const OptionsScreen = ({navigation}) => {
   return (
-    <View style={styles.form}>
+    <View style={{...StyleSheet.absoluteFillObject}}>
       <ScrollView style={styles.flatList}>
         {FormOptions.map(item => (
           <ItemList navigation={navigation} item={item} key={item.name} />

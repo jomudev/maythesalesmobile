@@ -5,26 +5,34 @@ import DrawerContent from './drawerContent';
 import HomeContainer from '../../containers/HomeContainer';
 //import CotizacionContainer from './src/containers/CotizacionContainer';
 import ReportesContainer from '../../containers/ReportesContainer';
-import CamScanner from '../CamScanner';
+import Configuracion from '../../containers/configuracionContainer';
 import auth from '@react-native-firebase/auth';
+import {StatusBar} from 'react-native';
 
 const DrawerApp = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   const user = auth().currentUser;
   return (
-    <DrawerApp.Navigator
-      edgeWidth={50}
-      initialRouteName="Inicio"
-      drawerContent={({navigation}) => (
-        <DrawerContent user={user} navigation={navigation} />
-      )}
-      drawerStyle={{width: '65%'}}
-      drawerType="front">
-      <DrawerApp.Screen name="Inicio" component={HomeContainer} />
-      <DrawerApp.Screen name="Reportes" component={ReportesContainer} />
-      <DrawerApp.Screen name="CamScanner" component={CamScanner} />
-    </DrawerApp.Navigator>
+    <>
+      <StatusBar
+        barStyle="dark-content"
+        translucent={true}
+        backgroundColor="#000000ff"
+      />
+      <DrawerApp.Navigator
+        edgeWidth={50}
+        initialRouteName="Inicio"
+        drawerContent={({navigation}) => (
+          <DrawerContent user={user} navigation={navigation} />
+        )}
+        drawerStyle={{width: '65%'}}
+        drawerType="front">
+        <DrawerApp.Screen name="Inicio" component={HomeContainer} />
+        <DrawerApp.Screen name="Reportes" component={ReportesContainer} />
+        <DrawerApp.Screen name="Configuracion" component={Configuracion} />
+      </DrawerApp.Navigator>
+    </>
   );
 };
 
