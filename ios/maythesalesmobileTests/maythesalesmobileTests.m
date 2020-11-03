@@ -52,7 +52,6 @@
       return NO;
     }];
   }
-
 #ifdef DEBUG
   RCTSetLogFunction(RCTDefaultLogFunction);
 #endif

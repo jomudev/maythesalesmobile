@@ -24,7 +24,7 @@ const App = () => {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const authUnsubscriber = auth().onAuthStateChanged(authUser => {
+    const authUnsubscriber = auth().onAuthStateChanged((authUser) => {
       setUser(authUser);
       setInitializing(false);
     });

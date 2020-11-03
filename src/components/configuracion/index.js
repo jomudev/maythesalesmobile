@@ -7,7 +7,7 @@ const ConfigOpciones = (props) => {
   return (
     <View>
       <ScrollView>
-        {opciones.map((item) => (
+        {opciones.map(item => (
           <ListItem key={item.name} item={item} {...props} />
         ))}
       </ScrollView>
