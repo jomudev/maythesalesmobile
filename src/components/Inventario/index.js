@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, Text, TouchableOpacity, ScrollView, StyleSheet} from 'react-native';
 import FormOptions from './data';
@@ -49,7 +50,7 @@ const ItemList = ({navigation, item}) => {
 
 const OptionsScreen = ({navigation}) => {
   return (
-    <View style={{...StyleSheet.absoluteFillObject}}>
+    <View style={styles.container}>
       <ScrollView style={styles.flatList}>
         {FormOptions.map(item => (
           <ItemList navigation={navigation} item={item} key={item.name} />

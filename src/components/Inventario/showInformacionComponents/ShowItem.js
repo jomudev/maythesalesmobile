@@ -69,7 +69,7 @@ function ShowProductoItem({data}) {
         </View>
         <Text>Precio de venta por unidad</Text>
         <TextInput
-          placeholder={data.valorPU.toString()}
+          placeholder={data.precioPU.toString()}
           style={styles.txtInput}
         />
         <Text>Precio de venta por mayoreo</Text>

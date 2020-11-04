@@ -17,7 +17,6 @@ import AddCliente from './modalComponents/addCliente';
 import AddProducto from './modalComponents/addProducto';
 import AddServicio from './modalComponents/addServicio';
 import CamScanner from './../CamScanner';
-import {NavigationContainer} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 
 const Stack = createStackNavigator();
@@ -26,7 +25,7 @@ async function getData(type) {
   try {
     const uid = auth().currentUser.uid;
     return await firestore()
-      .collection('users')
+      .collection('negocios')
       .doc(uid)
       .collection(type)
       .get();
@@ -82,7 +81,7 @@ const NuevaVenta = props => {
         });
       }}>
       <Text style={{fontSize: 14}}>
-        {`${data.nombre} L${Number.parseFloat(data.ventaP_U).toFixed(2)}` +
+        {`${data.nombre} L${Number.parseFloat(data.precioPU).toFixed(2)}` +
           (data.descripcion ? ` ${data.descripcion}` : ' ')}
       </Text>
     </TouchableOpacity>
@@ -100,7 +99,7 @@ const NuevaVenta = props => {
         });
       }}>
       <Text style={{fontSize: 14}}>
-        {`${data.nombre} L${Number.parseFloat(data.ventaP_U).toFixed(2)}` +
+        {`${data.nombre} L${Number.parseFloat(data.precioPU).toFixed(2)}` +
           (data.descripcion ? ` ${data.descripcion}` : ' ')}
       </Text>
     </TouchableOpacity>

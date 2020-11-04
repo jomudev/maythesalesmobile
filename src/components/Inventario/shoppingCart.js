@@ -20,32 +20,6 @@ import moment from 'moment';
 
 async function postearVenta({productCart, servicesCart, total, cliente}) {
   try {
-    const productosRef = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .collection('productos');
-
-    return productosRef.get().then(docs => {
-      docs.forEach(doc => {
-        let product = doc.data();
-        firestore().runTransaction(trans => {
-          return trans
-            .get(productosRef.doc(product.id))
-            .then(document => {
-              const productoAvender = productCart.filter(
-                p => p.id === product.id,
-              );
-              const newCantidad =
-                parseInt(document.data().cantidad, 10) -
-                parseInt(productoAvender.cantidad, 10);
-              trans.update(productosRef.doc(productoAvender.nombre), {
-                cantidad: newCantidad,
-              });
-            })
-            .catch(err => console.log(err));
-        });
-      });
-    });
   } catch (err) {
     console.log(err);
   }
@@ -79,7 +53,7 @@ function ShoppingCart() {
     setToggleIcon('keyboard-arrow-down');
   };
 
-  const hideCart = full => {
+  const hideCart = (full) => {
     Animated.spring(cartPosition, {
       toValue: full ? +500 : +cartHeight - 50,
       useNativeDriver: true,
@@ -136,7 +110,7 @@ function ShoppingCart() {
 
   return (
     <Animated.View
-      onLayout={Event => setCartHeight(Event.nativeEvent.layout.height)}
+      onLayout={(Event) => setCartHeight(Event.nativeEvent.layout.height)}
       style={{
         ...styles.container,
         translateY: cartPosition,
@@ -163,29 +137,33 @@ function ShoppingCart() {
           Total: L{Number.parseFloat(total).toFixed(2)}
         </Text>
       </View>
-      <FlatList
-        ListHeaderComponent={() => <ListHeader title="Lista de productos" />}
-        style={styles.cartBody}
-        data={productCart}
-        renderItem={({item}) => {
-          return <ListItem item={item} />;
-        }}
-      />
-      <FlatList
-        ListHeaderComponent={() => <ListHeader title="Lista de servicios" />}
-        style={styles.cartBody}
-        data={servicesCart}
-        renderItem={({item}) => {
-          return <ListItem item={item} />;
-        }}
-      />
+      {productCart.length > 0 ? (
+        <FlatList
+          ListHeaderComponent={() => <ListHeader title="Lista de productos" />}
+          style={styles.cartBody}
+          data={productCart}
+          renderItem={({item}) => {
+            return <ListItem item={item} />;
+          }}
+        />
+      ) : null}
+      {servicesCart.length > 0 ? (
+        <FlatList
+          ListHeaderComponent={() => <ListHeader title="Lista de servicios" />}
+          style={styles.cartBody}
+          data={servicesCart}
+          renderItem={({item}) => {
+            return <ListItem item={item} />;
+          }}
+        />
+      ) : null}
       <View />
       <TouchableOpacity
         style={styles.soldBtn}
         onPress={() =>
           postearVenta({total, cliente, productCart, servicesCart})
             .then(() => limpiarCampos())
-            .catch(err => {
+            .catch((err) => {
               Alert.alert(
                 'Error de conexión',
                 'lo sentimos algo no ha salido bien, intenta de nuevo',
@@ -228,14 +206,14 @@ const ListItem = ({item, cantidad}) => {
         {item.nombre}
         {' L' +
           (type
-            ? Number.parseFloat(item.ventaP_M).toFixed(2)
-            : Number.parseFloat(item.ventaP_U).toFixed(2))}
+            ? Number.parseFloat(item.precioPM).toFixed(2)
+            : Number.parseFloat(item.precioPU).toFixed(2))}
       </Text>
       <TextInput
         style={styles.cartInput}
         keyboardType="numeric"
         defaultValue={'1'}
-        onChangeText={text =>
+        onChangeText={(text) =>
           store.dispatch({
             type: 'SET_CANTIDAD',
             objeto: item,
@@ -246,8 +224,8 @@ const ListItem = ({item, cantidad}) => {
       <Text style={{width: '40%', fontSize: 12, textAlign: 'center'}}>
         {' subtotal: L' +
           (type
-            ? Number.parseFloat(item.ventaP_M * item.cantidad).toFixed(2)
-            : Number.parseFloat(item.ventaP_U * item.cantidad).toFixed(2))}
+            ? Number.parseFloat(item.precioPM * item.cantidad).toFixed(2)
+            : Number.parseFloat(item.precioPU * item.cantidad).toFixed(2))}
       </Text>
       <TouchableOpacity
         style={styles.removeFromCart}
@@ -330,18 +308,10 @@ const styles = StyleSheet.create({
     maxHeight: 400,
     bottom: 10,
     alignSelf: 'center',
-    width: '90%',
+    width: '100%',
     borderRadius: 20,
     padding: 10,
-    backgroundColor: '#fff',
-    elevation: 30,
-    shadowColor: '#8d8b8b',
-    shadowOffset: {
-      width: 0,
-      height: 30,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 60.0,
+    backgroundColor: '#f2f3f4',
   },
   modalCloseMenu: {
     position: 'relative',
@@ -387,7 +357,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 100,
-    backgroundColor: 'white',
   },
   cartHeader: {
     position: 'relative',
@@ -415,7 +384,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#101e5a',
     borderRadius: 20,
-    elevation: 5,
     padding: 20,
   },
   removeFromCart: {

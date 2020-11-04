@@ -6,6 +6,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     flex: 1,
+    backgroundColor: 'white',
+  },
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'white',
+    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 15,
   },
   formTitle: {
     fontSize: 46,
@@ -15,8 +22,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '90%',
     padding: 0,
-    backgroundColor: 'white',
-    borderRadius: 20,
+    backgroundColor: '#f7f8f9',
+    borderRadius: 15,
     maxHeight: 200,
   },
   textContainer: {
@@ -47,13 +54,12 @@ const styles = StyleSheet.create({
   },
   flatList: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#efefef',
+    backgroundColor: 'transparent',
   },
   menuListItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f3f4f5',
     borderRadius: 20,
     width: '90%',
-    elevation: 5,
     alignSelf: 'center',
     marginTop: 20,
     overflow: 'hidden',

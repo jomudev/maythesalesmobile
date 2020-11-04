@@ -3,7 +3,7 @@ import React from 'react';
 import {View, TouchableOpacity, Text} from 'react-native';
 import styles from './modalStyles';
 
-const BtnGroup = ({action}) => {
+const Button = ({action}) => {
   return (
     <View style={{flexDirection: 'row'}}>
       <TouchableOpacity style={styles.btn} onPress={() => action()}>
@@ -13,4 +13,4 @@ const BtnGroup = ({action}) => {
   );
 };
 
-export default BtnGroup;
+export default Button;

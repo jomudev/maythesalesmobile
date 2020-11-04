@@ -1,49 +1,72 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {View, Text, ScrollView, TextInput} from 'react-native';
-import BtnGroup from './buttonGroup';
+import Button from './button';
 import {save} from './modalMetodos';
 import styles from './modalStyles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {useForm} from 'react-hook-form';
 
 const AddProducto = ({navigation, route}) => {
-  const [barcode, setBarcode] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [cantidad, setCantidad] = useState(0);
-  const [proveedor, setProveedor] = useState('');
-  const [costoPU, setCostoPU] = useState(0);
-  const [costoPM, setCostoPM] = useState(0);
-  const [ventaPU, setVentaPU] = useState(0);
-  const [ventaPM, setVentaPM] = useState(0);
-  const [descripcion, setDescripcion] = useState('');
+  const {register, handleSubmit, errors, setValue} = useForm();
+  const [barcode, setBarcode] = useState();
+  const nombre = useRef();
+  const cantidad = useRef();
+  const proveedor = useRef();
+  const costoPU = useRef();
+  const costoPM = useRef();
+  const precioPU = useRef();
+  const precioPM = useRef();
+  const descripcion = useRef();
 
   if (route.params) {
     setBarcode(route.params.scannedBarcode);
   }
 
   const clean = () => {
-    setNombre('');
-    setCantidad(0);
-    setProveedor('');
-    setCostoPM(0);
-    setCostoPU(0);
-    setVentaPM(0);
-    setVentaPU(0);
-    setDescripcion('');
-    setBarcode('');
+    nombre.current.clear();
+    cantidad.current.clear();
+    proveedor.current.clear();
+    costoPM.current.clear();
+    costoPU.current.clear();
+    precioPM.current.clear();
+    precioPU.current.clear();
+    descripcion.current.clear();
+    barcode.current.clear();
   };
 
-  return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={styles.formTitle}>Agregar producto</Text>
+  const onSubmit = (data) => {
+    save('product', {
+      nombre: data.nombre,
+      cantidad: data.cantidad,
+      proveedor: data.proveedor,
+      costoPM: data.costoPM,
+      costoPU: data.costoPU,
+      precioPM: data.precioPM,
+      precioPU: data.precioPU,
+      descripcion: data.descripcion,
+      codigoDeBarras: barcode,
+    });
+    clean();
+  };
 
+  useEffect(() => {
+    register('nombre', {required: true});
+    register('cantidad');
+    register('proveedor');
+    register('costoPM');
+  }, [register]);
+
+  return (
+    <ScrollView style={styles.form}>
+      <Text style={styles.formTitle}>Agregar producto</Text>
+      <View style={{alignItems: 'center'}}>
         <View style={{flexDirection: 'row'}}>
           <TextInput
             editable={false}
             placeholder="Codigo de barras"
             style={{...styles.txtInput, flex: 9}}
-            value={`${barcode}`}
+            value={barcode}
           />
           <Icon
             name="view-week"
@@ -60,80 +83,65 @@ const AddProducto = ({navigation, route}) => {
         <TextInput
           placeholder="Nombre del producto*"
           style={styles.txtInput}
-          onChangeText={text => setNombre(text)}
-          value={nombre}
+          onChangeText={(text) => setValue('Nombre', text)}
+          ref={nombre}
         />
+        {errors.nombre && <Text>Este campo es obligatorio</Text>}
 
-        <Text style={styles.txtMuted}>Cantidad</Text>
         <TextInput
+          placeholder="Cantidad"
           style={styles.txtInput}
           keyboardType="number-pad"
-          onChangeText={text => setCantidad(text)}
-          value={`${cantidad}`}
+          onChangeText={(text) => setValue('cantidad', text)}
+          ref={cantidad}
         />
 
         <TextInput
           placeholder="Proveedor"
           style={styles.txtInput}
-          onChangeText={text => setProveedor(text)}
-          value={proveedor}
+          onChangeText={(text) => setValue('proveedor', text)}
+          ref={proveedor}
         />
-        <Text style={styles.txtMuted}>Precio de costo por unidad</Text>
+
         <TextInput
+          placeholder="Costo por unidad"
           style={styles.txtInput}
           keyboardType="number-pad"
-          onChangeText={text => setCostoPU(text)}
-          value={`${costoPU}`}
+          onChangeText={(text) => setValue('costoPU', text)}
+          ref={costoPU}
         />
-        <Text style={styles.txtMuted}>Precio de costo por mayoreo</Text>
+
         <TextInput
-          placeholder="Precio de costo p/m"
+          placeholder="Costo por mayoreo"
           keyboardType="number-pad"
           style={styles.txtInput}
-          onChangeText={text => setCostoPM(text)}
-          value={`${costoPM}`}
+          onChangeText={(text) => setValue('costoPM', text)}
+          ref={costoPM}
         />
-        <Text style={styles.txtMuted}>Precio de venta por unidad</Text>
+
         <TextInput
+          placeholder="Precio por unidad"
           keyboardType="number-pad"
           style={styles.txtInput}
-          onChangeText={text => setVentaPU(text)}
-          value={`${ventaPU}`}
+          onChangeText={(text) => setValue('precioPU', text)}
+          ref={precioPU}
         />
-        <Text style={styles.txtMuted}>Precio de venta por mayoreo</Text>
+
         <TextInput
+          placeholder="Precio por mayoreo"
           style={styles.txtInput}
           keyboardType="number-pad"
-          cantidad
-          onChangeText={text => setVentaPM(text)}
-          value={`${ventaPM}`}
+          onChangeText={(text) => setValue('precioPM', text)}
+          ref={precioPM}
         />
 
         <TextInput
           placeholder="Descripción"
           style={styles.txtInput}
-          onChangeText={text => setDescripcion(text)}
-          value={descripcion}
+          onChangeText={(text) => setValue('descripcion', text)}
+          ref={descripcion}
         />
-        <BtnGroup
-          action={() =>
-            save(
-              'product',
-              {
-                nombre,
-                cantidad,
-                proveedor,
-                costoPM,
-                costoPU,
-                ventaPM,
-                ventaPU,
-                descripcion,
-                barcode,
-              },
-              clean(),
-            )
-          }
-        />
+        <Button action={handleSubmit(onSubmit)} />
       </View>
     </ScrollView>
   );

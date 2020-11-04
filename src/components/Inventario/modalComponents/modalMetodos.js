@@ -1,6 +1,6 @@
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import {Alert} from 'react-native';
-import store from '../../../../store';
 
 let products = null;
 let clients = null;
@@ -8,22 +8,22 @@ let services = null;
 let providers = null;
 
 const recolectarDatos = () => {
-  let uid = store.getState().user.uid;
+  let uid = auth().currentUser.uid;
   if (uid !== null) {
     products = firestore()
-      .collection('users')
+      .collection('negocios')
       .doc(uid)
       .collection('productos');
     clients = firestore()
-      .collection('users')
+      .collection('negocios')
       .doc(uid)
       .collection('clientes');
     services = firestore()
-      .collection('users')
+      .collection('negocios')
       .doc(uid)
       .collection('servicios');
     providers = firestore()
-      .collection('users')
+      .collection('negocios')
       .doc(uid)
       .collection('proveedores');
   }
@@ -62,20 +62,20 @@ const save = (type, data, clean) => {
           .doc(data.nombre)
           .set({
             id: randomId(0, 6),
-            codigoDeBarras: data.barcode,
+            codigoDeBarras: data.codigoDeBarras,
             nombre: data.nombre,
             cantidad: Number(data.cantidad),
             proveedor: data.proveedor,
             costoPU: Number(data.costoPU),
             costoPM: Number(data.costoPM),
-            ventaPU: Number(data.ventaPU),
-            ventaPM: Number(data.ventaPM),
+            precioPU: Number(data.precioPU),
+            precioPM: Number(data.precioPM),
             descripcion: data.descripcion,
           })
           .then(() => {
-            clean;
+            Alert.prompt('Registro guardado correcta')
           })
-          .catch(err => {
+          .catch((err) => {
             console.log('error: ', err.code);
             Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
           })
@@ -110,8 +110,8 @@ const save = (type, data, clean) => {
           proveedor: data.proveedor,
           costoPU: Number(data.costoPU),
           costoPM: Number(data.costoPM),
-          ventaPU: Number(data.ventaPU),
-          ventaPM: Number(data.ventaPM),
+          precioPU: Number(data.precioPU),
+          precioPM: Number(data.precioPM),
           descripcion: data.descripcion,
         })
         .then(() => {

@@ -67,6 +67,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     backgroundColor: 'white',
-    elevation: 5,
   },
 });

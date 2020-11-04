@@ -2,16 +2,16 @@ import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
   form: {
-    width: '100%',
+    ...StyleSheet.absoluteFillObject,
     padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+    backgroundColor: 'white',
   },
   formTitle: {
-    fontSize: 32,
+    fontSize: 16,
     textAlign: 'center',
-    marginBottom: 20,
+    margin: 10,
   },
   Icon: {
     fontSize: 28,
@@ -24,17 +24,16 @@ const styles = StyleSheet.create({
   txtInput: {
     width: '100%',
     backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 15,
-    elevation: 5,
-    marginVertical: 5,
+    borderColor: '#ccc',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingTop: 30,
+    paddingBottom: 2,
+    borderRadius: 5,
   },
   btn: {
     backgroundColor: '#101e5a',
     marginTop: 50,
-    elevation: 5,
     padding: 20,
-    margin: 2,
     justifyContent: 'center',
     alignItems: 'center',
     width: '90%',

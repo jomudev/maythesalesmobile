@@ -124,12 +124,11 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   listItem: {
-    padding: 20,
-    width: '90%',
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    elevation: 1,
-    marginVertical: 2,
+    padding: 15,
+    width: '100%',
+    backgroundColor: '#f2f3f4',
+    borderRadius: 5,
+    marginVertical: 0.5,
     overflow: 'hidden',
   },
   itemTitle: {
@@ -154,7 +153,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 4,
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 15,
   },
 });
 

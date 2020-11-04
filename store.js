@@ -15,15 +15,15 @@ const calcularSuma = (ventaType, CarritoDeProductos, CarritoDeServicios) => {
   if (CarritoDeProductos) {
     CarritoDeProductos.forEach(producto => {
       totalSuma += ventaType
-        ? producto.ventaP_M * producto.cantidad
-        : producto.ventaP_U * producto.cantidad;
+        ? producto.precioPM * producto.cantidad
+        : producto.precioPU * producto.cantidad;
     });
   }
   if (CarritoDeServicios) {
     CarritoDeServicios.forEach(servicio => {
       totalSuma += ventaType
-        ? servicio.ventaP_M * servicio.cantidad
-        : servicio.ventaP_U * servicio.cantidad;
+        ? servicio.precioPM * servicio.cantidad
+        : servicio.precioPU * servicio.cantidad;
     });
   }
   return Number(totalSuma);

@@ -1,67 +1,75 @@
-import React, {useState} from 'react';
-import {View, Text, ScrollView, TextInput, StyleSheet} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {View, Text, TextInput} from 'react-native';
 import styles from './modalStyles';
 import {save} from './modalMetodos';
-import BtnGroup from './buttonGroup';
+import {useForm} from 'react-hook-form';
+import Button from './button';
 
 const AddProveedor = () => {
-  const [nombre, setNombre] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [email, setEmail] = useState('');
-  const [descripcion, setDescripcion] = useState('');
+  const {register, handleSubmit, errors, setValue} = useForm();
+  const nombre = useRef();
+  const telefono = useRef();
+  const email = useRef();
+  const descripcion = useRef();
 
   const clean = () => {
-    setNombre('');
-    setTelefono('');
-    setEmail('');
-    setDescripcion('');
+    nombre.current.clear();
+    telefono.current.clear();
+    email.current.clear();
+    descripcion.current.clear();
   };
+
+  const onSubmit = (data) => {
+    save('provider', {
+      nombre: data.nombre,
+      telefono: data.telefono,
+      email: data.email,
+      descripcion: data.descripcion,
+    });
+    clean();
+  };
+
+  useEffect(() => {
+    register('nombre', {required: true});
+    register('telefono');
+    register('email');
+    register('descripcion');
+  }, [register]);
+
   return (
-    <ScrollView style={{...StyleSheet.absoluteFillObject}}>
+    <View>
       <View style={styles.form}>
-        <Text style={styles.formTitle}>Agregar Proveedor</Text>
+        <Text style={styles.formTitle}>Agregar cliente</Text>
         <TextInput
-          placeholder="Nombre de Proveedor*"
+          placeholder="Nombre*"
           style={styles.txtInput}
-          value={nombre}
-          onChangeText={text => setNombre(text)}
+          ref={nombre}
+          onChangeText={(text) => setValue('nombre', text)}
         />
+        {errors.nombre && <Text>Este campo es obligatorio</Text>}
         <TextInput
           placeholder="Número de teléfono"
           keyboardType="numeric"
           style={styles.txtInput}
-          value={telefono}
-          onChangeText={text => setTelefono(text)}
+          ref={telefono}
+          onChangeText={(text) => setValue('telefono', text)}
         />
         <TextInput
-          placeholder="Email"
+          placeholder="Correo Electrónico"
           keyboardType="email-address"
           style={styles.txtInput}
-          value={email}
-          onChangeText={text => setEmail(email)}
+          ref={email}
+          onChangeText={(text) => setValue('email', text)}
         />
         <TextInput
-          placeholder="Descripcion"
+          placeholder="Descripción"
           style={styles.txtInput}
-          value={descripcion}
-          onChangeText={text => setDescripcion(text)}
+          ref={descripcion}
+          onChangeText={(text) => setValue('descripcion', text)}
         />
-        <BtnGroup
-          action={() =>
-            save(
-              'provider',
-              {
-                nombre,
-                telefono,
-                email,
-                descripcion,
-              },
-              clean(),
-            )
-          }
-        />
+        <Button action={handleSubmit(onSubmit)} />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

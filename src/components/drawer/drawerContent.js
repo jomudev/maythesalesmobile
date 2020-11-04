@@ -32,7 +32,7 @@ async function getUser() {
       .collection('negocios')
       .doc(user.uid)
       .get()
-      .then(doc => {
+      .then((doc) => {
         userData = doc.data();
         return {userData, user};
       });
@@ -41,12 +41,12 @@ async function getUser() {
   }
 }
 
-const DrawerContent = props => {
+const DrawerContent = (props) => {
   const [user, setUser] = useState();
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const unsubscriber = getUser().then(data => {
+    const unsubscriber = getUser().then((data) => {
       //console.log(data);
       setUser(data.user);
       setUserData(data.userData);
@@ -114,7 +114,7 @@ const DrawerContent = props => {
           onPress={() =>
             signOut()
               .then(() => store.dispatch({type: 'SIGNOUT'}))
-              .catch(err => console.log('error', err))
+              .catch((err) => console.log('error', err))
           }
         />
       </Drawer.Section>

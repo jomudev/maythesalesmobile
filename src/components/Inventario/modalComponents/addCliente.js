@@ -1,59 +1,76 @@
-import React, {useState} from 'react';
-import {View, TextInput, Text} from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useRef, useEffect} from 'react';
+import {ScrollView, View, TextInput, Text} from 'react-native';
 import {save} from './modalMetodos';
 import styles from './modalStyles';
-import BtnGroup from './buttonGroup';
+import Button from './button';
+import {useForm} from 'react-hook-form';
 
 const AddCliente = () => {
-  const [nombre, setNombre] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [email, setEmail] = useState('');
-  const [descripcion, setDescripcion] = useState('');
+  const {register, handleSubmit, errors, setValue} = useForm();
+  const nombre = useRef();
+  const telefono = useRef();
+  const email = useRef();
+  const descripcion = useRef();
 
   const clean = () => {
-    setNombre('');
-    setTelefono('');
-    setEmail('');
-    setDescripcion('');
+    nombre.current.clear();
+    telefono.current.clear();
+    email.current.clear();
+    descripcion.current.clear();
   };
 
+  const onSubmit = (data) => {
+    save('client', {
+      nombre: data.nombre,
+      telefono: data.telefono,
+      email: data.email,
+      descripcion: data.descripcion,
+    });
+    clean();
+  };
+
+  useEffect(() => {
+    register('nombre', {required: true});
+    register('telefono');
+    register('email');
+    register('descripcion');
+  }, []);
+
   return (
-    <View>
-      <View style={styles.form}>
-        <Text style={styles.formTitle}>Agregar cliente</Text>
+    <ScrollView style={styles.form}>
+      <Text style={styles.formTitle}>Agregar cliente</Text>
+      <View style={{alignItems: 'center'}}>
         <TextInput
-          placeholder="Nombres ej. Daniela Andrade*"
+          placeholder="Nombres*"
           style={styles.txtInput}
-          value={nombre}
-          onChangeText={text => setNombre(text)}
+          ref={nombre}
+          onChangeText={(text) => setValue('nombre', text)}
         />
+        {errors.nombre && <Text>Este campo es obligatorio</Text>}
         <TextInput
           placeholder="Número de teléfono"
           keyboardType="numeric"
           style={styles.txtInput}
-          value={telefono}
-          onChangeText={text => setTelefono(text)}
+          ref={telefono}
+          onChangeText={(text) => setValue('telefono', text)}
         />
         <TextInput
           placeholder="Correo Electrónico"
           keyboardType="email-address"
           style={styles.txtInput}
-          value={email}
-          onChangeText={text => setEmail(text)}
+          ref={email}
+          onChangeText={(text) => setValue('email', text)}
         />
         <TextInput
           placeholder="Descripción"
           style={styles.txtInput}
-          value={descripcion}
-          onChangeText={text => setDescripcion(text)}
+          ref={descripcion}
+          onChangeText={(text) => setValue('descripcion', text)}
         />
-        <BtnGroup
-          action={() =>
-            save('client', {nombre, telefono, email, descripcion}, clean())
-          }
-        />
+        <Button action={handleSubmit(onSubmit)} />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
