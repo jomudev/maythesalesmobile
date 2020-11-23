@@ -10,6 +10,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     padding: 5,
   },
+  header: {
+    elevation: 0,
+  },
 });
 
 const Stack = createStackNavigator();
@@ -29,6 +32,8 @@ const ReportesContainer = props => {
     <Stack.Navigator>
       <Stack.Screen
         options={{
+          headerTintColor: '#103e5a',
+          headerStyle: styles.header,
           headerLeft: () => <MenuIcon {...props} />,
         }}
         name="Reportes"
@@ -36,9 +41,11 @@ const ReportesContainer = props => {
       />
       <Stack.Screen
         options={{
+          headerStyle: styles.header,
+          title: 'Reportes por mes',
           headerLeft: () => <MenuIcon {...props}/>,
         }}
-        name="Reportes por mes"
+        name="reporteMes"
         component={ReporteMes}
       />
     </Stack.Navigator>

@@ -19,9 +19,9 @@ import firestore from '@react-native-firebase/firestore';
 
 const deviceHeight = Dimensions.get('window').height;
 
-const subtotal = lista => {
+const subtotal = (lista) => {
   let sum = 0;
-  lista.forEach(item => (sum += item.ventaP_U * item.cantidad));
+  lista.forEach((item) => (sum += item.precioVenta * item.cantidad));
   return Number.parseFloat(sum).toFixed(2);
 };
 
@@ -40,33 +40,33 @@ const RenderVentasCollection = ({venta}) => {
     <View style={styles.venta}>
       <View style={styles.ventaHeader}>
         <TouchableWithoutFeedback onPress={() => onShowPopup()}>
-          <Icon name="more-horiz" size={28} style={styles.contextMenuBtn} />
+          <Icon name="more-vert" size={28} style={styles.contextMenuBtn} />
         </TouchableWithoutFeedback>
         <ContextMenu
-          ref={target => (popupRef = target)}
+          ref={(target) => (popupRef = target)}
           data={venta}
           onTouchOutside={() => onClosePopup()}
         />
         <Text style={styles.ventaTitleText}>
-          {moment(venta.fecha).format('DD/MM/YYYY')}{' '}
-          {moment(venta.fecha).fromNow()}
+          {moment(venta.timestamp, 'x', 'x').format('LLL')}{' '}
+          {moment(venta.timestamp, 'x', 'x').fromNow()}
         </Text>
         <Text>{venta.cliente ? venta.cliente.nombre : null}</Text>
       </View>
       {venta.servicios.length > 0 ? (
         <Text style={styles.ventaTitleText}>Productos</Text>
       ) : null}
-      {venta.lista.map(producto => {
+      {venta.productos.map((producto) => {
         return <RenderItemProducto key={producto.id} producto={producto} />;
       })}
       <View style={styles.subtotalContainer}>
         <Text style={styles.subtotalTitle}>subtotal productos:</Text>
-        <Text style={styles.subtotal}>L{subtotal(venta.lista)}</Text>
+        <Text style={styles.subtotal}>L{subtotal(venta.productos)}</Text>
       </View>
       {venta.servicios.length > 0 ? (
         <Text style={styles.ventaTitleText}>Servicios adicionales</Text>
       ) : null}
-      {venta.servicios.map(servicio => (
+      {venta.servicios.map((servicio) => (
         <RenderItemServicio key={servicio.id} servicio={servicio} />
       ))}
       <View style={styles.subtotalContainer}>
@@ -104,7 +104,7 @@ class ContextMenu extends React.Component {
     });
   };
 
-  renderOutsideTouchable = onTouch => {
+  renderOutsideTouchable = (onTouch) => {
     const view = <View style={{flex: 1, width: '100%'}} />;
     if (!onTouch) {
       return view;
@@ -143,7 +143,7 @@ class ContextMenu extends React.Component {
             <TouchableOpacity
               onPress={() => printPDF(data)}
               style={styles.contextMenuOption}>
-              <Text>Generar PDF</Text>
+              <Text>GENERAR REPORTE</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -152,35 +152,14 @@ class ContextMenu extends React.Component {
   }
 }
 
-const printPDF = async venta => {
+const printPDF = async (venta) => {
   const user = auth().currentUser;
   await firestore()
-    .collection('users')
+    .collection('negocios')
     .doc(user.uid)
     .get()
-    .then(async doc => {
+    .then(async (doc) => {
       const userData = doc.data();
-
-      const htmlClientComponent = venta.cliente
-        ? `
-        <table>
-          <caption>Facturar a:</caption>
-          <tr><td>${
-            venta.cliente.nombre ? venta.cliente.nombre : null
-          }</td></tr>
-          ${
-            venta.cliente.email
-              ? `<tr><td>correo: ${venta.cliente.email}</td></tr>`
-              : null
-          }
-          ${
-            venta.cliente.telefono
-              ? `<tr><td>cel: ${venta.cliente.telefono}</td></tr>`
-              : null
-          }
-        </table>
-      `
-        : '';
       const html = `
         <style>
           .nofactura {
@@ -191,17 +170,15 @@ const printPDF = async venta => {
             background-color: rgba(20, 100, 256, 0.2);
           }
 
-          table {
-            border-spacing: 0px;
-          }
-
           .list td {
             font-size: 12px; 
             text-align: center              
           }
 
           .total {
-            margin-top: 20px;
+            align-text: right;
+            align-items: flex-end;
+            justify-content: flex-end;
           }
 
           .totalTd {
@@ -209,103 +186,142 @@ const printPDF = async venta => {
             font-weight: bolder;
           }
 
-        </style>
-        <div class="nofactura">No. Factura: ${moment(venta.fecha).format(
-          'DDMMYYYYhhmmss',
-        )}</div>
-        <h1>${userData.negocio}</h1>
-        <h2>${user.displayName}</h2>
+          .mainTable {
+            width: 100%;
+          }
 
-        <h3>Fecha: ${moment(venta.fecha).format('ll')}</h3>
-        ${htmlClientComponent}
-        <table width="100%" class="list">
-          <caption><h2>SERVICIOS</h2></caption>
+        </style>
+        <div class="nofactura">No. Factura: ${moment(
+          venta.timestamp,
+          'x',
+        ).format('DDMMYYYYhhmmss')}</div>
+        ${userData.negocio ? `<h1>${userData.negocio}</h1>` : ''}
+        ${userData.displayName ? `<h2>${user.displayName}</h2>` : ''}
+
+        <h3>fecha: ${moment(venta.timestamp, 'x').format('ll')} - ${moment(
+        venta.timestamp,
+        'x',
+      ).format('DD/MM/YYYY')}</h3>
+        ${
+          venta.cliente
+            ? `
+          <table>
+            <caption>Facturar a:</caption>
+            <tr><td>${
+              venta.cliente.nombre ? venta.cliente.nombre : null
+            }</td></tr>
+            ${
+              venta.cliente.email
+                ? `<tr><td>correo: ${venta.cliente.email}</td></tr>`
+                : null
+            }
+            ${
+              venta.cliente.telefono
+                ? `<tr><td>cel: ${venta.cliente.telefono}</td></tr>`
+                : null
+            }
+          </table>
+        `
+            : ''
+        }
+        <table class="mainTable list">
+        ${
+          venta.productos.length
+            ? `
           <thead>
             <tr>
-                <th>No CODIGO</th>
+              <th colspan="5">PRODUCTOS</th>
+            </tr>
+            <tr>
+                <th>CODIGO</th>
                 <th>DESCRIPCION</th>
                 <th>CANTIDAD</th>
                 <th>COSTO POR UNIDAD</th>
                 <th>TOTALES</th>
             </tr>
           </thead>
-          <tfoot>
-            <tr>
-              <td colspan="3"></td>
-              <td>SUBTOTAL PRODUCTOS:</td>
-              <td>L${subtotal(venta.lista)}</td>
-            </tr>
-          </tfood>
           <tbody>
-          ${venta.lista.map(
-            producto =>
+          ${venta.productos.map(
+            (producto) =>
               `
               <tr>
               <td>${
                 producto.codigoDeBarras ? producto.codigoDeBarras : producto.id
               }</td>
-              <td>${producto.nombre}${
+              <td>${producto.nombre.toLocaleUpperCase()}${
                 producto.descripcion ? ', ' + producto.descripcion : ''
               }</td>
               <td>${producto.cantidad}</td>
-                <td>L${parseFloat(producto.ventaP_U).toFixed(2)}</td>
+                <td>L${parseFloat(producto.precioVenta).toFixed(2)}</td>
                 <td>L${parseFloat(
-                  producto.ventaP_U * producto.cantidad,
+                  producto.precioVenta * producto.cantidad,
                 ).toFixed(2)}</td>
               </tr>`,
           )}
-          </tbody>
-        </table>
-        <table width="100%" class="list">
-          <caption><h2>SERVICIOS</h2></caption>
-          <thead>
-            <tr>
-                <th>No. CODIGO</th>
-                <th>DESCRIPCION</th>
-                <th>CANTIDAD</th>
-                <th>COSTO POR UNIDAD</th>
-                <th>TOTALES</th>
-            </tr>
-          </thead>
-          <tfoot border="0">
             <tr>
               <td colspan="3"></td>
-              <td>SUBTOTAL SERVICIOS:</td>
-              <td>L${subtotal(venta.servicios)}</td>
-              <tr class="total"><td colspan="3"></td><td class="totalTd">TOTAL</td><td class="totalTd">L${
-                venta.total
-              }</td></tr>
+              <td>SUBTOTAL PRODUCTOS</td>
+              <td>L${subtotal(venta.productos)}</td>
             </tr>
-          </tfood>
-          <tbody>
-          ${venta.servicios.map(
-            servicio =>
-              `
-              <tr>
-              <td>${servicio.id}</td>
-              <td>${servicio.nombre}${
-                servicio.descripcion ? ', ' + servicio.descripcion : ''
-              }</td>
-              <td>${servicio.cantidad}</td>
-              <td>L${parseFloat(servicio.ventaP_U).toFixed(2)}</td>
-                <td>L${parseFloat(
-                  servicio.ventaP_U * servicio.cantidad,
-                ).toFixed(2)}</td>
-              </tr>`,
-          )}
-          </tbody>
-
-        </table>
+          </tbody>`
+            : null
+        }
+        ${
+          venta.servicios.length
+            ? `<thead>
+                <tr>
+                  <th colspan="5">SERVICIOS</th>
+                </tr>
+                <tr>
+                    <th>CODIGO</th>
+                    <th>DESCRIPCION</th>
+                    <th>CANTIDAD</th>
+                    <th>COSTO POR UNIDAD</th>
+                    <th>TOTALES</th>
+                </tr>
+              </thead>
+              <tbody>
+              ${venta.servicios.map(
+                (servicio) =>
+                  `
+                  <tr>
+                  <td>${servicio.id}</td>
+                  <td>${servicio.nombre.toLocaleUpperCase()}${
+                    servicio.descripcion ? ', ' + servicio.descripcion : ''
+                  }</td>
+                  <td>${servicio.cantidad}</td>
+                  <td>L${parseFloat(servicio.precioVenta).toFixed(2)}</td>
+                    <td>L${parseFloat(
+                      servicio.precioVenta * servicio.cantidad,
+                    ).toFixed(2)}</td>
+                  </tr>`,
+              )}
+                <tr>
+                  <td colspan="3"></td>
+                  <td>SUBTOTAL SERVICIOS</td>
+                  <td>L${subtotal(venta.servicios)}</td>
+                </tr>
+              </tbody>`
+            : ''
+        }
+        <tr>
+          <td colspan="3"></td>
+          <td class="totalTd">TOTAL</td>
+          <td class="totalTd">L${parseFloat(venta.total).toFixed(2)}</td>
+        </tr>
+      </table>
         `;
 
       const results = await RNHTMLtoPDF.convert({
         html,
-        fileName: 'demo pdf',
+        fileName: `REPORTE VENTA ${moment(venta.timestamp, 'x').format(
+          'DD-MM-YYYY',
+        )}`,
         base64: true,
       });
       await RNPrint.print({filePath: results.filePath});
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 };
 
 export default RenderVentasCollection;

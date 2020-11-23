@@ -6,11 +6,13 @@ import styles from './listStyles';
 const RenderItemProducto = ({producto}) => {
   return (
     <View style={styles.productContainer}>
-      <Text style={{width: '50%'}}>{`${producto.cantidad} ${
-        producto.nombre
-      }`}</Text>
+      <Text
+        style={{
+          width: '50%',
+        }}>{`${producto.cantidad} ${producto.nombre}`}</Text>
       <Text style={{width: '50%', textAlign: 'right'}}>
-        L{Number.parseFloat(producto.ventaP_U * producto.cantidad).toFixed(2)}
+        L
+        {Number.parseFloat(producto.precioVenta * producto.cantidad).toFixed(2)}
       </Text>
     </View>
   );
@@ -19,11 +21,13 @@ const RenderItemProducto = ({producto}) => {
 const RenderItemServicio = ({servicio}) => {
   return (
     <View style={styles.productContainer}>
-      <Text style={{width: '50%'}}>{`${servicio.cantidad} ${
-        servicio.nombre
-      }`}</Text>
+      <Text
+        style={{
+          width: '50%',
+        }}>{`${servicio.cantidad} ${servicio.nombre}`}</Text>
       <Text style={{width: '50%', textAlign: 'right'}}>
-        L{Number.parseFloat(servicio.ventaP_U * servicio.cantidad).toFixed(2)}
+        L
+        {Number.parseFloat(servicio.precioVenta * servicio.cantidad).toFixed(2)}
       </Text>
     </View>
   );

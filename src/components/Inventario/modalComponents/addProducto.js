@@ -4,49 +4,56 @@ import {View, Text, ScrollView, TextInput} from 'react-native';
 import Button from './button';
 import {save} from './modalMetodos';
 import styles from './modalStyles';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useForm} from 'react-hook-form';
+import Snackbar from 'react-native-snackbar-component';
 
 const AddProducto = ({navigation, route}) => {
+  const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
   const {register, handleSubmit, errors, setValue} = useForm();
-  const [barcode, setBarcode] = useState();
+  const [snackIsActive, setSnackIsActive] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('Algo no anda bien.');
+  const [barcode, setBarcode] = useState('');
   const nombre = useRef();
   const cantidad = useRef();
   const proveedor = useRef();
-  const costoPU = useRef();
-  const costoPM = useRef();
-  const precioPU = useRef();
-  const precioPM = useRef();
+  const precioCosto = useRef();
+  const precioVenta = useRef();
   const descripcion = useRef();
 
-  if (route.params) {
-    setBarcode(route.params.scannedBarcode);
+  if (paramsBarcode && barcode !== paramsBarcode) {
+    setBarcode(paramsBarcode);
   }
 
+  const handleSetSnackMessage = (message) => {
+    setSnackMessage(message);
+    setSnackIsActive(true);
+  };
+
   const clean = () => {
+    setBarcode('');
     nombre.current.clear();
     cantidad.current.clear();
     proveedor.current.clear();
-    costoPM.current.clear();
-    costoPU.current.clear();
-    precioPM.current.clear();
-    precioPU.current.clear();
+    precioCosto.current.clear();
+    precioVenta.current.clear();
     descripcion.current.clear();
-    barcode.current.clear();
   };
 
   const onSubmit = (data) => {
-    save('product', {
-      nombre: data.nombre,
-      cantidad: data.cantidad,
-      proveedor: data.proveedor,
-      costoPM: data.costoPM,
-      costoPU: data.costoPU,
-      precioPM: data.precioPM,
-      precioPU: data.precioPU,
-      descripcion: data.descripcion,
-      codigoDeBarras: barcode,
-    });
+    save(
+      'product',
+      {
+        codigoDeBarras: barcode,
+        nombre: data.nombre,
+        cantidad: data.cantidad,
+        proveedor: data.proveedor,
+        precioCosto: data.precioCosto,
+        precioVenta: data.precioVenta,
+        descripcion: data.descripcion,
+      },
+      handleSetSnackMessage,
+    );
     clean();
   };
 
@@ -54,9 +61,10 @@ const AddProducto = ({navigation, route}) => {
     register('nombre', {required: true});
     register('cantidad');
     register('proveedor');
-    register('costoPM');
-  }, [register]);
-
+    register('precioCosto');
+    register('precioVenta');
+    register('descripcion');
+  }, [register, route.params]);
   return (
     <ScrollView style={styles.form}>
       <Text style={styles.formTitle}>Agregar producto</Text>
@@ -69,7 +77,7 @@ const AddProducto = ({navigation, route}) => {
             value={barcode}
           />
           <Icon
-            name="view-week"
+            name="barcode"
             style={styles.Icon}
             onPress={() =>
               navigation.navigate('CamScanner', {
@@ -83,7 +91,7 @@ const AddProducto = ({navigation, route}) => {
         <TextInput
           placeholder="Nombre del producto*"
           style={styles.txtInput}
-          onChangeText={(text) => setValue('Nombre', text)}
+          onChangeText={(text) => setValue('nombre', text)}
           ref={nombre}
         />
         {errors.nombre && <Text>Este campo es obligatorio</Text>}
@@ -104,35 +112,19 @@ const AddProducto = ({navigation, route}) => {
         />
 
         <TextInput
-          placeholder="Costo por unidad"
+          placeholder="Precio de costo"
           style={styles.txtInput}
           keyboardType="number-pad"
-          onChangeText={(text) => setValue('costoPU', text)}
-          ref={costoPU}
+          onChangeText={(text) => setValue('precioCosto', text)}
+          ref={precioCosto}
         />
 
         <TextInput
-          placeholder="Costo por mayoreo"
+          placeholder="Precio de venta"
           keyboardType="number-pad"
           style={styles.txtInput}
-          onChangeText={(text) => setValue('costoPM', text)}
-          ref={costoPM}
-        />
-
-        <TextInput
-          placeholder="Precio por unidad"
-          keyboardType="number-pad"
-          style={styles.txtInput}
-          onChangeText={(text) => setValue('precioPU', text)}
-          ref={precioPU}
-        />
-
-        <TextInput
-          placeholder="Precio por mayoreo"
-          style={styles.txtInput}
-          keyboardType="number-pad"
-          onChangeText={(text) => setValue('precioPM', text)}
-          ref={precioPM}
+          onChangeText={(text) => setValue('precioVenta', text)}
+          ref={precioVenta}
         />
 
         <TextInput
@@ -143,6 +135,12 @@ const AddProducto = ({navigation, route}) => {
         />
         <Button action={handleSubmit(onSubmit)} />
       </View>
+      <Snackbar
+        visible={snackIsActive}
+        textMessage={snackMessage}
+        actionText="OK"
+        actionHandler={() => setSnackIsActive(false)}
+      />
     </ScrollView>
   );
 };

@@ -19,11 +19,11 @@ export default function CamScanner({navigation, route}) {
   const [camera, setCamera] = useState(null);
   const [barcodeData, setBarcodeData] = useState(null);
 
-  const readBarcode = barcode => {
+  const readBarcode = (barcode) => {
     if (barcode.type !== 'UNKNOWN_FORMAT') {
       setBarcodeData(barcode.data);
       if (type === 'getProduct' && !barcodeData) {
-        getProduct(barcode.data).then(res => {
+        getProduct(barcode.data).then((res) => {
           navigation.navigate('index', {scannerProduct: res.data()});
         });
       }
@@ -37,7 +37,7 @@ export default function CamScanner({navigation, route}) {
     <View style={{backgroundColor: 'black', flex: 1}}>
       <StatusBar translucent backgroundColor="transparent" barStyle="default" />
       <RNCamera
-        ref={ref => {
+        ref={(ref) => {
           setCamera(ref);
         }}
         style={{

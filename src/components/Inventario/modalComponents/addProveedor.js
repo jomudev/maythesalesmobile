@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useRef} from 'react';
 import {View, Text, TextInput} from 'react-native';
 import styles from './modalStyles';
@@ -37,9 +38,9 @@ const AddProveedor = () => {
   }, [register]);
 
   return (
-    <View>
-      <View style={styles.form}>
-        <Text style={styles.formTitle}>Agregar cliente</Text>
+    <View style={styles.form}>
+      <Text style={styles.formTitle}>Agregar proveedor</Text>
+      <View style={{alignItems: 'center'}}>
         <TextInput
           placeholder="Nombre*"
           style={styles.txtInput}

@@ -7,24 +7,21 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
 const Perfil = () => {
-  const {register, setValue, handleSubmit, errors} = useForm();
+  const {register, setValue, handleSubmit} = useForm();
   const user = auth().currentUser;
   const [userData, setUserData] = useState();
 
-  const onSubmit = data => {
-    console.log(data);
-    const ref = firestore()
-      .collection('negocios')
-      .doc(user.uid);
-    firestore().runTransaction(async t => {
-      return await t.get(ref).then(doc => {
-        const nombre = user.displayName;
+  const onSubmit = (data) => {
+    const nombre = user.displayName;
+    user.updateProfile({
+      displayName:
+        data.nombre !== nombre && data.nombre !== '' ? data.nombre : nombre,
+    });
+    const ref = firestore().collection('negocios').doc(user.uid);
+    firestore().runTransaction(async (t) => {
+      return await t.get(ref).then((doc) => {
         const negocio = doc.data().negocio;
         const telefono = doc.data().telefono;
-        user.updateProfile({
-          displayName:
-            data.nombre !== nombre && data.nombre !== '' ? data.nombre : nombre,
-        });
         t.update(ref, {
           telefono:
             data.telefono !== telefono && data.telefono !== ''
@@ -39,7 +36,7 @@ const Perfil = () => {
     });
   };
 
-  const setPhone = text => {
+  const setPhone = (text) => {
     if (text.length <= 8) {
       text = text
         .split('')
@@ -59,7 +56,7 @@ const Perfil = () => {
     const unsubscriber = firestore()
       .collection('negocios')
       .doc(user.uid)
-      .onSnapshot(doc => {
+      .onSnapshot((doc) => {
         if (doc.exists) {
           setUserData(doc.data());
         }
@@ -70,52 +67,58 @@ const Perfil = () => {
     };
   }, [register, user.uid]);
   return (
-    <View style={styles.container}>
+    <View style={{...styles.container, ...styles.centerContent}}>
       <View style={styles.profileSection}>
         <View>
-          <Text>Nombre:</Text>
-          <Text style={{fontSize: 42}}>
-            {user
-              ? user.displayName
+          <Text>
+            Nombre:{' '}
+            <Text style={{fontWeight: 'bold'}}>
+              {user
                 ? user.displayName
-                : 'no asignado'
-              : 'cargando...'}
+                  ? user.displayName
+                  : 'no asignado'
+                : 'cargando...'}
+            </Text>
           </Text>
         </View>
         <View>
-          <Text>Nombre del negocio:</Text>
-          <Text style={{fontSize: 42}}>
-            {userData
-              ? userData.negocio
+          <Text>
+            Nombre del negocio:{' '}
+            <Text style={{fontWeight: 'bold'}}>
+              {userData
                 ? userData.negocio
+                  ? userData.negocio
+                  : 'no asignado'
+                : 'cargando...'}
+            </Text>
+          </Text>
+        </View>
+        <Text>
+          Numero de telefono:{' '}
+          <Text style={{fontWeight: 'bold'}}>
+            {userData
+              ? userData.telefono
+                ? userData.telefono
                 : 'no asignado'
               : 'cargando...'}
           </Text>
-        </View>
-        <Text>Numero de telefono:</Text>
-        <Text style={{fontSize: 42}}>
-          {userData
-            ? userData.telefono
-              ? userData.telefono
-              : 'no asignado'
-            : 'cargando...'}
         </Text>
       </View>
       <TextInput
         style={styles.text}
         placeholder="Nombre del negocio"
-        onChangeText={text => setValue('negocio', text.trim())}
+        onChangeText={(text) => setValue('negocio', text.trim())}
       />
       <TextInput
         style={styles.text}
         placeholder="Tu nombre"
-        onChangeText={text => setValue('nombre', text.trim())}
+        onChangeText={(text) => setValue('nombre', text.trim())}
       />
       <TextInput
         style={styles.text}
         placeholder="Teléfono"
         keyboardType="phone-pad"
-        onChangeText={text => setPhone(text)}
+        onChangeText={(text) => setPhone(text)}
       />
       <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
         <Text style={{color: 'white'}}>Actualizar</Text>

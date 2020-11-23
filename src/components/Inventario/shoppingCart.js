@@ -18,10 +18,54 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
 
-async function postearVenta({productCart, servicesCart, total, cliente}) {
-  try {
-  } catch (err) {
-    console.log(err);
+function postearVenta({productCart, servicesCart, total, cliente}) {
+  const db = firestore();
+  let todosProductosDisponibles = true;
+  let productosNoDisponibles = [];
+
+  productCart.forEach((item) => {
+    db.runTransaction(async (t) => {
+      let productNombre = item.nombre.toLocaleUpperCase();
+      console.log(productNombre);
+      const productRef = db
+        .collection('negocios')
+        .doc(auth().currentUser.uid)
+        .collection('productos')
+        .doc(productNombre);
+      return t.get(productRef).then((doc) => {
+        let cantidad = doc.data().cantidad;
+        if (cantidad > 0) {
+          cantidad -= item.cantidad;
+          if (cantidad > 0) {
+            return t.update(productRef, {
+              cantidad,
+            });
+          }
+        } else {
+          todosProductosDisponibles = false;
+          productosNoDisponibles = productosNoDisponibles.concat(item.nombre);
+        }
+      });
+    });
+  });
+  if (todosProductosDisponibles) {
+    const timestamp = moment().format('x');
+    db.collection('negocios')
+      .doc(auth().currentUser.uid)
+      .collection('ventas')
+      .doc(timestamp)
+      .set({
+        timestamp,
+        productos: productCart,
+        servicios: servicesCart,
+        total,
+        cliente,
+      });
+  } else {
+    Alert.alert(
+      'Algunos productos no están disponibles',
+      `los siguientes productos no están disponibles: ${productosNoDisponibles.join()}`,
+    );
   }
 }
 
@@ -123,7 +167,7 @@ function ShoppingCart() {
           onPress={() => toggle()}
         />
         <Icon
-          name="more-horiz"
+          name="more-vert"
           size={28}
           style={styles.more}
           onPress={() => toggleMenu(!menuOpen)}
@@ -160,17 +204,10 @@ function ShoppingCart() {
       <View />
       <TouchableOpacity
         style={styles.soldBtn}
-        onPress={() =>
-          postearVenta({total, cliente, productCart, servicesCart})
-            .then(() => limpiarCampos())
-            .catch((err) => {
-              Alert.alert(
-                'Error de conexión',
-                'lo sentimos algo no ha salido bien, intenta de nuevo',
-              );
-              console.log(err);
-            })
-        }>
+        onPress={() => {
+          postearVenta({total, cliente, productCart, servicesCart});
+          limpiarCampos();
+        }}>
         <Text style={{color: '#f7f8f9', textTransform: 'uppercase'}}>
           Postear
         </Text>
@@ -204,10 +241,7 @@ const ListItem = ({item, cantidad}) => {
           flexDirection: 'row',
         }}>
         {item.nombre}
-        {' L' +
-          (type
-            ? Number.parseFloat(item.precioPM).toFixed(2)
-            : Number.parseFloat(item.precioPU).toFixed(2))}
+        {`L${item.precioVenta}`}
       </Text>
       <TextInput
         style={styles.cartInput}
@@ -222,10 +256,9 @@ const ListItem = ({item, cantidad}) => {
         }
       />
       <Text style={{width: '40%', fontSize: 12, textAlign: 'center'}}>
-        {' subtotal: L' +
-          (type
-            ? Number.parseFloat(item.precioPM * item.cantidad).toFixed(2)
-            : Number.parseFloat(item.precioPU * item.cantidad).toFixed(2))}
+        {`subtotal: L${Number.parseFloat(
+          item.precioVenta * item.cantidad,
+        ).toFixed(2)}`}
       </Text>
       <TouchableOpacity
         style={styles.removeFromCart}

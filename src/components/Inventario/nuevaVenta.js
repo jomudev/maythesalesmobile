@@ -7,68 +7,119 @@ import {
   TouchableOpacity,
   Text,
   ScrollView,
+  StyleSheet,
   TextInput,
 } from 'react-native';
 import ShoppingCart from './shoppingCart';
 import styles from './styles';
-import firestore from '@react-native-firebase/firestore';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddCliente from './modalComponents/addCliente';
 import AddProducto from './modalComponents/addProducto';
 import AddServicio from './modalComponents/addServicio';
 import CamScanner from './../CamScanner';
+
+import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 const Stack = createStackNavigator();
 
-async function getData(type) {
-  try {
-    const uid = auth().currentUser.uid;
-    return await firestore()
-      .collection('negocios')
-      .doc(uid)
-      .collection(type)
-      .get();
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-const NuevaVenta = props => {
+const NuevaVenta = (props) => {
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
+  const uid = auth().currentUser.uid
 
   useEffect(() => {
-    // Escucha para obterner clientes y productos
-    const productUnsubcriber = getData('productos').then(res => {
-      const productos = res.docs.map(doc => doc.data());
-      setProducts(productos);
-    });
+    const unsubscribeProducts = firestore()
+      .collection('negocios')
+      .doc(uid)
+      .collection('productos')
+      .onSnapshot((snap) => {
+        let newList = products;
+        snap.docChanges().forEach((change) => {
+          const docData = change.doc.data();
+          const type = change.type;
+          if (type === 'added') {
+            newList = newList.concat(docData);
+          }
+          if (type === 'modified') {
+            newList = newList.map((product) =>
+              product.id === docData.id ? docData : product,
+            );
+          }
+          if (type === 'removed') {
+            newList = newList.filter((product) => product.id !== docData.id);
+          }
+        });
+        if (JSON.stringify(products) !== JSON.stringify(newList)) {
+          setProducts(newList);
+        }
+      });
 
-    const clientesUnsubcriber = getData('clientes').then(res => {
-      const clientes = res.docs.map(doc => doc.data());
-      setClients(clientes);
-    });
+    const unsubscribeServices = firestore()
+      .collection('negocios')
+      .doc(uid)
+      .collection('servicios')
+      .onSnapshot((snap) => {
+        let newList = products;
+        snap.docChanges().forEach((change) => {
+          const docData = change.doc.data();
+          const type = change.type;
+          if (type === 'added') {
+            newList = newList.concat(docData);
+          }
+          if (type === 'modified') {
+            newList = newList.map((service) =>
+              service.id === docData.id ? docData : service,
+            );
+          }
+          if (type === 'removed') {
+            newList = newList.filter((service) => service.id !== docData.id);
+          }
+        });
+        if (JSON.stringify(services) !== JSON.stringify(newList)) {
+          setServices(newList);
+        }
+      });
 
-    const serviciosUnsubcriber = getData('servicios').then(res => {
-      const servicios = res.docs.map(doc => doc.data());
-      setServices(servicios);
-    });
+    const unsubscribeClients = firestore()
+      .collection('negocios')
+      .doc(uid)
+      .collection('clientes')
+      .onSnapshot((snap) => {
+        let newList = products;
+        snap.docChanges().forEach((change) => {
+          const docData = change.doc.data();
+          const type = change.type;
+          if (type === 'added') {
+            newList = newList.concat(docData);
+          }
+          if (type === 'modified') {
+            newList = newList.map((client) =>
+              client.id === docData.id ? docData : client,
+            );
+          }
+          if (type === 'removed') {
+            newList = newList.filter((client) => client.id !== docData.id);
+          }
+        });
+        if (JSON.stringify(clients) !== JSON.stringify(newList)) {
+          setClients(newList);
+        }
+      });
 
     return () => {
-      productUnsubcriber;
-      clientesUnsubcriber;
-      serviciosUnsubcriber;
+      unsubscribeProducts;
+      unsubscribeServices;
+      unsubscribeClients;
     };
   }, []);
 
-  const phoneFormat = number => {
-    return number
-      .split('')
-      .map((d, i) => (i === 4 ? `-${d}` : d))
-      .join('');
-  };
+  const itemStyles = StyleSheet.create({
+    title: {fontSize: 16, fontWeight: 'bold'},
+    subtitle: {fontSize: 12, color: '#aaa', fontWeight: 'bold'},
+  });
+
   // Item de lista de productos
   const ProductItem = ({data, index}) => (
     <TouchableOpacity
@@ -80,10 +131,12 @@ const NuevaVenta = props => {
           product: data,
         });
       }}>
-      <Text style={{fontSize: 14}}>
-        {`${data.nombre} L${Number.parseFloat(data.precioPU).toFixed(2)}` +
-          (data.descripcion ? ` ${data.descripcion}` : ' ')}
+      <Text style={itemStyles.title}>
+        {`${data.nombre} L${Number.parseFloat(data.precioVenta).toFixed(2)}`}
       </Text>
+      {data.descripcion ? (
+        <Text style={itemStyles.subtitle}>{data.descripcion}</Text>
+      ) : null}
     </TouchableOpacity>
   );
 
@@ -98,8 +151,8 @@ const NuevaVenta = props => {
           service: data,
         });
       }}>
-      <Text style={{fontSize: 14}}>
-        {`${data.nombre} L${Number.parseFloat(data.precioPU).toFixed(2)}` +
+      <Text style={itemStyles.subtitle}>
+        {`${data.nombre} L${Number.parseFloat(data.precioVenta).toFixed(2)}` +
           (data.descripcion ? ` ${data.descripcion}` : ' ')}
       </Text>
     </TouchableOpacity>
@@ -115,11 +168,12 @@ const NuevaVenta = props => {
           clientData: data,
         });
       }}>
-      <Text style={{fontSize: 14, flexDirection: 'column'}}>
-        {data.nombre +
-          (data.telefono ? ' cel: ' + phoneFormat(data.telefono) : ' ') +
-          (data.email ? ' email: ' + data.email : ' ')}
-      </Text>
+      <Text style={itemStyles.title}>{data.nombre}</Text>
+      {data.telefono || data.email ? (
+        <Text style={itemStyles.subtitle}>
+          {data.telefono ? data.telefono : ''} {data.email ? data.email : ''}
+        </Text>
+      ) : null}
     </TouchableOpacity>
   );
 
@@ -185,63 +239,79 @@ const NuevaVenta = props => {
     };
 
     return (
-      <View style={styles.form}>
+      <View style={{...styles.container, ...styles.form}}>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
             <Icon
-              name="view-week"
+              name="barcode"
               style={styles.Icon}
               onPress={() => navigation.navigate('CamScanner', {type: 'get'})}
             />
             <TextInput
               value={searchedProduct}
               style={styles.txtInput}
-              onChangeText={text => setFundProduct(text)}
+              onChangeText={(text) => setFundProduct(text)}
               placeholder="Buscar producto"
             />
             <Icon
-              name="add"
+              name="plus"
               style={styles.Icon}
-              onPress={() => navigation.navigate('addProducto')}
+              onPress={() => navigation.navigate('Productos')}
             />
           </View>
-          <ScrollView style={styles.findProductsList}>
+          <ScrollView
+            style={styles.findProductsList}
+            showsVerticalScrollIndicator={false}>
             <Search List={products} type="products" />
           </ScrollView>
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
+            <Icon
+              name="close"
+              style={styles.Icon}
+              onPress={() => setFundClient('')}
+            />
             <TextInput
               value={searchedClient}
-              onChangeText={text => setFundClient(text)}
+              onChangeText={(text) => setFundClient(text)}
               style={styles.txtInput}
               placeholder="Buscar cliente"
             />
             <Icon
-              name="add"
+              name="plus"
               style={styles.Icon}
-              onPress={() => navigation.navigate('addCliente')}
+              onPress={() => navigation.navigate('Clientes')}
             />
           </View>
-          <ScrollView style={styles.findProductsList}>
+          <ScrollView
+            style={styles.findProductsList}
+            showsVerticalScrollIndicator={false}>
             {searchedClient ? <Search List={clients} type="clients" /> : null}
           </ScrollView>
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
+            <Icon
+              name="close"
+              style={styles.Icon}
+              onPress={() => setFundService('')}
+            />
             <TextInput
               value={searchedService}
               style={styles.txtInput}
-              onChangeText={text => setFundService(text)}
+              onChangeText={(text) => setFundService(text)}
               placeholder="Buscar Servicio Adicional"
             />
             <Icon
-              name="add"
+              name="plus"
               style={styles.Icon}
-              onPress={() => navigation.navigate('addServicio')}
+              onPress={() => navigation.navigate('Servicios')}
             />
           </View>
-          <ScrollView style={styles.findProductsList}>
+          <ScrollView
+            style={styles.findProductsList}
+            showsVerticalScrollIndicator={false}>
             {searchedService ? (
               <Search List={services} type="services" />
             ) : null}
@@ -254,9 +324,9 @@ const NuevaVenta = props => {
   return (
     <Stack.Navigator headerMode="none">
       <Stack.Screen name="index" component={Component} {...props} />
-      <Stack.Screen name="addCliente" component={AddCliente} />
-      <Stack.Screen name="addProducto" component={AddProducto} />
-      <Stack.Screen name="addServicio" component={AddServicio} />
+      <Stack.Screen name="Clientes" component={AddCliente} />
+      <Stack.Screen name="Productos" component={AddProducto} />
+      <Stack.Screen name="Servicios" component={AddServicio} />
       <Stack.Screen name="CamScanner" component={CamScanner} />
     </Stack.Navigator>
   );

@@ -3,6 +3,11 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'white',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+  centerContent: {
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -11,16 +16,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
     marginHorizontal: 10,
-    borderBottomWidth: 1,
+    flexDirection: 'row',
+    padding: 10,
+  },
+  listIcon: {
+    flex: 1,
+  },
+  listInfo: {
+    flex: 9,
+    flexDirection: 'column',
+    overflow: 'hidden',
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ddd',
+    paddingBottom: 20,
   },
   text: {
+    width: '100%',
     backgroundColor: 'white',
-    borderRadius: 20,
-    elevation: 15,
-    width: '90%',
-    padding: 20,
-    margin: 5,
+    borderColor: '#ccc',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingTop: 30,
+    paddingBottom: 2,
+    borderRadius: 5,
   },
   button: {
     marginTop: 20,
@@ -29,7 +46,6 @@ const styles = StyleSheet.create({
     width: '90%',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 15,
     borderRadius: 20,
   }
 });

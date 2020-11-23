@@ -19,6 +19,10 @@ const Configuracion = ({navigation}) => {
     <Stack.Navigator>
       <Stack.Screen
         options={{
+          headerStyle: {
+            elevation: 0,
+          },
+          headerTintColor: '#103e5a',
           headerLeft: (props) => {
             return (
               <Icon

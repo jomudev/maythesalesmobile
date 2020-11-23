@@ -87,41 +87,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ddd',
     padding: 10,
     marginBottom: 10,
   },
+  textContainer: {
+    flexDirection: 'row',
+  },
+  barCodeIcon: {
+    color: '#101e5a',
+    flex: 1,
+    fontSize: 28,
+  },
   nombre: {
+    flex: 9,
     fontSize: 28,
     fontWeight: 'bold',
-    textAlign: 'center',
   },
   nombreContainer: {
     flexDirection: 'row',
-    borderWidth: 1,
-    flex: 1,
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'flex-start',
+    borderColor: '#ccc',
   },
   editNombre: {
-    color: '#555',
+    flex: 1,
+    textAlign: 'center',
+    color: '#101e5a',
     paddingHorizontal: 5,
-  },
-  message: {
-    width: '90%',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    elevation: 1,
-    padding: 10,
-    shadowColor: '#ddd',
-    shadowOpacity: 0.25,
-    borderRadius: 20,
-  },
-  closeMessage: {
-    position: 'absolute',
-    paddingHorizontal: 10,
-    alignSelf: 'flex-end',
   },
   listItem: {
     padding: 15,
@@ -133,15 +128,17 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     fontSize: 18,
+    fontWeight: 'bold',
   },
   itemSubtitle: {
     fontSize: 14,
     color: '#777',
     overflow: 'hidden',
+    fontWeight: 'bold',
   },
   form: {
     width: '100%',
-    padding: 5,
+    padding: 10,
     flex: 1,
   },
   title: {
@@ -154,8 +151,8 @@ const styles = StyleSheet.create({
     padding: 4,
     alignItems: 'center',
     backgroundColor: 'white',
-    borderBottomRightRadius: 15,
-    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 30,
   },
 });
 

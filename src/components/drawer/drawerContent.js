@@ -76,7 +76,7 @@ const DrawerContent = (props) => {
               </View>
             </View>
           ) : null}
-          <Drawer.Section>
+          <Drawer.Section renderToHardwareTextureAndroid>
             <DrawerItem
               icon={({color, size}) => (
                 <Icon name="home" color={color} size={size} />

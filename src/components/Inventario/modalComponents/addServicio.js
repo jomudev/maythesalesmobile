@@ -11,31 +11,24 @@ const AddServicio = () => {
   const nombre = useRef();
   const cantidad = useRef();
   const proveedor = useRef();
-  const costoPU = useRef();
-  const costoPM = useRef();
-  const precioPU = useRef();
-  const precioPM = useRef();
+  const precioCosto = useRef();
+  const precioVenta = useRef();
   const descripcion = useRef();
 
   useEffect(() => {
     register('nombre', {required: true});
     register('cantidad');
     register('proveedor');
-    register('costoPU');
-    register('costoPM');
-    register('precioPU');
-    register('precioPM');
-    register('descripcion');
+    register('precioCosto');
+    register('precioVenta');
   }, [register]);
 
   const clean = () => {
     nombre.current.clear();
     cantidad.current.clear();
     proveedor.current.clear();
-    costoPM.current.clear();
-    costoPU.current.clear();
-    precioPM.current.clear();
-    precioPU.current.clear();
+    precioCosto.current.clear();
+    precioVenta.current.clear();
     descripcion.current.clear();
   };
 
@@ -58,7 +51,7 @@ const AddServicio = () => {
       <View style={{alignItems: 'center'}}>
         <Text style={styles.formTitle}>Agregar Servicio</Text>
         <TextInput
-          placeholder="Nombre del producto*"
+          placeholder="Nombre del servicio*"
           style={styles.txtInput}
           onChangeText={(text) => setValue(text)}
           ref={nombre}
@@ -81,38 +74,20 @@ const AddServicio = () => {
         />
 
         <TextInput
-          placeholder="Costo por unidad"
+          placeholder="Precio de costo"
           style={styles.txtInput}
           keyboardType="number-pad"
           onChangeText={(text) => setValue(text)}
-          ref={costoPU}
+          ref={precioCosto}
         />
 
         <TextInput
-          placeholder="Costo por mayoreo"
+          placeholder="Precio de venta"
           keyboardType="number-pad"
           style={styles.txtInput}
           onChangeText={(text) => setValue(text)}
-          ref={costoPM}
+          ref={precioVenta}
         />
-
-        <TextInput
-          placeholder="Precio por unidad"
-          keyboardType="number-pad"
-          style={styles.txtInput}
-          onChangeText={(text) => setValue(text)}
-          ref={precioPU}
-        />
-
-        <TextInput
-          placeholder="Precio por mayoreo"
-          style={styles.txtInput}
-          keyboardType="number-pad"
-          cantidad
-          onChangeText={(text) => setValue(text)}
-          ref={precioPM}
-        />
-
         <TextInput
           placeholder="Descripción"
           style={styles.txtInput}

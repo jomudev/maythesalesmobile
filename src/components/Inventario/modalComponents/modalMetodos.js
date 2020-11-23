@@ -47,37 +47,33 @@ const randomId = (letrasLength, numerosLength) => {
 };
 
 //formatear numero de telefono
-const formatoTelefono = numero => {
+const formatoTelefono = (numero) => {
   return numero
     .split('')
-    .map((digito, index) => (index === 3 ? `${digito}-` : digito))
+    .map((digito, index) =>
+      index === 3 ? (digito !== '- ' ? `${digito}-` : digito) : digito,
+    )
     .join('');
 };
 
-const save = (type, data, clean) => {
+const save = (type, data, setSnackMessage) => {
   recolectarDatos();
   if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
     type === 'product'
       ? products
-          .doc(data.nombre)
+          .doc(data.nombre.toUpperCase())
           .set({
+            ...data,
             id: randomId(0, 6),
-            codigoDeBarras: data.codigoDeBarras,
-            nombre: data.nombre,
-            cantidad: Number(data.cantidad),
-            proveedor: data.proveedor,
-            costoPU: Number(data.costoPU),
-            costoPM: Number(data.costoPM),
-            precioPU: Number(data.precioPU),
-            precioPM: Number(data.precioPM),
-            descripcion: data.descripcion,
           })
           .then(() => {
-            Alert.prompt('Registro guardado correcta')
+            setSnackMessage('El registro se agregado exitosamente');
           })
           .catch((err) => {
             console.log('error: ', err.code);
-            Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
+            setSnackMessage(
+              'Hubo un problema al guardar el registro, intente de nuevo',
+            );
           })
       : null;
     if (type === 'client') {
@@ -92,9 +88,9 @@ const save = (type, data, clean) => {
           descripcion: data.descripcion,
         })
         .then(() => {
-          clean();
+          setSnackMessage('El registro se agregado exitosamente');
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('error: ', err.code);
           Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
         });
@@ -102,7 +98,7 @@ const save = (type, data, clean) => {
     if (type === 'service') {
       const id = randomId(4, 6);
       services
-        .doc(id)
+        .doc(data.nombre.toUpperCase())
         .set({
           id,
           nombre: data.nombre,
@@ -117,7 +113,7 @@ const save = (type, data, clean) => {
         .then(() => {
           clean();
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('error: ', err.code);
           Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
         });
@@ -136,7 +132,7 @@ const save = (type, data, clean) => {
         .then(() => {
           clean();
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('error: ', err.code);
           Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
         });

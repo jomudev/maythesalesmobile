@@ -87,7 +87,6 @@ function ShowClientes({navigation, route}) {
 
 function ShowProductos({navigation, route}) {
   const [list, setList] = useState([]);
-
   useEffect(() => {
     const subscriber = getList('productos', list, setList);
   }, [list]);
@@ -95,7 +94,7 @@ function ShowProductos({navigation, route}) {
     <View style={styles.container}>
       {list.length > 0 ? (
         list.map((item) => {
-          let subtitles = [`L${item.precioPU}`];
+          let subtitles = [`L${item.precioVenta}`];
           if (item.descripcion) {
             subtitles.push(item.descripcion);
           }
@@ -136,7 +135,7 @@ function ShowServicios({navigation, route}) {
     <View style={styles.container}>
       {list.length > 0 ? (
         list.map((item) => {
-          let subtitles = [`L${item.precioPU}`];
+          let subtitles = [`L${item.precioVenta}`];
           if (item.descripcion) {
             subtitles.push(item.descripcion);
           }

@@ -6,34 +6,46 @@ import RenderVentasCollection from '../listItem';
 import moment from 'moment';
 import auth from '@react-native-firebase/auth';
 
-async function getData() {
-  try {
-    return await firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .collection('ventas')
-      .get();
-  } catch (err) {
-    console.log(err);
-  }
-}
+const isActual = (fecha) => {
+  return (
+    moment(fecha, 'x').format('DD/MM/YYYY') === moment().format('DD/MM/YYYY')
+  );
+};
 
 const Ventas = () => {
   const [listaVentas, setListaVentas] = useState([]);
 
   useEffect(() => {
-    const unsubscriber = getData().then(res => {
-      let newList = [];
-      res.docs.forEach(doc => {
-        if (
-          moment(doc.data().fecha).format('DD/MM/YYYY') ===
-          moment().format('DD/MM/YYYY')
-        ) {
-          newList.push(doc.data());
+    const unsubscriber = firestore()
+      .collection('negocios')
+      .doc(auth().currentUser.uid)
+      .collection('ventas')
+      .onSnapshot((snap) => {
+        let newList = listaVentas;
+        snap.docChanges().forEach((change) => {
+          let docData = change.doc.data();
+          if (isActual(docData.timestamp)) {
+            switch (change.type) {
+              case 'added':
+                const isInList =
+                  newList.filter((item) => item.timestamp === docData.timestamp)
+                    .length > 0;
+                if (!isInList) {
+                  newList = newList.concat(docData);
+                }
+                break;
+              case 'removed':
+                newList = newList.filter((item) => item.id !== docData.id);
+                break;
+              default:
+                break;
+            }
+          }
+        });
+        if (JSON.stringify(listaVentas) !== JSON.stringify(newList)) {
+          setListaVentas(newList.reverse());
         }
       });
-      setListaVentas(newList.reverse());
-    });
     return () => {
       unsubscriber;
     };
@@ -48,15 +60,15 @@ const Ventas = () => {
           alignItems: 'center',
         }}>
         <Text style={{fontSize: 20, color: '#00000055'}}>
-          Aquí se muestran las ventas del día
+          No hay registros de ventas este día...
         </Text>
       </View>
     );
   }
   return (
     <ScrollView>
-      {listaVentas.map(venta => (
-        <RenderVentasCollection venta={venta} key={venta.fecha} />
+      {listaVentas.map((venta) => (
+        <RenderVentasCollection venta={venta} key={venta.timestamp} />
       ))}
     </ScrollView>
   );

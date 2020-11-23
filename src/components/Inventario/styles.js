@@ -3,7 +3,6 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   form: {
     maxWidth: 700,
-    borderRadius: 20,
     padding: 20,
     flex: 1,
     backgroundColor: 'white',
@@ -11,8 +10,8 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'white',
-    borderBottomRightRadius: 15,
-    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 30,
   },
   formTitle: {
     fontSize: 46,
@@ -29,9 +28,11 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   Icon: {
     textAlign: 'center',
+    textAlignVertical: 'center',
     flex: 1,
     borderRadius: 10,
     fontSize: 28,
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
   menuListTitle: {
     fontWeight: 'bold',
     fontSize: 14,
+    color: '#101e5a',
   },
   menuListBodyText: {
     fontSize: 12,
@@ -82,20 +84,20 @@ const styles = StyleSheet.create({
   menuListBody: {
     paddingHorizontal: 20,
     paddingTop: 5,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   menuListFooter: {
     flexDirection: 'row',
+    padding: 15,
   },
   menuListIcon: {
-    color: '#555',
+    color: '#101e5a',
     paddingRight: 10,
   },
   btn: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 25,
     borderRadius: 4,
   },
   btnTxt: {

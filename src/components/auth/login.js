@@ -20,7 +20,7 @@ import {useForm} from 'react-hook-form';
 import Snackbar from 'react-native-snackbar-component';
 
 const Login = ({navigation}) => {
-  const {handleSubmit, register, setValue, errors, watch} = useForm();
+  const {handleSubmit, register, setValue, errors, getValues} = useForm();
   const [inicializando, setInicializando] = useState(false);
   const [snackIsVisible, setSnackIsVisible] = useState(false);
   const [snackMessage, setSnackMessage] = useState(null);
@@ -34,19 +34,25 @@ const Login = ({navigation}) => {
     };
   }, [register]);
 
-  const onSubmit = data => {
-    console.log(data);
+  const onSubmit = (data) => {
+    if (!data.email || !data.password) {
+      setSnackMessage('Debes rellenar ambos campos para poder proseguir');
+      setSnackIsVisible(true);
+      return;
+    }
     setInicializando(true);
-    const isValidEmail = data.email.match(/[@]/g).length === 1 && data.email.match(/[.]/g).length === 1;
+    const dataEmail = data.email;
+    const dataPassword = data.password;
+    setInicializando(true);
+    const isValidEmail =
+      dataEmail.match(/[@]/g).length === 1 &&
+      dataEmail.match(/[.]/g).length === 1;
     if (!isValidEmail) {
-      Alert.alert(
-        'Correo Electrónico invalido',
-        'Ingresa una dirección de correo electrónico valida',
-      );
-      setInicializando(true);
+      setSnackMessage('Correo Electrónico invalido');
+      setSnackIsVisible(true);
     } else {
       auth()
-        .signInWithEmailAndPassword(data.email, data.password)
+        .signInWithEmailAndPassword(dataEmail, dataPassword)
         .catch((err) => {
           console.log(err.code);
           let msg;
@@ -56,28 +62,32 @@ const Login = ({navigation}) => {
               break;
             case 'auth/wrong-password':
               msg = 'Usuario o contraseña incorrecta intente de nuevo';
+              break;
             default:
               msg = 'Ha ocurrido un problema inesperado intenta de nuevo';
               break;
           }
           setSnackMessage(msg);
           setSnackIsVisible(true);
-          setInicializando(false);
         });
     }
+    setInicializando(false);
   };
 
   const emailEndEdit = () => {
-    if (!watch('password')) {
-      password.current.focus()
+    if (!getValues('password')) {
+      password.current.focus();
     }
-  }
+  };
 
   const passwordEndEdit = () => {
-    if (watch('email') !== undefined && watch('password') !== undefined) {
-      handleSubmit(onSubmit({email: watch('email'), password: watch('password')}));
+    if (
+      getValues('email') !== undefined &&
+      getValues('password') !== undefined
+    ) {
+        handleSubmit(onSubmit);
     }
-  }
+  };
 
   return (
     <View
@@ -116,7 +126,7 @@ const Login = ({navigation}) => {
             autoCapitalize="none"
             autoFocus={true}
             ref={email}
-            onEndEditing={emailEndEdit}
+            onSubmitEditing={emailEndEdit}
             returnKeyType="next"
             placeholder="Correo electrónico"
           />
@@ -128,7 +138,7 @@ const Login = ({navigation}) => {
             onChangeText={(text) => setValue('password', text)}
             secureTextEntry={true}
             textContentType="password"
-            onEndEditing={passwordEndEdit}
+            onSubmitEditing={passwordEndEdit}
             placeholder="Contraseña"
             ref={password}
           />
@@ -139,13 +149,15 @@ const Login = ({navigation}) => {
       <TouchableOpacity onPress={() => navigation.navigate('signin')}>
         <Text style={styles.registrarse}>Registrarse</Text>
       </TouchableOpacity>
-      <Snackbar 
+      <Snackbar
         visible={snackIsVisible}
         textMessage={snackMessage}
-        actionHandler={ () => {setSnackIsVisible(false)}}
-        actionText="Ok" 
+        actionHandler={() => {
+          setSnackIsVisible(false);
+        }}
+        actionText="Ok"
         duration={Snackbar.LENGTH_SHORT}
-        />
+      />
     </View>
   );
 };
