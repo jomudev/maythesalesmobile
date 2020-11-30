@@ -13,24 +13,20 @@ const initialState = {
 const calcularSuma = (ventaType, CarritoDeProductos, CarritoDeServicios) => {
   let totalSuma = 0;
   if (CarritoDeProductos) {
-    CarritoDeProductos.forEach(producto => {
-      totalSuma += ventaType
-        ? producto.precioPM * producto.cantidad
-        : producto.precioPU * producto.cantidad;
+    CarritoDeProductos.forEach((producto) => {
+      totalSuma += producto.precioVenta * producto.cantidad;
     });
   }
   if (CarritoDeServicios) {
-    CarritoDeServicios.forEach(servicio => {
-      totalSuma += ventaType
-        ? servicio.precioPM * servicio.cantidad
-        : servicio.precioPU * servicio.cantidad;
+    CarritoDeServicios.forEach((servicio) => {
+      totalSuma += servicio.precioVenta * servicio.cantidad;
     });
   }
   return Number(totalSuma);
 };
 
 const valores = (cantidad, productoOServicio, carritoProductos) => {
-  carritoProductos.map(producto =>
+  carritoProductos.map((producto) =>
     producto.id === productoOServicio.id
       ? (producto.cantidad = cantidad)
       : producto,
@@ -84,7 +80,7 @@ const reducers = (prevState, action) => {
     product.cantidad = 1;
 
     const existeEnCarrito =
-      newCart.filter(busqueda => busqueda.id === product.id).length > 0
+      newCart.filter((busqueda) => busqueda.id === product.id).length > 0
         ? true
         : false;
 
@@ -103,7 +99,8 @@ const reducers = (prevState, action) => {
     service.cantidad = 1;
 
     const existeEnCarrito =
-      newServicesCart.filter(busqueda => busqueda.id === service.id).length > 0
+      newServicesCart.filter((busqueda) => busqueda.id === service.id).length >
+      0
         ? true
         : false;
 
@@ -137,8 +134,8 @@ const reducers = (prevState, action) => {
     };
   }
   if (action.type === 'REMOVE_FROM_CART') {
-    newCart = newCart.filter(item => item.id !== action.id);
-    newServicesCart = newServicesCart.filter(item => item.id !== action.id);
+    newCart = newCart.filter((item) => item.id !== action.id);
+    newServicesCart = newServicesCart.filter((item) => item.id !== action.id);
 
     const newSuma = calcularSuma(false, newCart, newServicesCart);
     newState = {

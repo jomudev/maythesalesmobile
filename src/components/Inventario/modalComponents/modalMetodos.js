@@ -1,6 +1,17 @@
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
 import {Alert} from 'react-native';
+
+var uid = null;
+var storageRef = null;
+var productRef = null;
+
+if (auth().currentUser) {
+  uid = auth().currentUser.uid; 
+  storageRef = storage().ref(`negocios/${uid}`);
+  productRef = storageRef.child('productos');
+}
 
 let products = null;
 let clients = null;
@@ -8,7 +19,6 @@ let services = null;
 let providers = null;
 
 const recolectarDatos = () => {
-  let uid = auth().currentUser.uid;
   if (uid !== null) {
     products = firestore()
       .collection('negocios')
@@ -56,51 +66,57 @@ const formatoTelefono = (numero) => {
     .join('');
 };
 
-const save = (type, data, setSnackMessage) => {
+const saveProduct = async (data, imageDownloadURL) => {
+  return products.doc(data.nombre.toUpperCase()).set({
+    nombre: data.nombre,
+    id: randomId(0, 6),
+    codigoDeBarras: data.codigoDeBarras,
+    cantidad: Number(data.cantidad),
+    descripcion: data.descripcion,
+    precioCosto: Number(data.precioCosto),
+    precioVenta: Number(data.precioVenta),
+    proveedor: data.proveedor,
+    imageURL: imageDownloadURL ? imageDownloadURL : null,
+  });
+};
+
+const save = async (type, data) => {
   recolectarDatos();
-  if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
-    type === 'product'
-      ? products
-          .doc(data.nombre.toUpperCase())
-          .set({
-            ...data,
-            id: randomId(0, 6),
-          })
-          .then(() => {
-            setSnackMessage('El registro se agregado exitosamente');
-          })
-          .catch((err) => {
-            console.log('error: ', err.code);
-            setSnackMessage(
-              'Hubo un problema al guardar el registro, intente de nuevo',
-            );
-          })
-      : null;
-    if (type === 'client') {
-      const id = randomId(5, 3);
-      clients
-        .doc(id)
-        .set({
+  try {
+    if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
+      if (type === 'product') {
+        var url = null;
+        if (data.image) {
+          const uploadTask = productRef
+            .child(`${data.nombre}/mainImage`)
+            .putFile(data.image);
+          uploadTask.on('state_changed', (snap) => {
+            console.log((snap.bytesTransferred / snap.totalBytes) * 100, '%');
+          });
+
+          uploadTask.then(async () => {
+            url = await productRef
+              .child(`${data.nombre}/mainImage`)
+              .getDownloadURL();
+            return saveProduct(data, url);
+          });
+          return;
+        }
+        return saveProduct(data);
+      }
+      if (type === 'client') {
+        const id = randomId(5, 3);
+        return clients.doc(id).set({
           id,
           nombre: data.nombre,
           telefono: formatoTelefono(data.telefono),
           email: data.email,
           descripcion: data.descripcion,
-        })
-        .then(() => {
-          setSnackMessage('El registro se agregado exitosamente');
-        })
-        .catch((err) => {
-          console.log('error: ', err.code);
-          Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
         });
-    }
-    if (type === 'service') {
-      const id = randomId(4, 6);
-      services
-        .doc(data.nombre.toUpperCase())
-        .set({
-          id,
+      }
+      if (type === 'service') {
+        return services.doc(data.nombre.toUpperCase()).set({
+          id: randomId(4, 6),
           nombre: data.nombre,
           cantidad: Number(data.cantidad),
           proveedor: data.proveedor,
@@ -109,36 +125,21 @@ const save = (type, data, setSnackMessage) => {
           precioPU: Number(data.precioPU),
           precioPM: Number(data.precioPM),
           descripcion: data.descripcion,
-        })
-        .then(() => {
-          clean();
-        })
-        .catch((err) => {
-          console.log('error: ', err.code);
-          Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
         });
-    }
-    if (type === 'provider') {
-      const id = randomId(5);
-      providers
-        .doc(id)
-        .set({
+      }
+      if (type === 'provider') {
+        const id = randomId(5, 2);
+        return providers.doc(id).set({
           id,
           nombre: data.nombre,
           telefono: formatoTelefono(data.telefono),
           email: data.email,
           descripcion: data.descripcion,
-        })
-        .then(() => {
-          clean();
-        })
-        .catch((err) => {
-          console.log('error: ', err.code);
-          Alert.alert('Error', 'Ocurrio un error intenta de nuevo');
         });
+      }
     }
-  } else {
-    Alert.alert('Campos incompletos', 'Rellena los campos obligatorios');
+  } catch (err) {
+    console.log(err);
   }
 };
 

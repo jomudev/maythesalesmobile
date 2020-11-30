@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 10,
     fontSize: 28,
+    color: '#101e5a',
   },
   itemList: {
     borderRadius: 10,

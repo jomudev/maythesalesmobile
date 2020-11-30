@@ -16,7 +16,6 @@ import Login from './src/components/auth/login';
 import Signin from './src/components/auth/signIn';
 import DrawerNavigator from './src/components/drawer';
 import {View, ActivityIndicator, StatusBar} from 'react-native';
-
 const Stack = createStackNavigator();
 
 const App = () => {

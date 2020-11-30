@@ -87,7 +87,7 @@ const NuevaVenta = (props) => {
       .doc(uid)
       .collection('clientes')
       .onSnapshot((snap) => {
-        let newList = products;
+        let newList = clients;
         snap.docChanges().forEach((change) => {
           const docData = change.doc.data();
           const type = change.type;
@@ -109,9 +109,9 @@ const NuevaVenta = (props) => {
       });
 
     return () => {
-      unsubscribeProducts;
       unsubscribeServices;
       unsubscribeClients;
+      unsubscribeProducts;
     };
   }, []);
 

@@ -3,10 +3,12 @@ import React from 'react';
 import {View, TouchableOpacity, Text} from 'react-native';
 import styles from './modalStyles';
 
-const Button = ({action}) => {
+const Button = ({action, aditionalStyles}) => {
   return (
     <View style={{flexDirection: 'row'}}>
-      <TouchableOpacity style={styles.btn} onPress={() => action()}>
+      <TouchableOpacity
+        style={[styles.btn, aditionalStyles ? aditionalStyles : null]}
+        onPress={() => action()}>
         <Text style={{color: 'white'}}>Agregar</Text>
       </TouchableOpacity>
     </View>

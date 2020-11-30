@@ -7,45 +7,55 @@ import ListItem from './listItem';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
-function getList(type, prevList, setList) {
-  firestore()
+async function getList(type) {
+  return await firestore()
     .collection('negocios')
     .doc(auth().currentUser.uid)
-    .collection(type)
-    .onSnapshot((snap) => {
-      let newList = prevList || [];
-      snap.docChanges().forEach((change) => {
-        const docData = change.doc.data();
-        switch (change.type) {
-          case 'added':
-            const isInList =
-              newList.filter((item) => item.id === docData.id).length > 0;
-            if (!isInList) {
-              newList = newList.concat(docData);
-            }
-            break;
-          case 'modified':
-            newList = newList.map((item) =>
-              item.id === docData.id ? docData : item,
-            );
-            break;
-          case 'removed':
-            newList = newList.filter((item) => item.id !== docData.id);
-            break;
-        }
-      });
-      if (newList.length !== prevList.length) {
-        setList(newList);
-      }
-    });
+    .collection(type);
 }
+
+const getNewList = (snap, prevList, setList) => {
+  let newList = prevList || [];
+  snap.docChanges().forEach((change) => {
+    const docData = change.doc.data();
+    switch (change.type) {
+      case 'added':
+        const isInList =
+          newList.filter((item) => item.id === docData.id).length > 0;
+        if (!isInList) {
+          newList = newList.concat(docData);
+        }
+        break;
+      case 'modified':
+        newList = newList.map((item) =>
+          item.id === docData.id ? docData : item,
+        );
+        break;
+      case 'removed':
+        newList = newList.filter((item) => item.id !== docData.id);
+        break;
+    }
+  });
+  return newList;
+};
+
+const setNewList = (prevList, newList, setList) => {
+  if (JSON.stringify(prevList) !== JSON.stringify(newList)) {
+    setList(newList);
+  }
+};
 
 function ShowClientes({navigation, route}) {
   let [list, setList] = useState([]);
   useEffect(() => {
-    const subscriber = getList('clientes', list, setList);
+    const unsubscribe = getList('clientes').then(function (res) {
+      res.onSnapshot((snap) => {
+        const newList = getNewList(snap);
+        setNewList(list, newList, setList);
+      });
+    });
     return () => {
-      subscriber;
+      unsubscribe;
     };
   }, [list]);
 
@@ -88,13 +98,21 @@ function ShowClientes({navigation, route}) {
 function ShowProductos({navigation, route}) {
   const [list, setList] = useState([]);
   useEffect(() => {
-    const subscriber = getList('productos', list, setList);
+    const unsubscribe = getList('productos').then(function (res) {
+      res.onSnapshot((snap) => {
+        const newList = getNewList(snap);
+        setNewList(list, newList, setList);
+      });
+    });
+    return () => {
+      unsubscribe;
+    };
   }, [list]);
   return (
     <View style={styles.container}>
       {list.length > 0 ? (
         list.map((item) => {
-          let subtitles = [`L${item.precioVenta}`];
+          let subtitles = [`L${parseFloat(item.precioVenta).toFixed(2)}`];
           if (item.descripcion) {
             subtitles.push(item.descripcion);
           }
@@ -126,9 +144,14 @@ function ShowProductos({navigation, route}) {
 function ShowServicios({navigation, route}) {
   const [list, setList] = useState([]);
   useEffect(() => {
-    const subscriber = getList('servicios', list, setList);
+    const unsubscribe = getList('servicios').then(function (res) {
+      res.onSnapshot((snap) => {
+        const newList = getNewList(snap);
+        setNewList(list, newList, setList);
+      });
+    });
     return () => {
-      subscriber;
+      unsubscribe;
     };
   }, [list]);
   return (

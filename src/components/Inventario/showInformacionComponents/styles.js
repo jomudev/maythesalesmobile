@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     flex: 9,
     fontSize: 28,
     fontWeight: 'bold',
+    color: '#101e5a',
   },
   nombreContainer: {
     flexDirection: 'row',
@@ -149,11 +150,71 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 4,
-    alignItems: 'center',
     backgroundColor: 'white',
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
   },
+  imageContainer: {
+    alignItems: 'center',
+    alignContent: 'center',
+    height: 250,
+    width: '100%',
+    marginVertical: 10,
+  },
+  showImageButton: {
+    alignItems: 'center',
+    alignContent: 'center',
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#f1f2f3',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  updateImageButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: '#f6f7f8aa',
+    borderRadius: 100,
+    padding: 10,
+    elevation: 30,
+  },
+  addImageIcon: {
+    fontSize: 100,
+    color: '#101e5a',
+  },
+  updateImageIcon: {
+    fontSize: 46,
+    color: '#101e5a',
+  },
+  uploadingImageIcon: {
+    zIndex: 10,
+    color: '#000',
+    position: 'absolute',
+    top: '50%',
+    transform: [{translateY: -25}]
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  displayImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  displayImageContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+  },
+  displayCloseIcon: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 100,
+  }
 });
 
 export default styles;

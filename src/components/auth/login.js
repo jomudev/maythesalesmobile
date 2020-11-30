@@ -75,19 +75,8 @@ const Login = ({navigation}) => {
   };
 
   const emailEndEdit = () => {
-    if (!getValues('password')) {
-      password.current.focus();
-    }
-  };
-
-  const passwordEndEdit = () => {
-    if (
-      getValues('email') !== undefined &&
-      getValues('password') !== undefined
-    ) {
-        handleSubmit(onSubmit);
-    }
-  };
+    password.current.focus();
+  }
 
   return (
     <View
@@ -114,7 +103,7 @@ const Login = ({navigation}) => {
         <Image
           source={require('../../assets/AditionalMedia/2345.png')}
           style={styles.loginBG}
-          progressiveRenderingEnabled
+          progressiveRenderingEnabled={true}
         />
       </View>
       <ScrollView style={styles.container}>
@@ -124,7 +113,6 @@ const Login = ({navigation}) => {
             onChangeText={(text) => setValue('email', text)}
             keyboardType="email-address"
             autoCapitalize="none"
-            autoFocus={true}
             ref={email}
             onSubmitEditing={emailEndEdit}
             returnKeyType="next"
@@ -138,7 +126,6 @@ const Login = ({navigation}) => {
             onChangeText={(text) => setValue('password', text)}
             secureTextEntry={true}
             textContentType="password"
-            onSubmitEditing={passwordEndEdit}
             placeholder="Contraseña"
             ref={password}
           />
