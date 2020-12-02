@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, View, Image, TouchableOpacity} from 'react-native';
+import {Modal, View, Image, TouchableOpacity, StatusBar} from 'react-native';
 import styles from '../styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -9,6 +9,7 @@ const DisplayImageComponent = ({imageURL, showImage, setShowImage}) => {
       visible={showImage}
       animationType="slide"
       onRequestClose={() => setShowImage(false)}>
+      <StatusBar barStyle="light-content" backgroundColor="black" />
       <View style={styles.displayImageContainer}>
         <TouchableOpacity
           style={styles.displayCloseIcon}

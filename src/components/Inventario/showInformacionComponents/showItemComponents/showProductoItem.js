@@ -1,12 +1,13 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {View, TextInput, Text, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../styles';
 import DisplayImageComponent from './displayImageComponent';
 import ShowImage from './showImage';
+import {update} from './functions';
 
 const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
+  const [nombre, setNombre] = useState('');
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState(editIcon);
   const [showImage, setShowImage] = useState(false);
@@ -14,6 +15,19 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
   const toggleEdit = () => {
     setEdit(!edit);
     setIcon(!edit ? closeIcon : editIcon);
+  };
+
+  const handleUpdate = (element, value) => {
+    let prevData = data;
+    Object.defineProperty(data, element, {
+      value,
+      writable: true,
+    });
+    update(type, prevData, data)
+      .then(() => {
+        console.log('coleccion actualizada');
+      })
+      .catch((err) => console.log('async err: ' + err));
   };
 
   return (
@@ -34,7 +48,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
           {edit ? (
             <TextInput
               placeholder={`Editar nombre: ${data.nombre}`}
-              onEndEditing={(text) => updateData('nombre', text)}
+              onChangeText={setNombre}
+              onEndEditing={() => handleUpdate('nombre', nombre)}
               style={{...styles.txtInput, ...styles.nombre}}
             />
           ) : (

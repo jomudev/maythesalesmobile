@@ -8,7 +8,7 @@ var storageRef = null;
 var productRef = null;
 
 if (auth().currentUser) {
-  uid = auth().currentUser.uid; 
+  uid = auth().currentUser.uid;
   storageRef = storage().ref(`negocios/${uid}`);
   productRef = storageRef.child('productos');
 }
@@ -80,29 +80,41 @@ const saveProduct = async (data, imageDownloadURL) => {
   });
 };
 
-const save = async (type, data) => {
+const save = async (type, data, setSnackMessage) => {
   recolectarDatos();
   try {
     if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
       if (type === 'product') {
-        var url = null;
-        if (data.image) {
-          const uploadTask = productRef
-            .child(`${data.nombre}/mainImage`)
-            .putFile(data.image);
-          uploadTask.on('state_changed', (snap) => {
-            console.log((snap.bytesTransferred / snap.totalBytes) * 100, '%');
-          });
+        return firestore().runTransaction(async (t) => {
+          return await t
+            .get(products.doc(data.nombre.toUpperCase()))
+            .then((doc) => {
+              if (!doc.exists) {
+                var url = null;
+                if (data.image) {
+                  const uploadTask = productRef
+                    .child(`${data.nombre}/mainImage`)
+                    .putFile(data.image);
+                  uploadTask.on('state_changed', (snap) => {
+                    console.log(
+                      (snap.bytesTransferred / snap.totalBytes) * 100,
+                      '%',
+                    );
+                  });
 
-          uploadTask.then(async () => {
-            url = await productRef
-              .child(`${data.nombre}/mainImage`)
-              .getDownloadURL();
-            return saveProduct(data, url);
-          });
-          return;
-        }
-        return saveProduct(data);
+                  uploadTask.then(async () => {
+                    url = await productRef
+                      .child(`${data.nombre}/mainImage`)
+                      .getDownloadURL();
+                    return saveProduct(data, url);
+                  });
+                  return;
+                }
+                return saveProduct(data);
+              }
+              return 0;
+            });
+        });
       }
       if (type === 'client') {
         const id = randomId(5, 3);

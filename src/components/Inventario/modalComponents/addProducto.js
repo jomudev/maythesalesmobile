@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  PermissionsAndroid,
 } from 'react-native';
 import Button from './button';
 import {save} from './modalMetodos';
@@ -17,9 +16,20 @@ import {useForm} from 'react-hook-form';
 import Snackbar from 'react-native-snackbar-component';
 import ImagePicker from 'react-native-image-crop-picker';
 
+const defaultValuesForm = {
+  nombre: '',
+  cantidad: '',
+  proveedor: '',
+  descripcion: '',
+  precioCosto: '',
+  precioVenta: '',
+};
+
 const AddProducto = ({navigation, route}) => {
   const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
-  const {register, handleSubmit, errors, setValue} = useForm();
+  const {register, handleSubmit, watch, errors, reset, setValue} = useForm({
+    defaultValues: defaultValuesForm,
+  });
   const [snackIsActive, setSnackIsActive] = useState(false);
   const [snackMessage, setSnackMessage] = useState('Algo no anda bien.');
   const [image, setImage] = useState(null);
@@ -51,15 +61,10 @@ const AddProducto = ({navigation, route}) => {
   };
 
   const clean = () => {
+    reset();
     setBarcode('');
     setImage(null);
     setValue('image', null);
-    nombre.current.clear();
-    cantidad.current.clear();
-    proveedor.current.clear();
-    precioCosto.current.clear();
-    precioVenta.current.clear();
-    descripcion.current.clear();
   };
 
   const onSubmit = (data) => {
@@ -76,7 +81,19 @@ const AddProducto = ({navigation, route}) => {
         descripcion: data.descripcion,
       },
       handleSetSnackMessage,
-    );
+    )
+      .then((res) => {
+        var msg = 'El registro se ha guardado con exito.';
+        if (res === 0) {
+          msg = 'Parece que ya hay un registro con ese nombre.';
+        }
+        handleSetSnackMessage(msg);
+      })
+      .catch(() => {
+        handleSetSnackMessage(
+          '¡Ups! Ha ocurrido un problema al intentar guardar el registro',
+        );
+      });
     clean();
   };
 
@@ -143,6 +160,7 @@ const AddProducto = ({navigation, route}) => {
           placeholder="Nombre del producto*"
           style={styles.txtInput}
           onChangeText={(text) => setValue('nombre', text)}
+          value={`${watch('nombre')}`}
           ref={nombre}
         />
         {errors.nombre && <Text>Este campo es obligatorio</Text>}
@@ -151,6 +169,7 @@ const AddProducto = ({navigation, route}) => {
           placeholder="Cantidad"
           style={styles.txtInput}
           keyboardType="number-pad"
+          value={`${watch('cantidad')}`}
           onChangeText={(text) => setValue('cantidad', text)}
           ref={cantidad}
         />
@@ -158,6 +177,7 @@ const AddProducto = ({navigation, route}) => {
         <TextInput
           placeholder="Proveedor"
           style={styles.txtInput}
+          value={`${watch('proveedor')}`}
           onChangeText={(text) => setValue('proveedor', text)}
           ref={proveedor}
         />
@@ -166,6 +186,7 @@ const AddProducto = ({navigation, route}) => {
           placeholder="Precio de costo"
           style={styles.txtInput}
           keyboardType="number-pad"
+          value={`${watch('precioCosto')}`}
           onChangeText={(text) => setValue('precioCosto', text)}
           ref={precioCosto}
         />
@@ -174,13 +195,18 @@ const AddProducto = ({navigation, route}) => {
           placeholder="Precio de venta"
           keyboardType="number-pad"
           style={styles.txtInput}
+          value={`${watch('precioVenta')}`}
           onChangeText={(text) => setValue('precioVenta', text)}
           ref={precioVenta}
         />
 
         <TextInput
           placeholder="Descripción"
-          style={styles.txtInput}
+          numberOfLines={4}
+          multiline={true}
+          returnKeyType="none"
+          style={[styles.txtInput, {textAlignVertical: 'top'}]}
+          value={`${watch('descripcion')}`}
           onChangeText={(text) => setValue('descripcion', text)}
           ref={descripcion}
         />
@@ -194,6 +220,7 @@ const AddProducto = ({navigation, route}) => {
         textMessage={snackMessage}
         actionText="OK"
         actionHandler={() => setSnackIsActive(false)}
+        position="top"
       />
     </ScrollView>
   );
