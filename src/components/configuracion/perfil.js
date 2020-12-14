@@ -53,19 +53,19 @@ const Perfil = () => {
     register('nombre');
     register('telefono');
 
-    const unsubscriber = firestore()
+    const unsubscribe = firestore()
       .collection('negocios')
       .doc(user.uid)
-      .onSnapshot((doc) => {
-        if (doc.exists) {
-          setUserData(doc.data());
-        }
+      .get()
+      .then((doc) => {
+        console.log(doc.data());
+        setUserData(doc.data());
       });
 
     return () => {
-      unsubscriber;
+      unsubscribe;
     };
-  }, [register, user.uid]);
+  }, [register]);
   return (
     <View style={{...styles.container, ...styles.centerContent}}>
       <View style={styles.profileSection}>

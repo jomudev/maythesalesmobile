@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 
 const defaultValuesForm = {
   nombre: '',
+  marca: '',
   cantidad: '',
   proveedor: '',
   descripcion: '',
@@ -34,16 +35,11 @@ const AddProducto = ({navigation, route}) => {
   const [snackMessage, setSnackMessage] = useState('Algo no anda bien.');
   const [image, setImage] = useState(null);
   const [barcode, setBarcode] = useState('');
-  const nombre = useRef();
-  const cantidad = useRef();
-  const proveedor = useRef();
-  const precioCosto = useRef();
-  const precioVenta = useRef();
-  const descripcion = useRef();
 
   useEffect(() => {
     register('image');
     register('nombre', {required: true});
+    register('marca');
     register('cantidad');
     register('proveedor');
     register('precioCosto');
@@ -71,7 +67,7 @@ const AddProducto = ({navigation, route}) => {
     save(
       'product',
       {
-        codigoDeBarras: barcode,
+        barcode: barcode,
         image: data.image,
         nombre: data.nombre,
         cantidad: data.cantidad,
@@ -79,6 +75,7 @@ const AddProducto = ({navigation, route}) => {
         precioCosto: data.precioCosto,
         precioVenta: data.precioVenta,
         descripcion: data.descripcion,
+        marca: data.marca,
       },
       handleSetSnackMessage,
     )
@@ -161,17 +158,20 @@ const AddProducto = ({navigation, route}) => {
           style={styles.txtInput}
           onChangeText={(text) => setValue('nombre', text)}
           value={`${watch('nombre')}`}
-          ref={nombre}
         />
         {errors.nombre && <Text>Este campo es obligatorio</Text>}
-
+        <TextInput
+          placeholder="Marca del producto"
+          style={styles.txtInput}
+          onChangeText={(text) => setValue('marca', text)}
+          value={`${watch('marca')}`}
+        />
         <TextInput
           placeholder="Cantidad"
           style={styles.txtInput}
           keyboardType="number-pad"
           value={`${watch('cantidad')}`}
           onChangeText={(text) => setValue('cantidad', text)}
-          ref={cantidad}
         />
 
         <TextInput
@@ -179,7 +179,6 @@ const AddProducto = ({navigation, route}) => {
           style={styles.txtInput}
           value={`${watch('proveedor')}`}
           onChangeText={(text) => setValue('proveedor', text)}
-          ref={proveedor}
         />
 
         <TextInput
@@ -188,7 +187,6 @@ const AddProducto = ({navigation, route}) => {
           keyboardType="number-pad"
           value={`${watch('precioCosto')}`}
           onChangeText={(text) => setValue('precioCosto', text)}
-          ref={precioCosto}
         />
 
         <TextInput
@@ -197,7 +195,6 @@ const AddProducto = ({navigation, route}) => {
           style={styles.txtInput}
           value={`${watch('precioVenta')}`}
           onChangeText={(text) => setValue('precioVenta', text)}
-          ref={precioVenta}
         />
 
         <TextInput
@@ -208,7 +205,6 @@ const AddProducto = ({navigation, route}) => {
           style={[styles.txtInput, {textAlignVertical: 'top'}]}
           value={`${watch('descripcion')}`}
           onChangeText={(text) => setValue('descripcion', text)}
-          ref={descripcion}
         />
         <Button
           action={handleSubmit(onSubmit)}

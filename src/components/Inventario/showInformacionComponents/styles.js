@@ -95,6 +95,11 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: 'row',
   },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   barCodeIcon: {
     color: '#101e5a',
     flex: 1,
@@ -134,6 +139,8 @@ const styles = StyleSheet.create({
   itemSubtitle: {
     fontSize: 14,
     color: '#777',
+    overflow: 'hidden',
+    height: 40,
     overflow: 'hidden',
     fontWeight: 'bold',
   },
@@ -181,7 +188,7 @@ const styles = StyleSheet.create({
     elevation: 30,
   },
   addImageIcon: {
-    fontSize: 100,
+    fontSize: 225,
     color: '#101e5a',
   },
   updateImageIcon: {

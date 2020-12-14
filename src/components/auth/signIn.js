@@ -79,7 +79,7 @@ const Signin = ({navigation}) => {
           </View>
         ) : null}
         <Image
-          source={require('../../assets/AditionalMedia/33571.jpg')}
+          source={require('../../assets/AdditionalMedia/33571.jpg')}
           style={styles.loginBG}
           progressiveRenderingEnabled
           resizeMethod="scale"

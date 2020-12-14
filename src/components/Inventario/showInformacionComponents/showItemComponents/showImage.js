@@ -73,11 +73,15 @@ const ShowImage = ({data, setShowImage, type, navigation}) => {
           color="#f6f7f8"
         />
       ) : null}
-      <TouchableOpacity style={styles.updateImageButton} onPress={updateImage}>
-        <Icon name="image-edit" style={styles.updateImageIcon} />
-      </TouchableOpacity>
+      {data.imageURL ? (
+        <TouchableOpacity
+          style={styles.updateImageButton}
+          onPress={updateImage}>
+          <Icon name="image-edit" style={styles.updateImageIcon} />
+        </TouchableOpacity>
+      ) : null}
       <TouchableOpacity
-        onPress={() => setShowImage(true)}
+        onPress={() => (data.imageURL ? setShowImage(true) : updateImage())}
         style={styles.showImageButton}>
         {data.imageURL ? (
           <Image

@@ -237,11 +237,11 @@ const ListItem = ({item, cantidad}) => {
         style={{
           fontSize: 12,
           textAlign: 'left',
-          width: '35%',
+          flex: 5,
           flexDirection: 'row',
         }}>
         {item.nombre}
-        {`L${item.precioVenta}`}
+        {` L${item.precioVenta}`}
       </Text>
       <TextInput
         style={styles.cartInput}
@@ -255,7 +255,7 @@ const ListItem = ({item, cantidad}) => {
           })
         }
       />
-      <Text style={{width: '40%', fontSize: 12, textAlign: 'center'}}>
+      <Text style={{flex: 5, fontSize: 12, textAlign: 'center'}}>
         {`subtotal: L${Number.parseFloat(
           item.precioVenta * item.cantidad,
         ).toFixed(2)}`}
@@ -338,11 +338,12 @@ export default ShoppingCart;
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    maxHeight: 400,
-    bottom: 10,
+    maxHeight: 500,
+    bottom: 0,
     alignSelf: 'center',
     width: '100%',
-    borderRadius: 20,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
     padding: 10,
     backgroundColor: '#f2f3f4',
   },
@@ -420,6 +421,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   removeFromCart: {
+    flex: 1,
     elevation: 5,
     color: '#cbc6c3',
   },
@@ -431,9 +433,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   cartInput: {
-    width: '15%',
+    flex: 1,
     height: 30,
     textAlign: 'center',
     padding: 0,

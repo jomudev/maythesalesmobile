@@ -7,14 +7,14 @@ import ListItem from './listItem';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
-async function getList(type) {
-  return await firestore()
+async function getCollection(type) {
+  return firestore()
     .collection('negocios')
     .doc(auth().currentUser.uid)
     .collection(type);
 }
 
-const getNewList = (snap, prevList, setList) => {
+const getCollectionData = (snap, prevList, setList) => {
   let newList = prevList || [];
   snap.docChanges().forEach((change) => {
     const docData = change.doc.data();
@@ -39,30 +39,35 @@ const getNewList = (snap, prevList, setList) => {
   return newList;
 };
 
-const setNewList = (prevList, newList, setList) => {
+const verifyCollectionDataChanges = (prevList, newList, setList) => {
   if (JSON.stringify(prevList) !== JSON.stringify(newList)) {
     setList(newList);
   }
 };
 
+const setList = (res, list, setNewList) => {
+  res.onSnapshot((snap) => {
+    const newList = getCollectionData(snap);
+    verifyCollectionDataChanges(list, newList, setNewList);
+    return newList;
+  });
+}
+
 function ShowClientes({navigation, route}) {
-  let [list, setList] = useState([]);
+  let [clientsList, setClients] = useState([]);
   useEffect(() => {
-    const unsubscribe = getList('clientes').then(function (res) {
-      res.onSnapshot((snap) => {
-        const newList = getNewList(snap);
-        setNewList(list, newList, setList);
-      });
+    const unsubscribe = getCollection('clientes').then((res) => {
+      setList(res, clientsList, setClients);
     });
     return () => {
       unsubscribe;
     };
-  }, [list]);
+  }, [clientsList]);
 
   return (
     <View style={styles.container}>
-      {list.length > 0 ? (
-        list.map((item) => {
+      {clientsList.length > 0 ? (
+        clientsList.map((item) => {
           const subtitles = [];
           if (item.email) {
             subtitles.push(`email: ${item.email}`);
@@ -96,22 +101,20 @@ function ShowClientes({navigation, route}) {
 }
 
 function ShowProductos({navigation, route}) {
-  const [list, setList] = useState([]);
+  let [productsList, setProducts] = useState([]);
   useEffect(() => {
-    const unsubscribe = getList('productos').then(function (res) {
-      res.onSnapshot((snap) => {
-        const newList = getNewList(snap);
-        setNewList(list, newList, setList);
-      });
+    const unsubscribe = getCollection('productos').then((res) => {
+      setList(res, productsList, setProducts);
     });
     return () => {
       unsubscribe;
     };
-  }, [list]);
+  }, [productsList]);
+
   return (
     <View style={styles.container}>
-      {list.length > 0 ? (
-        list.map((item) => {
+      {productsList.length > 0 ? (
+        productsList.map((item) => {
           let subtitles = [`L${parseFloat(item.precioVenta).toFixed(2)}`];
           if (item.descripcion) {
             subtitles.push(item.descripcion);
@@ -142,22 +145,20 @@ function ShowProductos({navigation, route}) {
 }
 
 function ShowServicios({navigation, route}) {
-  const [list, setList] = useState([]);
+  let [servicesList, setServices] = useState([]);
   useEffect(() => {
-    const unsubscribe = getList('servicios').then(function (res) {
-      res.onSnapshot((snap) => {
-        const newList = getNewList(snap);
-        setNewList(list, newList, setList);
-      });
+    const unsubscribe = getCollection('servicios').then((res) => {
+      setList(res, servicesList, setServices);
     });
     return () => {
       unsubscribe;
     };
-  }, [list]);
+  }, [servicesList]);
+
   return (
     <View style={styles.container}>
-      {list.length > 0 ? (
-        list.map((item) => {
+      {servicesList.length > 0 ? (
+        servicesList.map((item) => {
           let subtitles = [`L${item.precioVenta}`];
           if (item.descripcion) {
             subtitles.push(item.descripcion);
@@ -188,19 +189,20 @@ function ShowServicios({navigation, route}) {
 }
 
 function ShowProveedores({navigation, route}) {
-  const [list, setList] = useState([]);
-
+  let [providersList, setProviders] = useState([]);
   useEffect(() => {
-    const subscriber = getList('proveedores', list, setList);
+    const unsubscribe = getCollection('proveedores').then((res) => {
+      setList(res, providersList, setProviders);
+    });
     return () => {
-      subscriber;
+      unsubscribe;
     };
-  }, [list]);
+  }, [providersList]);
 
   return (
     <View style={styles.container}>
-      {list.length > 0 ? (
-        list.map((item) => (
+      {providersList.length > 0 ? (
+        providersList.map((item) => (
           <ListItem
             key={Math.random()}
             data={item}

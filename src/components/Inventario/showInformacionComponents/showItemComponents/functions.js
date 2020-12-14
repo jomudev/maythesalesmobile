@@ -1,21 +1,13 @@
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
-const db = firestore().collection('negocios').doc(auth().currentUser.uid);
-const productsCollection = db.collection('productos');
-
-const update = async (collectionToUpdate, prevData, newData) => {
+async function update(collectionToUpdate, data) {
+  const db = firestore().collection('negocios').doc(auth().currentUser.uid);
   try {
-    if (collectionToUpdate === 'productos') {
-      return productsCollection
-        .doc(prevData.nombre.toUpperCase())
-        .update(newData);
-    } else {
-      return db.collection(collectionToUpdate).doc(prevData.id).update(newData);
-    }
+    return db.collection(collectionToUpdate).doc(data.id).update(data);
   } catch (err) {
-    console.log('try/catch error: ' + err);
+    console.log(err);
   }
-};
+}
 
 export {update};

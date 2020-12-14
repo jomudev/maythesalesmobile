@@ -18,7 +18,7 @@ let clients = null;
 let services = null;
 let providers = null;
 
-const recolectarDatos = () => {
+const collectData = () => {
   if (uid !== null) {
     products = firestore()
       .collection('negocios')
@@ -39,38 +39,43 @@ const recolectarDatos = () => {
   }
 };
 
-const randomId = (letrasLength, numerosLength) => {
-  // Crear una id con letras y digitos del 0 al 9
+const getLetters =  (length) => {
+  let combination = '';
+  for (let i = 0; i < length; i++) {
+    combination += String.fromCharCode(Math.floor(Math.random() * (90 - 65) + 65));
+  };
+  return combination;
+}
 
-  let id = '';
-  // Obtenemos las letras aleatorias y las añadimos al id
-  for (let i = 0; i < letrasLength; i++) {
-    id += String.fromCharCode(Math.floor(Math.random() * (90 - 65) + 65));
-  }
+const getNumbers = (length) => {
+  let combination = '';
+  for (let j = 0; j < length; j++) {
+    combination += Math.floor(Math.random() * (10 - 0) + 0);
+  };
 
-  //obtenemos los numeros aleatorios y los añadimos a la id
-  for (let j = 0; j < numerosLength; j++) {
-    id += Math.floor(Math.random() * (10 - 0) + 0);
-  }
-  // retornamos el id
-  return id;
+  return combination;
+}
+
+const randomId = (lettersLength, numbersLength) => {
+  return `${getLetters(lettersLength)}${getNumbers(numbersLength)}`;
 };
 
-//formatear numero de telefono
-const formatoTelefono = (numero) => {
-  return numero
+const phoneFormat = (number) => {
+  return number
     .split('')
-    .map((digito, index) =>
-      index === 3 ? (digito !== '- ' ? `${digito}-` : digito) : digito,
+    .map((digit, index) =>
+      index === 3 ? (digit !== '-' ? `${digit}-` : digit) : digit,
     )
     .join('');
 };
 
 const saveProduct = async (data, imageDownloadURL) => {
-  return products.doc(data.nombre.toUpperCase()).set({
+  const id = randomId(0, 6);
+  return products.doc(id).set({
     nombre: data.nombre,
-    id: randomId(0, 6),
-    codigoDeBarras: data.codigoDeBarras,
+    id,
+    marca: data.marca,
+    barcode: data.barcode,
     cantidad: Number(data.cantidad),
     descripcion: data.descripcion,
     precioCosto: Number(data.precioCosto),
@@ -81,47 +86,35 @@ const saveProduct = async (data, imageDownloadURL) => {
 };
 
 const save = async (type, data, setSnackMessage) => {
-  recolectarDatos();
+  collectData();
   try {
     if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
       if (type === 'product') {
-        return firestore().runTransaction(async (t) => {
-          return await t
-            .get(products.doc(data.nombre.toUpperCase()))
-            .then((doc) => {
-              if (!doc.exists) {
-                var url = null;
-                if (data.image) {
-                  const uploadTask = productRef
-                    .child(`${data.nombre}/mainImage`)
-                    .putFile(data.image);
-                  uploadTask.on('state_changed', (snap) => {
-                    console.log(
-                      (snap.bytesTransferred / snap.totalBytes) * 100,
-                      '%',
-                    );
-                  });
+        var url = null;
+        if (data.image) {
+          const uploadTask = productRef
+            .child(`${data.nombre}/mainImage`)
+            .putFile(data.image);
+          uploadTask.on('state_changed', (snap) => {
+            console.log((snap.bytesTransferred / snap.totalBytes) * 100, '%');
+          });
 
-                  uploadTask.then(async () => {
-                    url = await productRef
-                      .child(`${data.nombre}/mainImage`)
-                      .getDownloadURL();
-                    return saveProduct(data, url);
-                  });
-                  return;
-                }
-                return saveProduct(data);
-              }
-              return 0;
-            });
-        });
+          uploadTask.then(async () => {
+            url = await productRef
+              .child(`${data.nombre}/mainImage`)
+              .getDownloadURL();
+            return saveProduct(data, url);
+          });
+          return;
+        }
+        return saveProduct(data);
       }
       if (type === 'client') {
         const id = randomId(5, 3);
         return clients.doc(id).set({
           id,
           nombre: data.nombre,
-          telefono: formatoTelefono(data.telefono),
+          telefono: phoneFormat(data.telefono),
           email: data.email,
           descripcion: data.descripcion,
         });
@@ -132,6 +125,7 @@ const save = async (type, data, setSnackMessage) => {
           nombre: data.nombre,
           cantidad: Number(data.cantidad),
           proveedor: data.proveedor,
+          marca: data.marca,
           costoPU: Number(data.costoPU),
           costoPM: Number(data.costoPM),
           precioPU: Number(data.precioPU),
@@ -144,7 +138,7 @@ const save = async (type, data, setSnackMessage) => {
         return providers.doc(id).set({
           id,
           nombre: data.nombre,
-          telefono: formatoTelefono(data.telefono),
+          telefono: phoneFormat(data.telefono),
           email: data.email,
           descripcion: data.descripcion,
         });

@@ -63,7 +63,8 @@ const styles = StyleSheet.create({
   },
   loginBG: {
     marginTop: `${-10}%`,
-    resizeMode: 'contain',
+    resizeMode: 'center',
+    height: '100%',
     flex: 1,
     alignSelf: 'center',
   },

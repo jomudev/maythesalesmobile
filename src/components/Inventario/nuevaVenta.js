@@ -23,101 +23,76 @@ import auth from '@react-native-firebase/auth';
 
 const Stack = createStackNavigator();
 
+const handleGetList = (snap, list, setList) => {
+  if (!snap.docChanges) {
+    return; 
+  }
+  
+  let newList = list;
+  snap.docChanges().forEach((change) => {
+    const data = change.doc.data();
+    switch (change.type) {
+      case 'added':
+        const isInList = list.filter((item) => item.id === data.id)[0];
+        if (!isInList) {
+          newList = newList.concat(data);
+        }
+        break;
+      case 'modified':
+        newList = list.map((item) => (item.id === data.id ? data : item));
+        break;
+      case 'removed':
+        newList = list.filter((item) => item.id !== data.id);
+        break;
+      default:
+        break;
+    }
+  });
+  if (JSON.stringify(list) !== JSON.stringify(newList)) {
+    setList(newList);
+  }
+};
+
 const NuevaVenta = (props) => {
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
-  const uid = auth().currentUser.uid
 
   useEffect(() => {
     const unsubscribeProducts = firestore()
       .collection('negocios')
-      .doc(uid)
+      .doc(auth().currentUser.uid)
       .collection('productos')
-      .onSnapshot((snap) => {
-        let newList = products;
-        snap.docChanges().forEach((change) => {
-          const docData = change.doc.data();
-          const type = change.type;
-          if (type === 'added') {
-            newList = newList.concat(docData);
-          }
-          if (type === 'modified') {
-            newList = newList.map((product) =>
-              product.id === docData.id ? docData : product,
-            );
-          }
-          if (type === 'removed') {
-            newList = newList.filter((product) => product.id !== docData.id);
-          }
-        });
-        if (JSON.stringify(products) !== JSON.stringify(newList)) {
-          setProducts(newList);
-        }
-      });
-
-    const unsubscribeServices = firestore()
-      .collection('negocios')
-      .doc(uid)
-      .collection('servicios')
-      .onSnapshot((snap) => {
-        let newList = products;
-        snap.docChanges().forEach((change) => {
-          const docData = change.doc.data();
-          const type = change.type;
-          if (type === 'added') {
-            newList = newList.concat(docData);
-          }
-          if (type === 'modified') {
-            newList = newList.map((service) =>
-              service.id === docData.id ? docData : service,
-            );
-          }
-          if (type === 'removed') {
-            newList = newList.filter((service) => service.id !== docData.id);
-          }
-        });
-        if (JSON.stringify(services) !== JSON.stringify(newList)) {
-          setServices(newList);
-        }
-      });
+      .onSnapshot((snap) => handleGetList(snap, products, setProducts));
 
     const unsubscribeClients = firestore()
       .collection('negocios')
-      .doc(uid)
+      .doc(auth().currentUser.uid)
       .collection('clientes')
-      .onSnapshot((snap) => {
-        let newList = clients;
-        snap.docChanges().forEach((change) => {
-          const docData = change.doc.data();
-          const type = change.type;
-          if (type === 'added') {
-            newList = newList.concat(docData);
-          }
-          if (type === 'modified') {
-            newList = newList.map((client) =>
-              client.id === docData.id ? docData : client,
-            );
-          }
-          if (type === 'removed') {
-            newList = newList.filter((client) => client.id !== docData.id);
-          }
-        });
-        if (JSON.stringify(clients) !== JSON.stringify(newList)) {
-          setClients(newList);
-        }
-      });
+      .onSnapshot((snap) => handleGetList(snap, clients, setClients));
+
+    const unsubscribeServices = firestore()
+      .collection('negocios')
+      .doc(auth().currentUser.uid)
+      .collection('servicios')
+      .onSnapshot((snap) => handleGetList(snap, services, setServices));
 
     return () => {
-      unsubscribeServices;
-      unsubscribeClients;
-      unsubscribeProducts;
+      unsubscribeProducts();
+      unsubscribeClients();
+      unsubscribeServices();
     };
   }, []);
 
   const itemStyles = StyleSheet.create({
     title: {fontSize: 16, fontWeight: 'bold'},
-    subtitle: {fontSize: 12, color: '#aaa', fontWeight: 'bold'},
+    subtitle: {
+      fontSize: 12,
+      color: '#aaa',
+      fontWeight: 'bold',
+      overflow: 'hidden',
+      height: 30,
+    },
   });
 
   // Item de lista de productos
@@ -135,7 +110,7 @@ const NuevaVenta = (props) => {
         {`${data.nombre} L${Number.parseFloat(data.precioVenta).toFixed(2)}`}
       </Text>
       {data.descripcion ? (
-        <Text style={itemStyles.subtitle}>{data.descripcion}</Text>
+        <Text style={itemStyles.subtitle}>{data.marca}</Text>
       ) : null}
     </TouchableOpacity>
   );
@@ -239,86 +214,88 @@ const NuevaVenta = (props) => {
     };
 
     return (
-      <View style={{...styles.container, ...styles.form}}>
-        <View style={styles.formGroup}>
-          <View style={styles.textContainer}>
-            <Icon
-              name="barcode"
-              style={styles.Icon}
-              onPress={() => navigation.navigate('CamScanner', {type: 'get'})}
-            />
-            <TextInput
-              value={searchedProduct}
-              style={styles.txtInput}
-              onChangeText={(text) => setFundProduct(text)}
-              placeholder="Buscar producto"
-            />
-            <Icon
-              name="plus"
-              style={styles.Icon}
-              onPress={() => navigation.navigate('Productos')}
-            />
+      <>
+        <View style={{...styles.container, ...styles.form}}>
+          <View style={styles.formGroup}>
+            <View style={styles.textContainer}>
+              <Icon
+                name="barcode"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('CamScanner', {type: 'get'})}
+              />
+              <TextInput
+                value={searchedProduct}
+                style={styles.txtInput}
+                onChangeText={(text) => setFundProduct(text)}
+                placeholder="Buscar producto"
+              />
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Productos')}
+              />
+            </View>
+            <ScrollView
+              style={styles.findProductsList}
+              showsVerticalScrollIndicator={false}>
+              <Search List={products} type="products" />
+            </ScrollView>
           </View>
-          <ScrollView
-            style={styles.findProductsList}
-            showsVerticalScrollIndicator={false}>
-            <Search List={products} type="products" />
-          </ScrollView>
-        </View>
-        <View style={styles.formGroup}>
-          <View style={styles.textContainer}>
-            <Icon
-              name="close"
-              style={styles.Icon}
-              onPress={() => setFundClient('')}
-            />
-            <TextInput
-              value={searchedClient}
-              onChangeText={(text) => setFundClient(text)}
-              style={styles.txtInput}
-              placeholder="Buscar cliente"
-            />
-            <Icon
-              name="plus"
-              style={styles.Icon}
-              onPress={() => navigation.navigate('Clientes')}
-            />
+          <View style={styles.formGroup}>
+            <View style={styles.textContainer}>
+              <Icon
+                name="close"
+                style={styles.Icon}
+                onPress={() => setFundClient('')}
+              />
+              <TextInput
+                value={searchedClient}
+                onChangeText={(text) => setFundClient(text)}
+                style={styles.txtInput}
+                placeholder="Buscar cliente"
+              />
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Clientes')}
+              />
+            </View>
+            <ScrollView
+              style={styles.findProductsList}
+              showsVerticalScrollIndicator={false}>
+              {searchedClient ? <Search List={clients} type="clients" /> : null}
+            </ScrollView>
           </View>
-          <ScrollView
-            style={styles.findProductsList}
-            showsVerticalScrollIndicator={false}>
-            {searchedClient ? <Search List={clients} type="clients" /> : null}
-          </ScrollView>
-        </View>
-        <View style={styles.formGroup}>
-          <View style={styles.textContainer}>
-            <Icon
-              name="close"
-              style={styles.Icon}
-              onPress={() => setFundService('')}
-            />
-            <TextInput
-              value={searchedService}
-              style={styles.txtInput}
-              onChangeText={(text) => setFundService(text)}
-              placeholder="Buscar Servicio Adicional"
-            />
-            <Icon
-              name="plus"
-              style={styles.Icon}
-              onPress={() => navigation.navigate('Servicios')}
-            />
+          <View style={styles.formGroup}>
+            <View style={styles.textContainer}>
+              <Icon
+                name="close"
+                style={styles.Icon}
+                onPress={() => setFundService('')}
+              />
+              <TextInput
+                value={searchedService}
+                style={styles.txtInput}
+                onChangeText={(text) => setFundService(text)}
+                placeholder="Buscar Servicio Adicional"
+              />
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Servicios')}
+              />
+            </View>
+            <ScrollView
+              style={styles.findProductsList}
+              showsVerticalScrollIndicator={false}>
+              {searchedService ? (
+                <Search List={services} type="services" />
+              ) : null}
+            </ScrollView>
           </View>
-          <ScrollView
-            style={styles.findProductsList}
-            showsVerticalScrollIndicator={false}>
-            {searchedService ? (
-              <Search List={services} type="services" />
-            ) : null}
-          </ScrollView>
         </View>
         <ShoppingCart />
-      </View>
+      </>
     );
   };
   return (

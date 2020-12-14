@@ -46,6 +46,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     flexDirection: 'column',
     marginHorizontal: 0.5,
+    height: 70,
+    overflow: 'hidden',
   },
   txtInput: {
     paddingHorizontal: 10,
