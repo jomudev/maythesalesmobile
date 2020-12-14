@@ -23,40 +23,36 @@ import auth from '@react-native-firebase/auth';
 
 const Stack = createStackNavigator();
 
-const handleGetList = (snap, list, setList) => {
-  if (!snap.docChanges) {
-    return; 
-  }
-  
-  let newList = list;
-  snap.docChanges().forEach((change) => {
-    const data = change.doc.data();
-    switch (change.type) {
-      case 'added':
-        const isInList = list.filter((item) => item.id === data.id)[0];
-        if (!isInList) {
-          newList = newList.concat(data);
-        }
-        break;
-      case 'modified':
-        newList = list.map((item) => (item.id === data.id ? data : item));
-        break;
-      case 'removed':
-        newList = list.filter((item) => item.id !== data.id);
-        break;
-      default:
-        break;
-    }
-  });
-  if (JSON.stringify(list) !== JSON.stringify(newList)) {
-    setList(newList);
-  }
-};
-
 const NuevaVenta = (props) => {
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
+
+  const handleGetList = (snap, list, setList) => {
+    let newList = list;
+    snap.docChanges().forEach((change) => {
+      const data = change.doc.data();
+      switch (change.type) {
+        case 'added':
+          const isInList = list.filter((item) => item.id === data.id)[0];
+          if (!isInList) {
+            newList = newList.concat(data);
+          }
+          break;
+        case 'modified':
+          newList = list.map((item) => (item.id === data.id ? data : item));
+          break;
+        case 'removed':
+          newList = list.filter((item) => item.id !== data.id);
+          break;
+        default:
+          break;
+      }
+    });
+    if (JSON.stringify(list) !== JSON.stringify(newList)) {
+      setList(newList);
+    }
+  };
 
   useEffect(() => {
     const unsubscribeProducts = firestore()

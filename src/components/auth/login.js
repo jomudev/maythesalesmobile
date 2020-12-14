@@ -17,6 +17,7 @@ import auth from '@react-native-firebase/auth';
 import styles from './authStyles';
 import {useForm} from 'react-hook-form';
 import Snackbar from 'react-native-snackbar-component';
+import * as Wave from '../../assets/AdditionalMedia/wave.svg';
 
 const Login = ({navigation}) => {
   const {handleSubmit, register, setValue, watch, errors} = useForm();
@@ -65,7 +66,7 @@ const Login = ({navigation}) => {
     }
     setInitializing(false);
   };
-
+  console.log(Wave);
   return (
     <View
       style={{
@@ -88,11 +89,13 @@ const Login = ({navigation}) => {
         backgroundColor="rgba(0,0,0,0)"
       />
       <View style={styles.imageContainer}>
+
+        {/**
         <Image
-          source={require('../../assets/AdditionalMedia/2345.png')}
+          source={require('../../assets/AdditionalMedia/wave.svg')}
           style={styles.loginBG}
           progressiveRenderingEnabled={true}
-        />
+        />*/}
       </View>
       <ScrollView style={styles.container}>
         <View style={styles.textInputContainer}>
