@@ -23,35 +23,62 @@ import auth from '@react-native-firebase/auth';
 
 const Stack = createStackNavigator();
 
-const NuevaVenta = (props) => {
-  const [products, setProducts] = useState([]);
-  const [clients, setClients] = useState([]);
-  const [services, setServices] = useState([]);
-
-  const handleGetList = (snap, list, setList) => {
-    let newList = list;
-    snap.docChanges().forEach((change) => {
-      const data = change.doc.data();
-      switch (change.type) {
-        case 'added':
-          const isInList = list.filter((item) => item.id === data.id)[0];
-          if (!isInList) {
-            newList = newList.concat(data);
-          }
-          break;
-        case 'modified':
-          newList = list.map((item) => (item.id === data.id ? data : item));
-          break;
-        case 'removed':
-          newList = list.filter((item) => item.id !== data.id);
-          break;
-        default:
-          break;
-      }
-    });
-    if (JSON.stringify(list) !== JSON.stringify(newList)) {
-      setList(newList);
+const handleGetList = (snap, list, setList) => {
+  if (snap.empty) {
+    return;
+  }
+  let newList = list;
+  snap.docChanges().forEach((change) => {
+    const data = change.doc.data();
+    switch (change.type) {
+      case 'added':
+        const isInList = list.filter((item) => item.id === data.id).length > 0 ? true : false;
+        if (!isInList) {
+          newList = newList.concat(data);
+        }
+        break;
+      case 'modified':
+        newList = list.map((item) => (item.id === data.id ? data : item));
+        break;
+      case 'removed':
+        newList = list.filter((item) => item.id !== data.id);
+        break;
+      default:
+        break;
     }
+  });
+  if (JSON.stringify(list) !== JSON.stringify(newList)) {
+    setList(newList);
+  }
+};
+
+const NuevaVenta = (props) => {
+  const [products, setProducts] = useState(store.getState().products);
+  const [clients, setClients] = useState(store.getState().clients);
+  const [services, setServices] = useState(store.getState().services);
+
+  const handleSetProduct = (list) => {
+    setProducts(list);
+    store.dispatch({
+      type: 'SET_PRODUCTS',
+      data: list,
+    });
+  };
+
+  const handleSetClients = (list) => {
+    setClients(list);
+    store.dispatch({
+      type: 'SET_CLIENTS',
+      data: list,
+    });
+  };
+
+  const handleSetServices = (list) => {
+    setServices(list);
+    store.dispatch({
+      type: 'SET_SERVICES',
+      data: list,
+    });
   };
 
   useEffect(() => {
@@ -59,19 +86,19 @@ const NuevaVenta = (props) => {
       .collection('negocios')
       .doc(auth().currentUser.uid)
       .collection('productos')
-      .onSnapshot((snap) => handleGetList(snap, products, setProducts));
+      .onSnapshot((snap) => handleGetList(snap, products, handleSetProduct));
 
     const unsubscribeClients = firestore()
       .collection('negocios')
       .doc(auth().currentUser.uid)
       .collection('clientes')
-      .onSnapshot((snap) => handleGetList(snap, clients, setClients));
+      .onSnapshot((snap) => handleGetList(snap, clients, handleSetClients));
 
     const unsubscribeServices = firestore()
       .collection('negocios')
       .doc(auth().currentUser.uid)
       .collection('servicios')
-      .onSnapshot((snap) => handleGetList(snap, services, setServices));
+      .onSnapshot((snap) => handleGetList(snap, services, handleSetServices));
 
     return () => {
       unsubscribeProducts();

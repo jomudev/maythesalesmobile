@@ -1,12 +1,13 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {View, TextInput, Text, ScrollView} from 'react-native';
+import {View, TextInput, Text, ScrollView, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../styles';
 import DisplayImageComponent from './displayImageComponent';
 import ShowImage from './showImage';
 import {update} from './functions';
 
-const ShowProductoItem = ({data, type,  navigation, closeIcon, editIcon}) => {
+const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState(data.descripcion);
   const [marca, setMarca] = useState(data.marca);
@@ -26,11 +27,7 @@ const ShowProductoItem = ({data, type,  navigation, closeIcon, editIcon}) => {
       value,
       writable: true,
     });
-    update('productos', data)
-      .then(() => {
-        console.log('coleccion actualizada');
-      })
-      .catch((err) => console.log('async err: ' + err));
+    update('productos', data).catch((err) => Alert.alert('async err: ' + err));
   };
 
   return (
@@ -68,14 +65,12 @@ const ShowProductoItem = ({data, type,  navigation, closeIcon, editIcon}) => {
         <Text>Codigo</Text>
         <TextInput
           editable={false}
-          placeholder={
-            data.barcode ? data.barcode : 'No Asignado...'
-          }
+          placeholder={data.barcode ? data.barcode : 'No Asignado...'}
         />
         <Text>Marca</Text>
-        <TextInput 
-          placeholder={data.marca}
-          defaultValue={marca}
+        <TextInput
+          placeholder={!data.marca ? 'No asignado...' : ''}
+          defaultValue={data.marca ? data.marca : ''}
           style={styles.txtInput}
           onChangeText={(text) => setMarca(text)}
           onEndEditing={() => handleUpdate('marca', marca)}
@@ -86,7 +81,8 @@ const ShowProductoItem = ({data, type,  navigation, closeIcon, editIcon}) => {
           onChangeText={(text) => setDescripcion(text)}
           style={{...styles.txtInput, overflow: 'hidden', maxHeight: 100}}
           multiline={true}
-          defaultValue={data.descripcion ? data.descripcion : 'No asignado...'}
+          defaultValue={data.descripcion ? data.descripcion : ''}
+          placeholder={!data.descripcion ? 'No asignado...' : ''}
         />
         <Text>Precio de venta por unidad</Text>
         <View style={styles.priceContainer}>
@@ -94,7 +90,7 @@ const ShowProductoItem = ({data, type,  navigation, closeIcon, editIcon}) => {
           <TextInput
             onEndEditing={() => handleUpdate('precioVenta', precioVenta)}
             defaultValue={`${parseFloat(precioVenta).toFixed(2)}`}
-            onChangeText={(text) => setPrecioVenta(Number.parseInt(text))}
+            onChangeText={(text) => setPrecioVenta(Number.parseInt(text, 10))}
             style={styles.txtInput}
           />
         </View>
@@ -108,10 +104,12 @@ const ShowProductoItem = ({data, type,  navigation, closeIcon, editIcon}) => {
             style={styles.txtInput}
           />
         </View>
-        <TextInput 
+        <TextInput
           editable={false}
           style={styles.txtInput}
-          defaultValue={`Ganancia: L.${precioVenta-precioCosto}`}
+          defaultValue={`Ganancia: L.${Number.parseFloat(
+            precioVenta - precioCosto,
+          ).toFixed(2)}`}
         />
       </View>
     </ScrollView>

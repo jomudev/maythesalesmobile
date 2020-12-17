@@ -9,7 +9,8 @@ import firestore from '@react-native-firebase/firestore';
 const Perfil = () => {
   const {register, setValue, handleSubmit} = useForm();
   const user = auth().currentUser;
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState(null);
+  const [message, setMessage] = useState(false);
 
   const onSubmit = (data) => {
     const nombre = user.displayName;
@@ -22,7 +23,8 @@ const Perfil = () => {
       return await t.get(ref).then((doc) => {
         const negocio = doc.data().negocio;
         const telefono = doc.data().telefono;
-        t.update(ref, {
+        setMessage(true);
+        return t.update(ref, {
           telefono:
             data.telefono !== telefono && data.telefono !== ''
               ? data.telefono
@@ -58,7 +60,6 @@ const Perfil = () => {
       .doc(user.uid)
       .get()
       .then((doc) => {
-        console.log(doc.data());
         setUserData(doc.data());
       });
 
@@ -123,6 +124,9 @@ const Perfil = () => {
       <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
         <Text style={{color: 'white'}}>Actualizar</Text>
       </TouchableOpacity>
+      {message ? (
+        <Text>Los cambios harán efecto al reiniciar la aplicación.</Text>
+      ) : null}
     </View>
   );
 };

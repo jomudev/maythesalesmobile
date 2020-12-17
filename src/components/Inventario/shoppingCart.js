@@ -75,7 +75,7 @@ function ShoppingCart() {
     store.getState().servicesCart || [],
   );
   const [cliente, setCliente] = useState(store.getState().cartClient || null);
-  const [total, setTotal] = useState(store.getState().totalVenta || 0);
+  const [total, setTotal] = useState(store.getState().total || 0);
   const [cartHeight, setCartHeight] = useState(0);
   const cartPosition = useRef(new Animated.Value(+500)).current;
   const [isOpen, setIsOpen] = useState(false);
@@ -134,8 +134,8 @@ function ShoppingCart() {
       if (state.servicesCart !== servicesCart) {
         setServicesCart(state.servicesCart);
       }
-      if (state.totalVentas !== total) {
-        setTotal(state.totalVenta);
+      if (state.total !== total) {
+        setTotal(state.total);
       }
       if (state.cartClient !== cliente) {
         setCliente(state.cartClient);
@@ -218,19 +218,6 @@ function ShoppingCart() {
 }
 
 const ListItem = ({item, cantidad}) => {
-  const [type, setType] = useState(false);
-  useEffect(() => {
-    let subscriber = () =>
-      store.subscribe(() => {
-        if (store.getState().ventaType !== type) {
-          setType(store.getState().ventaType);
-        }
-      });
-
-    return () => {
-      subscriber;
-    };
-  }, []);
   return (
     <View style={styles.cartItem}>
       <Text
@@ -249,9 +236,9 @@ const ListItem = ({item, cantidad}) => {
         defaultValue={'1'}
         onChangeText={(text) =>
           store.dispatch({
-            type: 'SET_CANTIDAD',
-            objeto: item,
-            cantidad: text,
+            type: 'SET_QUANTITY',
+            object: item,
+            quantity: text,
           })
         }
       />

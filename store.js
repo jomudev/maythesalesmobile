@@ -1,37 +1,38 @@
 import {createStore} from 'redux';
 
 const initialState = {
-  ventaOpcion: '',
   title: 'Maythe´s Sales',
+  products: [],
+  clients: [],
+  services: [],
   cart: [],
   servicesCart: [],
-  cartClient: '',
-  totalVenta: 0,
-  tipoVenta: false,
+  cartClient: null,
+  cartSeller: null,
+  SellerPrice: 0,
+  total: 0,
 };
 
-const calcularSuma = (ventaType, CarritoDeProductos, CarritoDeServicios) => {
-  let totalSuma = 0;
-  if (CarritoDeProductos) {
-    CarritoDeProductos.forEach((producto) => {
-      totalSuma += producto.precioVenta * producto.cantidad;
+const calculateTotal = (ProductsCart, ServicesCart) => {
+  let totalSum = 0;
+  if (ProductsCart) {
+    ProductsCart.forEach((product) => {
+      totalSum += product.precioVenta * product.cantidad;
     });
   }
-  if (CarritoDeServicios) {
-    CarritoDeServicios.forEach((servicio) => {
-      totalSuma += servicio.precioVenta * servicio.cantidad;
+  if (ServicesCart) {
+    ServicesCart.forEach((service) => {
+      totalSum += service.precioVenta * service.cantidad;
     });
   }
-  return Number(totalSuma);
+  return Number(totalSum);
 };
 
-const valores = (cantidad, productoOServicio, carritoProductos) => {
-  carritoProductos.map((producto) =>
-    producto.id === productoOServicio.id
-      ? (producto.cantidad = cantidad)
-      : producto,
+const values = (quantity, productOrService, productsCart) => {
+  productsCart.map((product) =>
+    product.id === productOrService.id ? (product.cantidad = quantity) : product,
   );
-  return carritoProductos;
+  return productsCart;
 };
 
 const reducers = (prevState, action) => {
@@ -44,84 +45,54 @@ const reducers = (prevState, action) => {
       title: action.newTitle,
     };
   }
-  if (action.type === 'SET_PRODUCTS') {
-    newState = {
-      ...prevState,
-      products: action.products,
-    };
-  }
-  if (action.type === 'SET_CLIENTS') {
-    newState = {
-      ...prevState,
-      clients: action.clients,
-    };
-  }
-  if (action.type === 'SET_PROVIDERS') {
-    newState = {
-      ...prevState,
-      providers: action.providers,
-    };
-  }
-  if (action.type === 'SET_SERVICES ') {
-    newState = {
-      ...prevState,
-      services: action.services,
-    };
-  }
-  if (action.type === 'SET_VENTAS') {
-    newState = {
-      ...prevState,
-      ventas: action.ventas,
-    };
-  }
+
   if (action.type === 'ADD_PRODUCT_TO_CART') {
     const product = action.product;
-    product.ventaP_U = Number(product.ventaP_U);
+    product.precioVenta = Number(product.precioVenta);
     product.cantidad = 1;
 
-    const existeEnCarrito =
-      newCart.filter((busqueda) => busqueda.id === product.id).length > 0
+    const existInCart =
+      newCart.filter((search) => search.id === product.id).length > 0
         ? true
         : false;
 
-    if (!existeEnCarrito) {
+    if (!existInCart) {
       newCart.push(product);
     }
     newState = {
       ...prevState,
       cart: newCart,
-      totalVenta: calcularSuma(false, newCart, newServicesCart),
+      total: calculateTotal(false, newCart, newServicesCart),
     };
   }
   if (action.type === 'ADD_SERVICE_TO_CART') {
     const service = action.service;
-    service.ventaP_U = Number(service.ventaP_U);
+    service.precioVenta = Number(service.precioVenta);
     service.cantidad = 1;
 
-    const existeEnCarrito =
-      newServicesCart.filter((busqueda) => busqueda.id === service.id).length >
-      0
+    const existInCart =
+      newServicesCart.filter((search) => search.id === service.id).length > 0
         ? true
         : false;
 
-    if (!existeEnCarrito) {
+    if (!existInCart) {
       newServicesCart.push(service);
     }
 
     newState = {
       ...prevState,
       servicesCart: newServicesCart,
-      totalVenta: calcularSuma(false, newCart, newServicesCart),
+      total: calculateTotal(false, newCart, newServicesCart),
     };
   }
-  if (action.type === 'SET_CANTIDAD') {
-    const objeto = action.objeto;
-    action.cantidad = !action.cantidad ? 1 : Number(action.cantidad);
-    newCart = valores(action.cantidad, objeto, newCart);
+  if (action.type === 'SET_QUANTITY') {
+    const object = action.object;
+    action.quantity = !action.quantity ? 1 : Number(action.quantity);
+    newCart = values(action.quantity, object, newCart);
     newState = {
       ...prevState,
       cart: newCart,
-      totalVenta: calcularSuma(false, newCart, newServicesCart),
+      total: calculateTotal(false, newCart, newServicesCart),
     };
   }
   if (action.type === 'CLEAR_CART') {
@@ -129,7 +100,7 @@ const reducers = (prevState, action) => {
       ...prevState,
       cart: [],
       servicesCart: [],
-      totalVenta: 0,
+      total: 0,
       cartClient: '',
     };
   }
@@ -137,12 +108,12 @@ const reducers = (prevState, action) => {
     newCart = newCart.filter((item) => item.id !== action.id);
     newServicesCart = newServicesCart.filter((item) => item.id !== action.id);
 
-    const newSuma = calcularSuma(false, newCart, newServicesCart);
+    const newSuma = calculateTotal(false, newCart, newServicesCart);
     newState = {
       ...prevState,
       cart: newCart,
       servicesCart: newServicesCart,
-      totalVenta: newSuma,
+      total: newSuma,
     };
   }
   if (action.type === 'SET_CART_CLIENT') {
@@ -155,7 +126,7 @@ const reducers = (prevState, action) => {
     newState = {
       ...prevState,
       tipoVenta: action.data,
-      totalVenta: calcularSuma(action.ventaType),
+      total: calculateTotal(action.ventaType),
     };
   }
   if (action.type === 'SIGNOUT') {

@@ -22,7 +22,15 @@ const deviceHeight = Dimensions.get('window').height;
 const subtotal = (lista) => {
   let sum = 0;
   lista.forEach((item) => (sum += item.precioVenta * item.cantidad));
-  return Number.parseFloat(sum).toFixed(2);
+  return sum;
+};
+
+const ganancias = (lista) => {
+  let sum = 0;
+  lista.forEach(
+    (item) => (sum += (item.precioVenta - item.precioCosto) * item.cantidad),
+  );
+  return sum;
 };
 
 const RenderVentasCollection = ({venta}) => {
@@ -61,7 +69,9 @@ const RenderVentasCollection = ({venta}) => {
       })}
       <View style={styles.subtotalContainer}>
         <Text style={styles.subtotalTitle}>subtotal productos:</Text>
-        <Text style={styles.subtotal}>L{subtotal(venta.productos)}</Text>
+        <Text style={styles.subtotal}>
+          L{Number.parseFloat(subtotal(venta.productos)).toFixed(2)}
+        </Text>
       </View>
       {venta.servicios.length > 0 ? (
         <Text style={styles.ventaTitleText}>Servicios adicionales</Text>
@@ -73,10 +83,18 @@ const RenderVentasCollection = ({venta}) => {
         <Text style={styles.subtotalTitle}>
           subtotal servicios adicionales:
         </Text>
-        <Text style={styles.subtotal}>L{subtotal(venta.servicios)}</Text>
+        <Text style={styles.subtotal}>
+          L{Number.parseFloat(subtotal(venta.servicios)).toFixed(2)}
+        </Text>
       </View>
-      <View>
-        <Text style={{textAlign: 'right', fontWeight: 'bold'}}>
+      <View style={{flexDirection: 'row', borderTopWidth: 1, borderColor: '#ccc'}}>
+        <Text style={{textAlign: 'left', fontWeight: 'bold', flex: 1}}>
+          Ganancias:{' '}
+          L{Number.parseFloat(
+            ganancias(venta.productos) + ganancias(venta.servicios),
+          ).toFixed(2)}
+        </Text>
+        <Text style={{textAlign: 'right', fontWeight: 'bold', flex: 1}}>
           Total: L{Number.parseFloat(venta.total).toFixed(2)}
         </Text>
       </View>
@@ -175,6 +193,10 @@ const printPDF = async (venta) => {
             text-align: center              
           }
 
+          .list .name {
+            text-align: left;
+          }
+
           .total {
             align-text: right;
             align-items: flex-end;
@@ -248,8 +270,8 @@ const printPDF = async (venta) => {
               <td>${
                 producto.codigoDeBarras ? producto.codigoDeBarras : producto.id
               }</td>
-              <td>${producto.nombre.toLocaleUpperCase()}${
-                producto.descripcion ? ', ' + producto.descripcion : ''
+              <td class="name">${producto.nombre.toLocaleUpperCase()}${
+                producto.descripcion ? ', ' + producto.marca : ''
               }</td>
               <td>${producto.cantidad}</td>
                 <td>L${parseFloat(producto.precioVenta).toFixed(2)}</td>

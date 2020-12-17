@@ -16,6 +16,7 @@ import styles from './authStyles';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {useForm} from 'react-hook-form';
+import Wave from '../../assets/AdditionalMedia/wave.svg';
 
 const Signin = ({navigation}) => {
   const {handleSubmit, setValue, register} = useForm();
@@ -31,7 +32,7 @@ const Signin = ({navigation}) => {
     register('repeatPassword');
   }, [register]);
 
-  const onSubmit = data => {
+  const onSubmit = (data) => {
     console.log(data);
     setInicializando(true);
     if (data.email !== '' && data.password !== '' && data.nombre !== '') {
@@ -43,7 +44,7 @@ const Signin = ({navigation}) => {
       } else {
         auth()
           .createUserWithEmailAndPassword(data.email, data.password)
-          .then(res => {
+          .then((res) => {
             const negocioRef = firestore()
               .collection('negocios')
               .doc(res.user.uid);
@@ -51,9 +52,9 @@ const Signin = ({navigation}) => {
               .set({
                 email: data.email,
               })
-              .catch(err => console.log(err.code));
+              .catch((err) => console.log(err.code));
           })
-          .catch(err => {
+          .catch((err) => {
             setInicializando(false);
             console.log(err);
           });
@@ -65,7 +66,7 @@ const Signin = ({navigation}) => {
     <View
       style={{
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: '#fff',
+        backgroundColor: '#f1f2f3',
         alignItems: 'center',
       }}>
       <View style={styles.imageContainer}>
@@ -78,11 +79,10 @@ const Signin = ({navigation}) => {
             />
           </View>
         ) : null}
+        <Wave style={styles.Wave} />
         <Image
-          source={require('../../assets/AdditionalMedia/33571.jpg')}
-          style={styles.loginBG}
-          progressiveRenderingEnabled
-          resizeMethod="scale"
+          source={require('../../assets/AdditionalMedia/logo.png')}
+          style={styles.logo}
         />
       </View>
       <ScrollView style={styles.container}>
@@ -93,7 +93,7 @@ const Signin = ({navigation}) => {
             keyboardType="email-address"
             textContentType="emailAddress"
             returnKeyType="next"
-            onChangeText={text => setValue('email', text)}
+            onChangeText={(text) => setValue('email', text)}
             autoCapitalize="none"
             autoFocus={true}
             onSubmitEditing={() => password.current.focus()}
@@ -103,7 +103,7 @@ const Signin = ({navigation}) => {
             placeholder="Contraseña"
             style={styles.textInput}
             secureTextEntry={true}
-            onChangeText={text => {
+            onChangeText={(text) => {
               setValue('password', text);
             }}
             returnKeyType="next"
@@ -115,7 +115,7 @@ const Signin = ({navigation}) => {
             style={styles.textInput}
             secureTextEntry={true}
             returnKeyType="done"
-            onChangeText={text => {
+            onChangeText={(text) => {
               setValue('repeatPassword', text);
             }}
             ref={repeatPassword}

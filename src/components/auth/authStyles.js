@@ -4,7 +4,6 @@ const styles = StyleSheet.create({
   button: {
     width: '70%',
     padding: 20,
-    elevation: 5,
     shadowColor: '#101e5a',
     alignSelf: 'center',
     borderRadius: 20,
@@ -13,12 +12,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   imageContainer: {
-    alignItems: 'center',
     width: '100%',
-    height: '30%',
     flex: 1,
-    borderBottomLeftRadius: 100,
-    overflow: 'hidden',
+    top: 0,
   },
   loadingScreen: {
     backgroundColor: 'transparent',
@@ -32,7 +28,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   container: {
-    backgroundColor: 'white',
     width: '100%',
     flex: 1,
   },
@@ -55,19 +50,23 @@ const styles = StyleSheet.create({
   textInput: {
     padding: 15,
     margin: 2.5,
-    elevation: 5,
     width: '70%',
     borderRadius: 20,
     backgroundColor: 'white',
     alignSelf: 'center',
   },
-  loginBG: {
-    marginTop: `${-10}%`,
-    resizeMode: 'center',
-    height: '100%',
+  Wave: {
     flex: 1,
     alignSelf: 'center',
+    height: 200,
+    width: '500%',
+    resizeMode: 'center',
   },
+  logo: {
+    width: '100%',
+    resizeMode: 'center',
+    position: 'absolute',
+  }
 });
 
 export default styles;

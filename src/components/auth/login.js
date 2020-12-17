@@ -17,13 +17,15 @@ import auth from '@react-native-firebase/auth';
 import styles from './authStyles';
 import {useForm} from 'react-hook-form';
 import Snackbar from 'react-native-snackbar-component';
-import * as Wave from '../../assets/AdditionalMedia/wave.svg';
+import Wave from '../../assets/AdditionalMedia/wave.svg';
+import WaveBottom from '../../assets/AdditionalMedia/waveBottom.svg';
 
 const Login = ({navigation}) => {
   const {handleSubmit, register, setValue, watch, errors} = useForm();
   const [initializing, setInitializing] = useState(false);
   const [snackIsVisible, setSnackIsVisible] = useState(false);
   const [snackMessage, setSnackMessage] = useState(null);
+  const passwordRef = useRef();
 
   useEffect(() => {
     register('email', {required: true});
@@ -66,13 +68,11 @@ const Login = ({navigation}) => {
     }
     setInitializing(false);
   };
-  console.log(Wave);
   return (
     <View
       style={{
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'white',
-        alignItems: 'center',
+        backgroundColor: '#f1f2f3',
       }}>
       {initializing ? (
         <View style={styles.loadingScreen}>
@@ -84,45 +84,50 @@ const Login = ({navigation}) => {
         </View>
       ) : null}
       <StatusBar
-        barStyle="dark-content"
+        barStyle="light-content"
         translucent
         backgroundColor="rgba(0,0,0,0)"
       />
-      <View style={styles.imageContainer}>
-
-        {/**
-        <Image
-          source={require('../../assets/AdditionalMedia/wave.svg')}
-          style={styles.loginBG}
-          progressiveRenderingEnabled={true}
-        />*/}
-      </View>
-      <ScrollView style={styles.container}>
-        <View style={styles.textInputContainer}>
-          <TextInput
-            style={styles.textInput}
-            onChangeText={(text) => setValue('email', text)}
-            keyboardType="email-address"
-            value={watch('email')}
-            autoCapitalize="none"
-            returnKeyType="next"
-            placeholder="Correo electrónico"
+      <>
+        <View style={styles.imageContainer}>
+          <Wave style={styles.Wave} />
+          <Image
+            source={require('../../assets/AdditionalMedia/logo.png')}
+            style={styles.logo}
           />
-          {errors.email && (
-            <Error text="Debes proporcionar el correo de inicio de sesion" />
-          )}
-          <TextInput
-            style={styles.textInput}
-            value={watch('password')}
-            onChangeText={(text) => setValue('password', text)}
-            secureTextEntry={true}
-            textContentType="password"
-            placeholder="Contraseña"
-          />
-          {errors.password && <Error text="debes proporcionar la contraseña" />}
         </View>
-        <Button onPress={handleSubmit(onSubmit)} text="Iniciar Sesion" />
-      </ScrollView>
+        <ScrollView style={styles.container}>
+          <View style={styles.textInputContainer}>
+            <TextInput
+              style={styles.textInput}
+              onChangeText={(text) => setValue('email', text)}
+              keyboardType="email-address"
+              blurOnSubmit={true}
+              onSubmitEditing={() => passwordRef.current.focus()}
+              value={watch('email')}
+              autoCapitalize="none"
+              returnKeyType="next"
+              placeholder="Correo electrónico"
+            />
+            {errors.email && (
+              <Error text="Debes proporcionar el correo de inicio de sesion" />
+            )}
+            <TextInput
+              style={styles.textInput}
+              value={watch('password')}
+              onChangeText={(text) => setValue('password', text)}
+              secureTextEntry={true}
+              textContentType="password"
+              placeholder="Contraseña"
+              ref={passwordRef}
+            />
+            {errors.password && (
+              <Error text="debes proporcionar la contraseña" />
+            )}
+          </View>
+          <Button onPress={handleSubmit(onSubmit)} text="Iniciar Sesion" />
+        </ScrollView>
+      </>
       <TouchableOpacity onPress={() => navigation.navigate('signin')}>
         <Text style={styles.registrarse}>Registrarse</Text>
       </TouchableOpacity>
