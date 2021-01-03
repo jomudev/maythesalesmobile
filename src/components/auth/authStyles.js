@@ -55,6 +55,26 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignSelf: 'center',
   },
+  passwordInput: {
+    flex: 9,
+  },
+  showPasswordIcon: {
+    flex: 1,
+    color: '#101e5a',
+    height: '100%',
+    textAlignVertical: 'center',
+    textAlign: 'center',
+  },
+  passwordView: {
+    padding: 5,
+    margin: 2.5,
+    width: '70%',
+    borderRadius: 20,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
   Wave: {
     flex: 1,
     alignSelf: 'center',
@@ -63,9 +83,12 @@ const styles = StyleSheet.create({
     resizeMode: 'center',
   },
   logo: {
-    width: '100%',
-    resizeMode: 'center',
-    position: 'absolute',
+    position: 'relative',
+    top: '-25%',
+    left: '50%',
+    transform: [{translateX: -105}],
+    width: 200,
+    height: 200,
   }
 });
 

@@ -16,6 +16,7 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNPrint from 'react-native-print';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import {moneyFormat} from '../mainFunctions';
 
 const deviceHeight = Dimensions.get('window').height;
 
@@ -70,7 +71,7 @@ const RenderVentasCollection = ({venta}) => {
       <View style={styles.subtotalContainer}>
         <Text style={styles.subtotalTitle}>subtotal productos:</Text>
         <Text style={styles.subtotal}>
-          L{Number.parseFloat(subtotal(venta.productos)).toFixed(2)}
+          {moneyFormat(subtotal(venta.productos))}
         </Text>
       </View>
       {venta.servicios.length > 0 ? (
@@ -84,18 +85,17 @@ const RenderVentasCollection = ({venta}) => {
           subtotal servicios adicionales:
         </Text>
         <Text style={styles.subtotal}>
-          L{Number.parseFloat(subtotal(venta.servicios)).toFixed(2)}
+          {moneyFormat(subtotal(venta.servicios))}
         </Text>
       </View>
-      <View style={{flexDirection: 'row', borderTopWidth: 1, borderColor: '#ccc'}}>
+      <View
+        style={{flexDirection: 'row', borderTopWidth: 1, borderColor: '#ccc'}}>
         <Text style={{textAlign: 'left', fontWeight: 'bold', flex: 1}}>
           Ganancias:{' '}
-          L{Number.parseFloat(
-            ganancias(venta.productos) + ganancias(venta.servicios),
-          ).toFixed(2)}
+          {moneyFormat(ganancias(venta.productos) + ganancias(venta.servicios))}
         </Text>
         <Text style={{textAlign: 'right', fontWeight: 'bold', flex: 1}}>
-          Total: L{Number.parseFloat(venta.total).toFixed(2)}
+          Total: {moneyFormat(venta.total)}
         </Text>
       </View>
     </View>
@@ -274,16 +274,16 @@ const printPDF = async (venta) => {
                 producto.descripcion ? ', ' + producto.marca : ''
               }</td>
               <td>${producto.cantidad}</td>
-                <td>L${parseFloat(producto.precioVenta).toFixed(2)}</td>
-                <td>L${parseFloat(
+                <td>${moneyFormat(producto.precioVenta)}</td>
+                <td>${moneyFormat(
                   producto.precioVenta * producto.cantidad,
-                ).toFixed(2)}</td>
+                )}</td>
               </tr>`,
           )}
             <tr>
               <td colspan="3"></td>
               <td>SUBTOTAL PRODUCTOS</td>
-              <td>L${subtotal(venta.productos)}</td>
+              <td>${moneyFormat(subtotal(venta.productos))}</td>
             </tr>
           </tbody>`
             : null
@@ -312,16 +312,16 @@ const printPDF = async (venta) => {
                     servicio.descripcion ? ', ' + servicio.descripcion : ''
                   }</td>
                   <td>${servicio.cantidad}</td>
-                  <td>L${parseFloat(servicio.precioVenta).toFixed(2)}</td>
-                    <td>L${parseFloat(
+                  <td>${moneyFormat(servicio.precioVenta)}</td>
+                    <td>L${moneyFormat(
                       servicio.precioVenta * servicio.cantidad,
-                    ).toFixed(2)}</td>
+                    )}</td>
                   </tr>`,
               )}
                 <tr>
                   <td colspan="3"></td>
                   <td>SUBTOTAL SERVICIOS</td>
-                  <td>L${subtotal(venta.servicios)}</td>
+                  <td>${moneyFormat(subtotal(venta.servicios))}</td>
                 </tr>
               </tbody>`
             : ''
@@ -329,7 +329,7 @@ const printPDF = async (venta) => {
         <tr>
           <td colspan="3"></td>
           <td class="totalTd">TOTAL</td>
-          <td class="totalTd">L${parseFloat(venta.total).toFixed(2)}</td>
+          <td class="totalTd">${moneyFormat(venta.total)}</td>
         </tr>
       </table>
         `;

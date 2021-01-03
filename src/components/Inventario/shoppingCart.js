@@ -17,6 +17,7 @@ import store from '../../../store';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
+import {moneyFormat} from '../mainFunctions';
 
 function postearVenta({productCart, servicesCart, total, cliente}) {
   const db = firestore();
@@ -178,7 +179,7 @@ function ShoppingCart() {
           Cliente: {cliente ? cliente.nombre : 'Anonimo'}
         </Text>
         <Text style={{flex: 1, textAlign: 'right', fontSize: 18}}>
-          Total: L{Number.parseFloat(total).toFixed(2)}
+          Total: {moneyFormat(total)}
         </Text>
       </View>
       {productCart.length > 0 ? (
@@ -228,7 +229,7 @@ const ListItem = ({item, cantidad}) => {
           flexDirection: 'row',
         }}>
         {item.nombre}
-        {` L${item.precioVenta}`}
+        {` ${moneyFormat(item.precioVenta)}`}
       </Text>
       <TextInput
         style={styles.cartInput}
@@ -243,9 +244,7 @@ const ListItem = ({item, cantidad}) => {
         }
       />
       <Text style={{flex: 5, fontSize: 12, textAlign: 'center'}}>
-        {`subtotal: L${Number.parseFloat(
-          item.precioVenta * item.cantidad,
-        ).toFixed(2)}`}
+        {`subtotal: ${moneyFormat(item.precioVenta * item.cantidad)}`}
       </Text>
       <TouchableOpacity
         style={styles.removeFromCart}
@@ -306,19 +305,6 @@ const OptionMenu = ({open, closeMenu}) => {
     </View>
   );
 };
-/**
- * Elementos descartados temporalmente
- * <View style={styles.menuOptions}>
-              <Text>Por unidad/por mayoreo</Text>
-              <Switch
-                value={type}
-                onChange={() => {
-                  setVentaType(!type);
-                  setType(!type);
-                }}
-              />
-            </View>
- */
 
 export default ShoppingCart;
 

@@ -13,7 +13,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import auth from '@react-native-firebase/auth';
 import Login from './src/components/auth/login';
-import Signin from './src/components/auth/signIn';
+import SignIn from './src/components/auth/signIn';
 import DrawerNavigator from './src/components/drawer';
 import {View, ActivityIndicator, StatusBar} from 'react-native';
 const Stack = createStackNavigator();
@@ -23,12 +23,12 @@ const App = () => {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const authUnsubscriber = auth().onAuthStateChanged((authUser) => {
+    const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
       setUser(authUser);
       setInitializing(false);
     });
     return () => {
-      authUnsubscriber;
+      authUnsubscribe;
     };
   });
 
@@ -66,7 +66,7 @@ const App = () => {
       />
       <Stack.Navigator headerMode={'none'}>
         <Stack.Screen name="login" component={Login} />
-        <Stack.Screen name="signin" component={Signin} />
+        <Stack.Screen name="signIn" component={SignIn} />
       </Stack.Navigator>
     </NavigationContainer>
   );

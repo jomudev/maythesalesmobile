@@ -1,31 +1,49 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
-import {View, TextInput, Text} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../styles';
+import {update} from '../../../mainFunctions';
+import {useForm} from 'react-hook-form';
+import {TextBox} from '../../../auxComponents';
 
 const ShowProveedorItem = ({data, closeIcon, editIcon}) => {
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState(editIcon);
+  const {register, setValue, getValues} = useForm();
+
+  useEffect(() => {
+    register('nombre');
+    register('telefono');
+    register('email');
+    register('descripcion');
+  });
 
   const toggleEdit = () => {
     setEdit(!edit);
     setIcon(!edit ? closeIcon : editIcon);
   };
+
+  const handleUpdate = (element, value) => {
+    Object.defineProperty(data, element, {
+      value,
+      writable: true,
+    });
+    update('proveedores', data).catch((err) =>
+      console.log('async err: ' + err),
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.form}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-          }}>
+        <View style={styles.nombreContainer}>
           {edit ? (
-            <TextInput
-              placeholder={`Editar nombre: ${data.nombre}`}
-              style={styles.txtInput}
+            <TextBox
+              defaultValue={data.nombre}
+              onChangeText={(text) => setValue('nombre', text)}
+              textContentType="familyName"
+              style={{...styles.txtInput, ...styles.nombre}}
+              onEndEditing={() => handleUpdate('nombre', getValues('nombre'))}
             />
           ) : (
             <Text style={styles.nombre}>{data.nombre}</Text>
@@ -38,20 +56,32 @@ const ShowProveedorItem = ({data, closeIcon, editIcon}) => {
           />
         </View>
         <Text>Número de teléfono</Text>
-        <TextInput
-          placeholder={data.telefono ? data.telefono : 'No asignado...'}
+        <TextBox
+          placeholder="No asignado..."
+          defaultValue={data.telefono ? data.telefono : ''}
           style={styles.txtInput}
           keyboardType="phone-pad"
+          onChangeText={(text) => setValue('telefono', text)}
+          onEndEditing={() => handleUpdate('telefono', getValues('telefono'))}
         />
         <Text>Email</Text>
-        <TextInput
-          placeholder={data.email ? data.email : 'No asignado...'}
+        <TextBox
+          placeholder="No asignado..."
+          defaultValue={data.email ? data.email : ''}
           style={styles.txtInput}
+          underlineColorAndroid={'#ccc'}
+          onChangeText={(text) => setValue('email', text)}
+          onEndEditing={() => handleUpdate('email', getValues('email'))}
         />
         <Text>Descripción</Text>
-        <TextInput
-          placeholder={data.descripcion ? data.descripcion : 'No asignado...'}
+        <TextBox
+          placeholder="No asignado..."
+          defaultValue={data.descripcion ? data.descripcion : ''}
           style={styles.txtInput}
+          onChangeText={(text) => setValue('descripcion', text)}
+          onEndEditing={() =>
+            handleUpdate('descripcion', getValues('descripcion'))
+          }
         />
       </View>
     </View>

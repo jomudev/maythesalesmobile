@@ -87,8 +87,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#ddd',
     padding: 10,
     marginBottom: 10,
   },
@@ -125,12 +123,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   listItem: {
-    padding: 15,
+    padding: 5,
     width: '100%',
     backgroundColor: '#f2f3f4',
     borderRadius: 5,
     marginVertical: 0.5,
     overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  listItemImage: {
+    marginRight: 10,
+    width: 80,
+    height: 80,
+    borderRadius: 100,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#acbdd3',
+  },
+  listItemText: {
+    flexDirection: 'column',
   },
   itemTitle: {
     fontSize: 18,
@@ -141,7 +153,6 @@ const styles = StyleSheet.create({
     color: '#777',
     overflow: 'hidden',
     height: 40,
-    overflow: 'hidden',
     fontWeight: 'bold',
   },
   form: {
@@ -221,6 +232,18 @@ const styles = StyleSheet.create({
     top: 10,
     left: 10,
     zIndex: 100,
+    elevation: 3,
+  },
+  emptyListContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...StyleSheet.absoluteFillObject,
+  },
+  emptyList: {
+    color: '#00000055',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    fontSize: 16,
   }
 });
 

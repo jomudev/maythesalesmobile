@@ -17,30 +17,40 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {useForm} from 'react-hook-form';
 import Wave from '../../assets/AdditionalMedia/wave.svg';
+import {PasswordInput} from '../auxComponents';
+import Logo from '../../assets/AdditionalMedia/Logo.svg';
+import Snackbar from 'react-native-snackbar-component';
 
-const Signin = ({navigation}) => {
-  const {handleSubmit, setValue, register} = useForm();
-  const [inicializando, setInicializando] = useState();
+const ErrorMessage = ({text}) => {
+  return (
+    <Text style={{fontWeight: 'bold', color: 'red', textAlign: 'center'}}>
+      {text}
+    </Text>
+  );
+};
+
+const SignIn = ({navigation}) => {
+  const {handleSubmit, setValue, register, errors, watch} = useForm();
+  const [initializing, setInitializing] = useState();
+  const [snackIsVisible, setSnackIsVisible] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(null);
 
   const email = useRef();
   const password = useRef();
   const repeatPassword = useRef();
 
   useEffect(() => {
-    register('email');
-    register('password');
-    register('repeatPassword');
+    register('email', {required: true});
+    register('password', {required: true});
+    register('repeatPassword', {required: true});
   }, [register]);
 
   const onSubmit = (data) => {
-    console.log(data);
-    setInicializando(true);
+    setInitializing(true);
     if (data.email !== '' && data.password !== '' && data.nombre !== '') {
       if (data.password !== data.repeatPassword) {
-        Alert.alert(
-          'Error en contraseñas',
-          'Las contaseñas no coinciden verifica',
-        );
+        setSnackIsVisible(true);
+        setSnackMessage('Las contaseñas no coinciden verifica nuevamente');
       } else {
         auth()
           .createUserWithEmailAndPassword(data.email, data.password)
@@ -55,11 +65,58 @@ const Signin = ({navigation}) => {
               .catch((err) => console.log(err.code));
           })
           .catch((err) => {
-            setInicializando(false);
             console.log(err);
+            let msg = '';
+            switch (err.code) {
+              case 'auth/invalid-email':
+                msg =
+                  'Has ingresado una dirección de correo electrónico invalido';
+                break;
+              case 'auth/weak-password':
+                msg =
+                  'La contraseña es demasiado debil debe contener minimo 8 caracteres';
+                break;
+              case 'auth/email-already-in-use':
+                msg =
+                  'Correo electrónico en uso, ¿Será tu gemelo malvado? ¡Que miedo!';
+                break;
+              default:
+                msg =
+                  '¡Ups! Ha ocurrido algo inesperado, verifica tu conexión a internet e intenta de nuevo, ¡Los extraterrestres están haciendo de las suyas otra vez!';
+                break;
+            }
+            setSnackMessage(msg);
+            setSnackIsVisible(true);
+            setInitializing(false);
           });
       }
+    } else {
+      setInitializing(false);
     }
+  };
+
+  const verifyPasswords = () => {
+    if (watch('repeatPassword')) {
+      if (watch('password') !== watch('repeatPassword')) {
+        return <ErrorMessage text="Las contraseñas no coinciden" />;
+      }
+    }
+    return;
+  };
+
+  const verifyPasswordRequirements = () => {
+    let messages = [];
+    if (errors.password && errors.password.type === 'required') {
+      messages = messages.concat('La contraseña no puede estar vacía');
+    }
+    if (watch('password') && watch('password').length < 8) {
+      messages = messages.concat(
+        'La contraseña debe tener al menos 8 caracteres',
+      );
+    }
+    return messages.map((message) => (
+      <ErrorMessage key={message} text={message} />
+    ));
   };
 
   return (
@@ -70,7 +127,7 @@ const Signin = ({navigation}) => {
         alignItems: 'center',
       }}>
       <View style={styles.imageContainer}>
-        {inicializando ? (
+        {initializing ? (
           <View style={styles.loadingScreen}>
             <ActivityIndicator
               style={{marginTop: 25}}
@@ -80,10 +137,7 @@ const Signin = ({navigation}) => {
           </View>
         ) : null}
         <Wave style={styles.Wave} />
-        <Image
-          source={require('../../assets/AdditionalMedia/logo.png')}
-          style={styles.logo}
-        />
+        <Logo style={styles.logo} />
       </View>
       <ScrollView style={styles.container}>
         <View style={styles.textInputContainer}>
@@ -99,35 +153,44 @@ const Signin = ({navigation}) => {
             onSubmitEditing={() => password.current.focus()}
             ref={email}
           />
-          <TextInput
+          <PasswordInput
             placeholder="Contraseña"
-            style={styles.textInput}
-            secureTextEntry={true}
+            style={styles.passwordInput}
             onChangeText={(text) => {
               setValue('password', text);
             }}
             returnKeyType="next"
             onSubmitEditing={() => repeatPassword.current.focus()}
-            ref={password}
+            passRef={password}
           />
-          <TextInput
+          {verifyPasswordRequirements()}
+          <PasswordInput
             placeholder="Repite la contraseña"
-            style={styles.textInput}
-            secureTextEntry={true}
+            style={styles.passwordInput}
             returnKeyType="done"
             onChangeText={(text) => {
               setValue('repeatPassword', text);
             }}
-            ref={repeatPassword}
+            passRef={repeatPassword}
           />
         </View>
+        {verifyPasswords()}
         <Button onPress={handleSubmit(onSubmit)} text="Registrarse" />
       </ScrollView>
       <TouchableOpacity onPress={() => navigation.navigate('login')}>
         <Text style={styles.registrarse}>Iniciar sesion</Text>
       </TouchableOpacity>
+      <Snackbar
+        visible={snackIsVisible}
+        textMessage={snackMessage}
+        actionHandler={() => {
+          setSnackIsVisible(false);
+        }}
+        actionText="Ok"
+        duration={Snackbar.LENGTH_SHORT}
+      />
     </View>
   );
 };
 
-export default Signin;
+export default SignIn;

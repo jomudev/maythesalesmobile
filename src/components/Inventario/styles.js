@@ -4,7 +4,6 @@ const styles = StyleSheet.create({
   form: {
     maxWidth: 700,
     padding: 20,
-    flex: 1,
     backgroundColor: 'white',
   },
   container: {
@@ -12,6 +11,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
+    overflow: 'hidden',
   },
   formTitle: {
     fontSize: 46,
@@ -50,8 +50,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   txtInput: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    padding: 10,
     margin: 10,
     textAlign: 'center',
     flex: 9,

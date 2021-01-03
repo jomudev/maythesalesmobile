@@ -5,10 +5,10 @@ import FormOptions from './data';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {createStackNavigator} from '@react-navigation/stack';
 import styles from './styles';
-import AddCliente from './modalComponents/addCliente';
-import AddProducto from './modalComponents/addProducto';
-import AddServicio from './modalComponents/addServicio';
-import AddProveedor from './modalComponents/addProveedor';
+import AddCliente from './AddComponents/addCliente';
+import AddProducto from './AddComponents/addProducto';
+import AddServicio from './AddComponents/addServicio';
+import AddProveedor from './AddComponents/addProveedor';
 import ShowItem from './showInformacionComponents/ShowItem';
 import CamScanner from '../CamScanner';
 import {
@@ -68,9 +68,9 @@ const Inventario = props => {
       <Stack.Screen name="ShowClientes" component={ShowClientes} />
       <Stack.Screen name="Productos" component={AddProducto} />
       <Stack.Screen name="ShowProductos" component={ShowProductos} />
-      <Stack.Screen name="Servicios Adicionales" component={AddServicio} />
+      <Stack.Screen name="Servicios" component={AddServicio} />
       <Stack.Screen
-        name="ShowServicios Adicionales"
+        name="ShowServicios"
         component={ShowServicios}
       />
       <Stack.Screen name="Proveedores" component={AddProveedor} />

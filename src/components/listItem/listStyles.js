@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
   },
   contextMenu: {
     paddingVertical: 20,
+    elevation: 30,
   },
   contextMenuBtn: {
     textAlign: 'right',
@@ -31,7 +32,6 @@ const styles = StyleSheet.create({
   },
   venta: {
     margin: 10,
-    elevation: 2,
     borderRadius: 20,
     padding: 10,
     backgroundColor: '#fff',

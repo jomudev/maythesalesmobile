@@ -2,6 +2,7 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 import styles from './listStyles';
+import {moneyFormat} from '../mainFunctions';
 
 const RenderItemProducto = ({producto}) => {
   return (
@@ -11,8 +12,7 @@ const RenderItemProducto = ({producto}) => {
           width: '50%',
         }}>{`${producto.cantidad} ${producto.nombre}`}</Text>
       <Text style={{width: '50%', textAlign: 'right'}}>
-        L
-        {Number.parseFloat(producto.precioVenta * producto.cantidad).toFixed(2)}
+        {moneyFormat(producto.precioVenta * producto.cantidad)}
       </Text>
     </View>
   );
@@ -26,8 +26,7 @@ const RenderItemServicio = ({servicio}) => {
           width: '50%',
         }}>{`${servicio.cantidad} ${servicio.nombre}`}</Text>
       <Text style={{width: '50%', textAlign: 'right'}}>
-        L
-        {Number.parseFloat(servicio.precioVenta * servicio.cantidad).toFixed(2)}
+        {moneyFormat(servicio.precioVenta * servicio.cantidad)}
       </Text>
     </View>
   );

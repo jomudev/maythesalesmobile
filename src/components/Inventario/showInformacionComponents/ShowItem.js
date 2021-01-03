@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text} from 'react-native';
+import {Text, View} from 'react-native';
 import ShowClienteItem from './showItemComponents/showClientItem';
 import ShowProveedorItem from './showItemComponents/showProveedorItem';
 import ShowProductoItem from './showItemComponents/showProductoItem';
@@ -11,7 +11,7 @@ const closeIcon = 'close';
 const ShowItem = ({route, navigation}) => {
   const type = route.params.type;
   const data = route.params.data;
-  if (type === 'Servicios Adicionales') {
+  if (type === 'Servicios') {
     return (
       <ShowServicioItem
         data={data}

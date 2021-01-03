@@ -2,29 +2,28 @@
 import React, {useState, useEffect} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import store from '../../../store';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-} from 'react-native';
+import {View, ScrollView, TextInput} from 'react-native';
 import ShoppingCart from './shoppingCart';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AddCliente from './modalComponents/addCliente';
-import AddProducto from './modalComponents/addProducto';
-import AddServicio from './modalComponents/addServicio';
+import AddCliente from './AddComponents/addCliente';
+import AddProducto from './AddComponents/addProducto';
+import AddServicio from './AddComponents/addServicio';
 import CamScanner from './../CamScanner';
+import {BannerAd, BannerAdSize, TestIds} from '@react-native-firebase/admob';
+import {ProductItem, ServiceItem, ClientItem} from './items';
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
+const adUnitId = __DEV__
+  ? TestIds.BANNER
+  : 'ca-app-pub-8903466117529509/6769370981';
+
 const Stack = createStackNavigator();
 
 const handleGetList = (snap, list, setList) => {
-  if (snap.empty) {
+  if (!snap) {
     return;
   }
   let newList = list;
@@ -32,7 +31,8 @@ const handleGetList = (snap, list, setList) => {
     const data = change.doc.data();
     switch (change.type) {
       case 'added':
-        const isInList = list.filter((item) => item.id === data.id).length > 0 ? true : false;
+        const filter = list.filter((item) => item.id === data.id);
+        const isInList = filter.length > 0;
         if (!isInList) {
           newList = newList.concat(data);
         }
@@ -52,10 +52,13 @@ const handleGetList = (snap, list, setList) => {
   }
 };
 
-const NuevaVenta = (props) => {
-  const [products, setProducts] = useState(store.getState().products);
-  const [clients, setClients] = useState(store.getState().clients);
-  const [services, setServices] = useState(store.getState().services);
+const Component = ({navigation}) => {
+  const [searchedProduct, setFundProduct] = useState(null);
+  const [searchedClient, setFundClient] = useState(null);
+  const [searchedService, setFundService] = useState(null);
+  const [products, setProducts] = useState(store.getState().products || []);
+  const [clients, setClients] = useState(store.getState().clients || []);
+  const [services, setServices] = useState(store.getState().services || []);
 
   const handleSetProduct = (list) => {
     setProducts(list);
@@ -107,147 +110,63 @@ const NuevaVenta = (props) => {
     };
   }, []);
 
-  const itemStyles = StyleSheet.create({
-    title: {fontSize: 16, fontWeight: 'bold'},
-    subtitle: {
-      fontSize: 12,
-      color: '#aaa',
-      fontWeight: 'bold',
-      overflow: 'hidden',
-      height: 30,
-    },
-  });
+  const filter = (list, search) => {
+    const newList = list.filter((item) => {
+      search = search.toLowerCase();
+      const name = item.nombre.toLowerCase();
+      const description = item.descripcion.toLowerCase();
+      const brand = item.marca ? item.marca.toLowerCase() : '';
+      return (
+        name.includes(search) ||
+        description.includes(search) ||
+        brand.includes(search)
+      );
+    });
+    return newList;
+  };
 
-  // Item de lista de productos
-  const ProductItem = ({data, index}) => (
-    <TouchableOpacity
-      key={data + index}
-      style={styles.itemList}
-      onPress={() => {
-        store.dispatch({
-          type: 'ADD_PRODUCT_TO_CART',
-          product: data,
-        });
-      }}>
-      <Text style={itemStyles.title}>
-        {`${data.nombre} L${Number.parseFloat(data.precioVenta).toFixed(2)}`}
-      </Text>
-      {data.descripcion ? (
-        <Text style={itemStyles.subtitle}>{data.marca}</Text>
-      ) : null}
-    </TouchableOpacity>
-  );
-
-  // Item de lista de servicios
-  const ServiceItem = ({data, index}) => (
-    <TouchableOpacity
-      key={data + index}
-      style={styles.itemList}
-      onPress={() => {
-        store.dispatch({
-          type: 'ADD_SERVICE_TO_CART',
-          service: data,
-        });
-      }}>
-      <Text style={itemStyles.subtitle}>
-        {`${data.nombre} L${Number.parseFloat(data.precioVenta).toFixed(2)}` +
-          (data.descripcion ? ` ${data.descripcion}` : ' ')}
-      </Text>
-    </TouchableOpacity>
-  );
-  // Item de lista que muestra los clientes.
-  const ClientItem = ({data, index}) => (
-    <TouchableOpacity
-      key={data + index}
-      style={styles.itemList}
-      onPress={() => {
-        store.dispatch({
-          type: 'SET_CART_CLIENT',
-          clientData: data,
-        });
-      }}>
-      <Text style={itemStyles.title}>{data.nombre}</Text>
-      {data.telefono || data.email ? (
-        <Text style={itemStyles.subtitle}>
-          {data.telefono ? data.telefono : ''} {data.email ? data.email : ''}
-        </Text>
-      ) : null}
-    </TouchableOpacity>
-  );
-
-  const Component = ({navigation, route}) => {
-    const [searchedProduct, setFundProduct] = useState('');
-    const [searchedClient, setFundClient] = useState('');
-    const [searchedService, setFundService] = useState('');
-    if (route.params) {
-      store.dispatch({
-        type: 'ADD_PRODUCT_TO_CART',
-        product: route.params.scannerProduct,
-      });
+  const Search = ({list, type}) => {
+    let finded = [];
+    if (type === 'products') {
+      if (searchedProduct) {
+        finded = filter(list, searchedProduct);
+        return finded.map((product, index) => (
+          <ProductItem data={product} index={index} key={product + index} />
+        ));
+      } else {
+        return list.map((product, index) => (
+          <ProductItem data={product} index={index} key={product + index} />
+        ));
+      }
+    } else if (type === 'clients') {
+      finded = filter(list, searchedClient);
+      return finded.map((client, index) => (
+        <ClientItem data={client} index={index} key={client + index} />
+      ));
+    } else if (type === 'services') {
+      finded = filter(list, searchedClient);
+      return finded.map((client, index) => (
+        <ClientItem data={client} index={index} key={client + index} />
+      ));
     }
-    const Search = ({List, type}) => {
-      // Metodo que nos ayudara a buscar y retornar productos, clientes, etc. para poder seleccionar
-      let newList = [];
-      for (let i = 0; i < List.length; i++) {
-        if (type === 'products') {
-          const userSearchedProduct = searchedProduct.toLowerCase();
-          const product = List[i];
-          const nombre = product.nombre.toLowerCase();
+  };
 
-          if (nombre.includes(userSearchedProduct)) {
-            newList = newList.concat(product);
-          }
-        }
-        if (type === 'clients') {
-          const userSearchedClient = searchedClient.toLowerCase();
-          const client = List[i];
-          const nombre = client.nombre.toLowerCase();
-
-          if (nombre.includes(userSearchedClient)) {
-            newList = newList.concat(client);
-          }
-        }
-        if (type === 'services') {
-          const userSearchedService = searchedService.toLowerCase();
-          const Service = List[i];
-          const nombre = Service.nombre.toLowerCase();
-
-          if (nombre.includes(userSearchedService)) {
-            newList = newList.concat(Service);
-          }
-        }
-      }
-      if (type === 'clients') {
-        return newList.map((item, index) => (
-          <ClientItem data={item} index={index} key={item + index} />
-        ));
-      }
-      if (type === 'products') {
-        return newList.map((item, index) => (
-          <ProductItem data={item} index={index} key={item + index} />
-        ));
-      }
-      if (type === 'services') {
-        return newList.map((item, index) => (
-          <ServiceItem data={item} index={index} key={item + index} />
-        ));
-      }
-
-      return null;
-    };
-
-    return (
-      <>
-        <View style={{...styles.container, ...styles.form}}>
+  return (
+    <View style={styles.container}>
+      <ScrollView>
+        <View style={styles.form}>
           <View style={styles.formGroup}>
             <View style={styles.textContainer}>
               <Icon
                 name="barcode"
                 style={styles.Icon}
-                onPress={() => navigation.navigate('CamScanner', {type: 'get'})}
+                onPress={() =>
+                  navigation.navigate('CamScanner', {
+                    type: 'getProduct',
+                  })
+                }
               />
               <TextInput
-                value={searchedProduct}
                 style={styles.txtInput}
                 onChangeText={(text) => setFundProduct(text)}
                 placeholder="Buscar producto"
@@ -261,7 +180,7 @@ const NuevaVenta = (props) => {
             <ScrollView
               style={styles.findProductsList}
               showsVerticalScrollIndicator={false}>
-              <Search List={products} type="products" />
+              <Search list={products} type="products" />
             </ScrollView>
           </View>
           <View style={styles.formGroup}>
@@ -272,7 +191,6 @@ const NuevaVenta = (props) => {
                 onPress={() => setFundClient('')}
               />
               <TextInput
-                value={searchedClient}
                 onChangeText={(text) => setFundClient(text)}
                 style={styles.txtInput}
                 placeholder="Buscar cliente"
@@ -297,7 +215,6 @@ const NuevaVenta = (props) => {
                 onPress={() => setFundService('')}
               />
               <TextInput
-                value={searchedService}
                 style={styles.txtInput}
                 onChangeText={(text) => setFundService(text)}
                 placeholder="Buscar Servicio Adicional"
@@ -317,10 +234,14 @@ const NuevaVenta = (props) => {
             </ScrollView>
           </View>
         </View>
-        <ShoppingCart />
-      </>
-    );
-  };
+      </ScrollView>
+      <BannerAd unitId={adUnitId} size={BannerAdSize.SMART_BANNER} />
+      <ShoppingCart />
+    </View>
+  );
+};
+
+const NuevaVenta = (props) => {
   return (
     <Stack.Navigator headerMode="none">
       <Stack.Screen name="index" component={Component} {...props} />

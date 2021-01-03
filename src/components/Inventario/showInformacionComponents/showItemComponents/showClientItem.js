@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {View, TextInput, Text} from 'react-native';
+import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../styles';
-import {update} from './functions';
+import {update} from '../../../mainFunctions';
+import {TextBox} from '../../../auxComponents';
 
 const ShowClienteItem = ({data, editIcon, closeIcon}) => {
   const [edit, setEdit] = useState(false);
@@ -38,7 +39,7 @@ const ShowClienteItem = ({data, editIcon, closeIcon}) => {
             width: '100%',
           }}>
           {edit ? (
-            <TextInput
+            <TextBox
               placeholder={`Editar nombre: ${data.nombre}`}
               style={styles.txtInput}
               onChangeText={(text) => setNombre(text)}
@@ -55,24 +56,22 @@ const ShowClienteItem = ({data, editIcon, closeIcon}) => {
           />
         </View>
         <Text>Número de teléfono</Text>
-        <TextInput
+        <TextBox
           placeholder={!data.telefono ? 'No asignado...' : ''}
           defaultValue={data.telefono ? data.telefono : ''}
           style={styles.txtInput}
           keyboardType="phone-pad"
         />
         <Text>Email</Text>
-        <TextInput
+        <TextBox
           placeholder={!data.email ? 'No asignado...' : ''}
           defaultValue={data.email ? data.email : ''}
           style={styles.txtInput}
         />
         <Text>Descripción</Text>
-        <TextInput
+        <TextBox
           placeholder={!data.descripcion ? 'No asignado...' : ''}
-          defaultValue={
-            data.descripcion !== '' ? data.descripcion : ''
-          }
+          defaultValue={data.descripcion !== '' ? data.descripcion : ''}
           style={styles.txtInput}
         />
       </View>

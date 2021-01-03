@@ -6,16 +6,10 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import ListItem from './listItem';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-
-async function getCollection(type) {
-  return firestore()
-    .collection('negocios')
-    .doc(auth().currentUser.uid)
-    .collection(type);
-}
+import {moneyFormat} from '../../mainFunctions';
 
 const handleGetList = (snap, list, setList) => {
-  if (snap.empty) {
+  if (!snap) {
     return;
   }
   let newList = list;
@@ -115,9 +109,7 @@ function ShowClientes({navigation, route}) {
             );
           })
         ) : (
-          <Text style={{color: '#00000055'}}>
-            No se han registrado clientes...
-          </Text>
+          <Text style={styles.emptyList}>No se han registrado clientes...</Text>
         )}
       </ScrollView>
       <TouchableOpacity
@@ -159,7 +151,7 @@ function ShowProductos({navigation, route}) {
         }>
         {productsList.length > 0 ? (
           productsList.map((item) => {
-            let subtitles = [`L${parseFloat(item.precioVenta).toFixed(2)}`];
+            let subtitles = [`${moneyFormat(item.precioVenta)}`];
             if (item.descripcion) {
               subtitles.push(item.descripcion);
             }
@@ -175,7 +167,7 @@ function ShowProductos({navigation, route}) {
             );
           })
         ) : (
-          <Text style={{color: '#00000055'}}>
+          <Text style={styles.emptyList}>
             No se han registrado productos...
           </Text>
         )}
@@ -219,7 +211,7 @@ function ShowServicios({navigation, route}) {
         }>
         {servicesList.length > 0 ? (
           servicesList.map((item) => {
-            let subtitles = [`L${item.precioVenta}`];
+            let subtitles = [`${moneyFormat(item.precioVenta)}`];
             if (item.descripcion) {
               subtitles.push(item.descripcion);
             }
@@ -235,14 +227,14 @@ function ShowServicios({navigation, route}) {
             );
           })
         ) : (
-          <Text style={{color: '#00000055'}}>
+          <Text style={styles.emptyList}>
             No se han registrado servicios adicionales...
           </Text>
         )}
       </ScrollView>
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
-        onPress={() => navigation.navigate('Servicios Adicionales')}>
+        onPress={() => navigation.navigate('Servicios')}>
         <Icon name="add" color="white" size={28} />
       </TouchableOpacity>
     </>
@@ -267,23 +259,39 @@ function ShowProveedores({navigation, route}) {
 
   return (
     <>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        onScroll={(event) =>
+          scrollEvent(
+            scrollPosition,
+            event.nativeEvent,
+            addButtonPosition,
+            setScrollPosition,
+          )
+        }>
         {providersList.length > 0 ? (
-          providersList.map((item) => (
-            <ListItem
-              key={Math.random()}
-              data={item}
-              title={`${item.nombre}`}
-              subtitle={[
-                `${item.email}`,
-                `${item.telefono ? item.telefono : ''}`,
-              ]}
-              navigation={navigation}
-              route={route}
-            />
-          ))
+          providersList.map((item) => {
+            let subtitles = [];
+            if (item.email) {
+              console.log(item.email)
+              subtitles = subtitles.concat(item.email);
+            }
+            if (item.telefono) {
+              subtitles = subtitles.concat(item.telefono);
+            }
+            return (
+              <ListItem
+                key={Math.random()}
+                data={item}
+                title={`${item.nombre}`}
+                subtitle={subtitles.map((subtitle) => `${subtitle}`)}
+                navigation={navigation}
+                route={route}
+              />
+            );
+          })
         ) : (
-          <Text style={{color: '#00000055'}}>
+          <Text style={styles.emptyList}>
             No se han registrado proveedores...
           </Text>
         )}

@@ -30,7 +30,9 @@ const calculateTotal = (ProductsCart, ServicesCart) => {
 
 const values = (quantity, productOrService, productsCart) => {
   productsCart.map((product) =>
-    product.id === productOrService.id ? (product.cantidad = quantity) : product,
+    product.id === productOrService.id
+      ? (product.cantidad = quantity)
+      : product,
   );
   return productsCart;
 };

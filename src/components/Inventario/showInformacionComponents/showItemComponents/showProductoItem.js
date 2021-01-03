@@ -1,21 +1,27 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, TextInput, Text, ScrollView, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../styles';
 import DisplayImageComponent from './displayImageComponent';
 import ShowImage from './showImage';
-import {update} from './functions';
+import {update} from '../../../mainFunctions';
+import {moneyFormat} from '../../../mainFunctions';
+import {useForm} from 'react-hook-form';
 
 const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState(data.descripcion);
-  const [marca, setMarca] = useState(data.marca);
-  const [precioVenta, setPrecioVenta] = useState(data.precioVenta);
-  const [precioCosto, setPrecioCosto] = useState(data.precioCosto);
+  const {register, getValues, setValue} = useForm();
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState(editIcon);
   const [showImage, setShowImage] = useState(false);
+
+  useEffect(() => {
+    register('nombre');
+    register('descripcion');
+    register('marca');
+    register('precioVenta');
+    register('precioCosto');
+  });
 
   const toggleEdit = () => {
     setEdit(!edit);
@@ -27,7 +33,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
       value,
       writable: true,
     });
-    update('productos', data).catch((err) => Alert.alert('async err: ' + err));
+    update('productos', data).catch((err) => console.log('async err: ' + err));
   };
 
   return (
@@ -48,7 +54,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
           {edit ? (
             <TextInput
               defaultValue={data.nombre}
-              onChangeText={setNombre}
+              onChangeText={(text) => setValue('nombre', text)}
               onEndEditing={() => handleUpdate('nombre', nombre)}
               style={{...styles.txtInput, ...styles.nombre}}
             />
@@ -65,52 +71,55 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
         <Text>Codigo</Text>
         <TextInput
           editable={false}
-          placeholder={data.barcode ? data.barcode : 'No Asignado...'}
+          defaultValue={data.barcode}
+          placeholder="No asignado..."
         />
         <Text>Marca</Text>
         <TextInput
-          placeholder={!data.marca ? 'No asignado...' : ''}
+          placeholder="No asignado"
           defaultValue={data.marca ? data.marca : ''}
           style={styles.txtInput}
-          onChangeText={(text) => setMarca(text)}
-          onEndEditing={() => handleUpdate('marca', marca)}
+          onChangeText={(text) => setValue('marca', text)}
+          onEndEditing={() => handleUpdate('marca', getValues('marca'))}
         />
         <Text>Descripción</Text>
         <TextInput
-          onEndEditing={() => handleUpdate('descripcion', descripcion)}
-          onChangeText={(text) => setDescripcion(text)}
+          onEndEditing={() =>
+            handleUpdate('descripcion', getValues('descripcion'))
+          }
+          onChangeText={(text) => setValue('descripcion', text)}
           style={{...styles.txtInput, overflow: 'hidden', maxHeight: 100}}
           multiline={true}
           defaultValue={data.descripcion ? data.descripcion : ''}
-          placeholder={!data.descripcion ? 'No asignado...' : ''}
+          placeholder="No asignado..."
         />
         <Text>Precio de venta por unidad</Text>
         <View style={styles.priceContainer}>
-          <Text style={{fontSize: 18}}>L.</Text>
           <TextInput
-            onEndEditing={() => handleUpdate('precioVenta', precioVenta)}
-            defaultValue={`${parseFloat(precioVenta).toFixed(2)}`}
-            onChangeText={(text) => setPrecioVenta(Number.parseInt(text, 10))}
+            onEndEditing={() =>
+              handleUpdate('precioVenta', getValues('precioVenta'))
+            }
+            placeholder={moneyFormat(data.precioVenta)}
+            onChangeText={(text) =>
+              setValue('precioVenta', Number.parseInt(text, 10))
+            }
             style={styles.txtInput}
           />
         </View>
         <Text>Precio de costo por unidad</Text>
         <View style={styles.priceContainer}>
-          <Text style={{fontSize: 18}}>L.</Text>
           <TextInput
             onEndEditing={() => handleUpdate('precioCosto', precioCosto)}
-            onChangeText={(text) => setPrecioCosto(Number.parseInt(text))}
-            defaultValue={`${parseFloat(precioCosto).toFixed(2)}`}
+            onChangeText={(text) =>
+              setValue('precioCosto', Number.parseInt(text, 10))
+            }
+            placeholder={moneyFormat(data.precioCosto)}
             style={styles.txtInput}
           />
         </View>
-        <TextInput
-          editable={false}
-          style={styles.txtInput}
-          defaultValue={`Ganancia: L.${Number.parseFloat(
-            precioVenta - precioCosto,
-          ).toFixed(2)}`}
-        />
+        <Text style={{fontSize: 24}}>
+          Ganancia: {moneyFormat(data.precioVenta - data.precioCosto)}
+        </Text>
       </View>
     </ScrollView>
   );

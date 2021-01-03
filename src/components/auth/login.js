@@ -5,7 +5,6 @@ import {
   View,
   StatusBar,
   ScrollView,
-  Image,
   TextInput,
   TouchableOpacity,
   Text,
@@ -18,7 +17,16 @@ import styles from './authStyles';
 import {useForm} from 'react-hook-form';
 import Snackbar from 'react-native-snackbar-component';
 import Wave from '../../assets/AdditionalMedia/wave.svg';
-import WaveBottom from '../../assets/AdditionalMedia/waveBottom.svg';
+import Logo from '../../assets/AdditionalMedia/Logo.svg';
+import {PasswordInput} from '../auxComponents';
+
+const ErrorMessage = ({text}) => {
+  return (
+    <Text style={{fontWeight: 'bold', color: 'red', textAlign: 'center'}}>
+      {text}
+    </Text>
+  );
+};
 
 const Login = ({navigation}) => {
   const {handleSubmit, register, setValue, watch, errors} = useForm();
@@ -33,17 +41,24 @@ const Login = ({navigation}) => {
   }, [register]);
 
   const onSubmit = (data) => {
+    setInitializing(true);
     if (!data.email || !data.password) {
       setSnackMessage('Debes rellenar ambos campos para poder proseguir');
       setSnackIsVisible(true);
+      setInitializing(false);
     } else {
+      const containArroba = data.email.match(/[@]/g);
+      const containDot = data.email.match(/[.]/g);
       const isValidEmail =
-        data.email.match(/[@]/g).length === 1 &&
-        data.email.match(/[.]/g).length === 1;
+        containArroba &&
+        containArroba.length === 1 &&
+        containDot &&
+        containDot.length > 0;
 
       if (!isValidEmail) {
         setSnackMessage('Correo Electrónico invalido');
         setSnackIsVisible(true);
+        setInitializing(false);
       } else {
         auth()
           .signInWithEmailAndPassword(data.email, data.password)
@@ -58,15 +73,16 @@ const Login = ({navigation}) => {
                 msg = 'Usuario o contraseña incorrecta intente de nuevo';
                 break;
               default:
-                msg = 'Ha ocurrido un problema inesperado intenta de nuevo';
+                msg =
+                  '¡Ups! Ha ocurrido algo inesperado, verifica tu conexión a internet e intenta de nuevo, ¡Los extraterrestres están haciendo de las suyas otra vez!';
                 break;
             }
             setSnackMessage(msg);
             setSnackIsVisible(true);
+            setInitializing(false);
           });
       }
     }
-    setInitializing(false);
   };
   return (
     <View
@@ -91,10 +107,7 @@ const Login = ({navigation}) => {
       <>
         <View style={styles.imageContainer}>
           <Wave style={styles.Wave} />
-          <Image
-            source={require('../../assets/AdditionalMedia/logo.png')}
-            style={styles.logo}
-          />
+          <Logo style={styles.logo} />
         </View>
         <ScrollView style={styles.container}>
           <View style={styles.textInputContainer}>
@@ -110,25 +123,23 @@ const Login = ({navigation}) => {
               placeholder="Correo electrónico"
             />
             {errors.email && (
-              <Error text="Debes proporcionar el correo de inicio de sesion" />
+              <ErrorMessage text="Debes proporcionar el correo de inicio de sesion" />
             )}
-            <TextInput
-              style={styles.textInput}
+            <PasswordInput
+              style={styles.passwordInput}
               value={watch('password')}
               onChangeText={(text) => setValue('password', text)}
-              secureTextEntry={true}
-              textContentType="password"
               placeholder="Contraseña"
-              ref={passwordRef}
+              passRef={passwordRef}
             />
             {errors.password && (
-              <Error text="debes proporcionar la contraseña" />
+              <ErrorMessage text="debes proporcionar la contraseña" />
             )}
           </View>
           <Button onPress={handleSubmit(onSubmit)} text="Iniciar Sesion" />
         </ScrollView>
       </>
-      <TouchableOpacity onPress={() => navigation.navigate('signin')}>
+      <TouchableOpacity onPress={() => navigation.navigate('signIn')}>
         <Text style={styles.registrarse}>Registrarse</Text>
       </TouchableOpacity>
       <Snackbar
@@ -143,11 +154,5 @@ const Login = ({navigation}) => {
     </View>
   );
 };
-
-const Error = ({text}) => (
-  <View style={styles.errorMsg}>
-    <Text style={{fontSize: 10}}>{text}</Text>
-  </View>
-);
 
 export default Login;
