@@ -62,16 +62,23 @@ const DrawerContent = (props) => {
         <View style={styles.drawerContent}>
           {user && userData ? (
             <View style={styles.userSection}>
-              <Avatar.Icon icon="account" style={styles.avatar} />
               <View style={styles.userInfo}>
                 <View style={{marginLeft: 15, flexDirection: 'column'}}>
-                  <Title style={{fontWeight: 'bold'}}>{user.displayName}</Title>
-                  <Caption style={{fontWeight: 'bold'}}>
-                    {userData ? userData.negocio : ''}
-                  </Caption>
-                  <Caption style={{fontWeight: 'bold'}}>
-                    {userData ? userData.email : ''}
-                  </Caption>
+                  {user.displayName ? (
+                    <Title style={{fontWeight: 'bold'}}>
+                      {user.displayName}
+                    </Title>
+                  ) : null}
+                  {userData ? (
+                    <Caption style={{fontWeight: 'bold'}}>
+                      {userData ? userData.negocio : ''}
+                    </Caption>
+                  ) : null}
+                  {userData ? (
+                    <Caption style={{fontWeight: 'bold'}}>
+                      {userData.email}
+                    </Caption>
+                  ) : null}
                 </View>
               </View>
             </View>

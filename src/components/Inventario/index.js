@@ -1,6 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 import FormOptions from './data';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -17,6 +23,7 @@ import {
   ShowServicios,
   ShowProveedores,
 } from './showInformacionComponents/ShowList';
+import {MenuListBannerAd} from '../ads';
 
 const Stack = createStackNavigator();
 
@@ -52,7 +59,8 @@ const OptionsScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.flatList}>
-        {FormOptions.map(item => (
+        <MenuListBannerAd />
+        {FormOptions.map((item) => (
           <ItemList navigation={navigation} item={item} key={item.name} />
         ))}
       </ScrollView>
@@ -60,7 +68,7 @@ const OptionsScreen = ({navigation}) => {
   );
 };
 
-const Inventario = props => {
+const Inventario = (props) => {
   return (
     <Stack.Navigator headerMode="none">
       <Stack.Screen name="Main" component={OptionsScreen} {...props} />
@@ -69,10 +77,7 @@ const Inventario = props => {
       <Stack.Screen name="Productos" component={AddProducto} />
       <Stack.Screen name="ShowProductos" component={ShowProductos} />
       <Stack.Screen name="Servicios" component={AddServicio} />
-      <Stack.Screen
-        name="ShowServicios"
-        component={ShowServicios}
-      />
+      <Stack.Screen name="ShowServicios" component={ShowServicios} />
       <Stack.Screen name="Proveedores" component={AddProveedor} />
       <Stack.Screen name="ShowProveedores" component={ShowProveedores} />
       <Stack.Screen name="ShowItem" component={ShowItem} />

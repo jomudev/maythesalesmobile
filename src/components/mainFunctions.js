@@ -71,4 +71,18 @@ const handleSetSnackMessage = (message, activeSnackbarHook, setMessageHook) => {
   activeSnackbarHook(true);
 };
 
-export {moneyFormat, update, getMonthsReport, getSales, handleSetSnackMessage};
+//function that gives the total sum of the products or services list.
+const getTotal = (list) =>
+  list.length > 0
+    ? list
+        .map((item) => item.precioVenta * item.cantidad)
+        .reduce((accumulator, currentValue) => accumulator + currentValue)
+    : 0;
+export {
+  moneyFormat,
+  update,
+  getMonthsReport,
+  getSales,
+  handleSetSnackMessage,
+  getTotal,
+};

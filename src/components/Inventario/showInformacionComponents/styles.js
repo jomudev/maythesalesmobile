@@ -122,9 +122,24 @@ const styles = StyleSheet.create({
     color: '#101e5a',
     paddingHorizontal: 5,
   },
+  quantity: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  quantityBadge: {
+    width: 30,
+    height: 30,
+    backgroundColor: '#101e5a',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    borderRadius: 100,
+    color: 'white',
+  },
   listItem: {
-    padding: 5,
     width: '100%',
+    height: 60,
+    padding: 20,
     backgroundColor: '#f2f3f4',
     borderRadius: 5,
     marginVertical: 0.5,
@@ -133,16 +148,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listItemImage: {
+    borderWidth: 1,
     marginRight: 10,
-    width: 80,
-    height: 80,
+    width: 50,
+    height: 50,
     borderRadius: 100,
     overflow: 'hidden',
-    borderWidth: 1,
     borderColor: '#acbdd3',
+    flex: 1,
   },
   listItemText: {
-    flexDirection: 'column',
+    flex: 6,
   },
   itemTitle: {
     fontSize: 18,
@@ -150,9 +166,9 @@ const styles = StyleSheet.create({
   },
   itemSubtitle: {
     fontSize: 14,
+    paddingVertical: 4,
     color: '#777',
     overflow: 'hidden',
-    height: 40,
     fontWeight: 'bold',
   },
   form: {

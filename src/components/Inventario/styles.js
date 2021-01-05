@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
     flex: 9,
   },
   flatList: {
-    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
   },
   menuListItem: {
@@ -64,8 +63,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     width: '90%',
     alignSelf: 'center',
-    marginTop: 20,
     overflow: 'hidden',
+    marginVertical: 10,
   },
   menuListHeader: {
     paddingTop: 20,

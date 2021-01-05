@@ -68,6 +68,16 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             onPress={() => toggleEdit()}
           />
         </View>
+        <View style={styles.quantity}>
+          {data.cantidad > 0 ? (
+            <>
+              <Text style={styles.quantityBadge}>{data.cantidad}</Text>
+              <Text> En inventario</Text>
+            </>
+          ) : (
+            <Text>Inexistente en inventario o no asignado</Text>
+          )}
+        </View>
         <Text>Codigo</Text>
         <TextInput
           editable={false}

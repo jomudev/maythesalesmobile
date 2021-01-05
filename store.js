@@ -1,4 +1,5 @@
 import {createStore} from 'redux';
+import {getTotal} from './src/components/mainFunctions';
 
 const initialState = {
   title: 'Maythe´s Sales',
@@ -13,28 +14,16 @@ const initialState = {
   total: 0,
 };
 
-const calculateTotal = (ProductsCart, ServicesCart) => {
-  let totalSum = 0;
-  if (ProductsCart) {
-    ProductsCart.forEach((product) => {
-      totalSum += product.precioVenta * product.cantidad;
-    });
-  }
-  if (ServicesCart) {
-    ServicesCart.forEach((service) => {
-      totalSum += service.precioVenta * service.cantidad;
-    });
-  }
-  return Number(totalSum);
-};
+const calculateTotal = (products, services) =>
+  Number(getTotal(products) + getTotal(services));
 
-const values = (quantity, productOrService, productsCart) => {
-  productsCart.map((product) =>
+const values = (quantity, productOrService, list) => {
+  list.map((product) =>
     product.id === productOrService.id
-      ? (product.cantidad = quantity)
+      ? (product.cantidad = isNaN(quantity) ? 1 : quantity)
       : product,
   );
-  return productsCart;
+  return list;
 };
 
 const reducers = (prevState, action) => {
@@ -64,7 +53,7 @@ const reducers = (prevState, action) => {
     newState = {
       ...prevState,
       cart: newCart,
-      total: calculateTotal(false, newCart, newServicesCart),
+      total: calculateTotal(newCart, newServicesCart),
     };
   }
   if (action.type === 'ADD_SERVICE_TO_CART') {
@@ -84,17 +73,18 @@ const reducers = (prevState, action) => {
     newState = {
       ...prevState,
       servicesCart: newServicesCart,
-      total: calculateTotal(false, newCart, newServicesCart),
+      total: calculateTotal(newCart, newServicesCart),
     };
   }
   if (action.type === 'SET_QUANTITY') {
     const object = action.object;
     action.quantity = !action.quantity ? 1 : Number(action.quantity);
     newCart = values(action.quantity, object, newCart);
+    newServicesCart = values(action.quantity, object, newServicesCart);
     newState = {
       ...prevState,
       cart: newCart,
-      total: calculateTotal(false, newCart, newServicesCart),
+      total: calculateTotal(newCart, newServicesCart),
     };
   }
   if (action.type === 'CLEAR_CART') {
@@ -109,13 +99,10 @@ const reducers = (prevState, action) => {
   if (action.type === 'REMOVE_FROM_CART') {
     newCart = newCart.filter((item) => item.id !== action.id);
     newServicesCart = newServicesCart.filter((item) => item.id !== action.id);
-
-    const newSuma = calculateTotal(false, newCart, newServicesCart);
     newState = {
       ...prevState,
       cart: newCart,
       servicesCart: newServicesCart,
-      total: newSuma,
     };
   }
   if (action.type === 'SET_CART_CLIENT') {
@@ -128,7 +115,7 @@ const reducers = (prevState, action) => {
     newState = {
       ...prevState,
       tipoVenta: action.data,
-      total: calculateTotal(action.ventaType),
+      total: calculateTotal(newCart, newServicesCart),
     };
   }
   if (action.type === 'SIGNOUT') {

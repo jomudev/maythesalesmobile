@@ -10,15 +10,11 @@ import AddCliente from './AddComponents/addCliente';
 import AddProducto from './AddComponents/addProducto';
 import AddServicio from './AddComponents/addServicio';
 import CamScanner from './../CamScanner';
-import {BannerAd, BannerAdSize, TestIds} from '@react-native-firebase/admob';
 import {ProductItem, ServiceItem, ClientItem} from './items';
+import {Banner} from '../ads';
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-
-const adUnitId = __DEV__
-  ? TestIds.BANNER
-  : 'ca-app-pub-8903466117529509/6769370981';
 
 const Stack = createStackNavigator();
 
@@ -114,7 +110,9 @@ const Component = ({navigation}) => {
     const newList = list.filter((item) => {
       search = search.toLowerCase();
       const name = item.nombre.toLowerCase();
-      const description = item.descripcion.toLowerCase();
+      const description = item.descripcion
+        ? item.descripcion.toLowerCase()
+        : '';
       const brand = item.marca ? item.marca.toLowerCase() : '';
       return (
         name.includes(search) ||
@@ -144,9 +142,9 @@ const Component = ({navigation}) => {
         <ClientItem data={client} index={index} key={client + index} />
       ));
     } else if (type === 'services') {
-      finded = filter(list, searchedClient);
-      return finded.map((client, index) => (
-        <ClientItem data={client} index={index} key={client + index} />
+      finded = filter(list, searchedService);
+      return finded.map((service, index) => (
+        <ServiceItem data={service} index={index} key={service + index} />
       ));
     }
   };
@@ -169,6 +167,7 @@ const Component = ({navigation}) => {
               <TextInput
                 style={styles.txtInput}
                 onChangeText={(text) => setFundProduct(text)}
+                value={searchedProduct}
                 placeholder="Buscar producto"
               />
               <Icon
@@ -193,6 +192,7 @@ const Component = ({navigation}) => {
               <TextInput
                 onChangeText={(text) => setFundClient(text)}
                 style={styles.txtInput}
+                value={searchedClient}
                 placeholder="Buscar cliente"
               />
               <Icon
@@ -204,7 +204,7 @@ const Component = ({navigation}) => {
             <ScrollView
               style={styles.findProductsList}
               showsVerticalScrollIndicator={false}>
-              {searchedClient ? <Search List={clients} type="clients" /> : null}
+              {searchedClient ? <Search list={clients} type="clients" /> : null}
             </ScrollView>
           </View>
           <View style={styles.formGroup}>
@@ -216,6 +216,7 @@ const Component = ({navigation}) => {
               />
               <TextInput
                 style={styles.txtInput}
+                value={searchedService}
                 onChangeText={(text) => setFundService(text)}
                 placeholder="Buscar Servicio Adicional"
               />
@@ -229,13 +230,13 @@ const Component = ({navigation}) => {
               style={styles.findProductsList}
               showsVerticalScrollIndicator={false}>
               {searchedService ? (
-                <Search List={services} type="services" />
+                <Search list={services} type="services" />
               ) : null}
             </ScrollView>
           </View>
         </View>
       </ScrollView>
-      <BannerAd unitId={adUnitId} size={BannerAdSize.SMART_BANNER} />
+      <Banner />
       <ShoppingCart />
     </View>
   );

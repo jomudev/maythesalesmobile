@@ -17,14 +17,14 @@ import store from '../../../store';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
-import {moneyFormat} from '../mainFunctions';
+import {moneyFormat, getTotal} from '../mainFunctions';
 
-function postearVenta({productCart, servicesCart, total, cliente}) {
+function postearVenta({productsCart, servicesCart, total, cliente}) {
   const db = firestore();
-  let todosProductosDisponibles = true;
-  let productosNoDisponibles = [];
+  let areAllProductsAvaiable = true;
+  let productsNoAvaiable = [];
 
-  productCart.forEach((item) => {
+  productsCart.forEach((item) => {
     db.runTransaction(async (t) => {
       let productNombre = item.nombre.toLocaleUpperCase();
       console.log(productNombre);
@@ -43,13 +43,13 @@ function postearVenta({productCart, servicesCart, total, cliente}) {
             });
           }
         } else {
-          todosProductosDisponibles = false;
-          productosNoDisponibles = productosNoDisponibles.concat(item.nombre);
+          areAllProductsAvaiable = false;
+          productsNoAvaiable = productsNoAvaiable.concat(item.nombre);
         }
       });
     });
   });
-  if (todosProductosDisponibles) {
+  if (areAllProductsAvaiable) {
     const timestamp = moment().format('x');
     db.collection('negocios')
       .doc(auth().currentUser.uid)
@@ -57,7 +57,7 @@ function postearVenta({productCart, servicesCart, total, cliente}) {
       .doc(timestamp)
       .set({
         timestamp,
-        productos: productCart,
+        productos: productsCart,
         servicios: servicesCart,
         total,
         cliente,
@@ -65,13 +65,13 @@ function postearVenta({productCart, servicesCart, total, cliente}) {
   } else {
     Alert.alert(
       'Algunos productos no están disponibles',
-      `los siguientes productos no están disponibles: ${productosNoDisponibles.join()}`,
+      `los siguientes productos no están disponibles: ${productsNoAvaiable.join()}`,
     );
   }
 }
 
 function ShoppingCart() {
-  const [productCart, setProductCart] = useState(store.getState().cart || []);
+  const [productsCart, setProductsCart] = useState(store.getState().cart || []);
   const [servicesCart, setServicesCart] = useState(
     store.getState().servicesCart || [],
   );
@@ -115,10 +115,10 @@ function ShoppingCart() {
     }
   };
 
-  const verifyCart = (productCartToVerify, servicesCartToVerify) => {
-    const productCartAndServiceCartHaveProducts =
-      productCartToVerify.length > 0 || servicesCartToVerify.length > 0;
-    if (productCartAndServiceCartHaveProducts) {
+  const verifyCart = (productsCartToVerify, servicesCartToVerify) => {
+    const productsCartAndServiceCartHaveProducts =
+      productsCartToVerify.length > 0 || servicesCartToVerify.length > 0;
+    if (productsCartAndServiceCartHaveProducts) {
       showCart();
     } else {
       hideCart(true);
@@ -129,8 +129,8 @@ function ShoppingCart() {
     const unsubscribe = store.subscribe(() => {
       const state = store.getState();
       verifyCart(state.cart, state.servicesCart);
-      if (state.cart !== productCart) {
-        setProductCart(state.cart);
+      if (state.cart !== productsCart) {
+        setProductsCart(state.cart);
       }
       if (state.servicesCart !== servicesCart) {
         setServicesCart(state.servicesCart);
@@ -182,11 +182,17 @@ function ShoppingCart() {
           Total: {moneyFormat(total)}
         </Text>
       </View>
-      {productCart.length > 0 ? (
+      {productsCart.length > 0 ? (
         <FlatList
-          ListHeaderComponent={() => <ListHeader title="Lista de productos" />}
+          ListHeaderComponent={() => (
+            <ListHeader
+              title={`Lista de productos: ${moneyFormat(
+                getTotal(productsCart),
+              )}`}
+            />
+          )}
           style={styles.cartBody}
-          data={productCart}
+          data={productsCart}
           renderItem={({item}) => {
             return <ListItem item={item} />;
           }}
@@ -194,7 +200,13 @@ function ShoppingCart() {
       ) : null}
       {servicesCart.length > 0 ? (
         <FlatList
-          ListHeaderComponent={() => <ListHeader title="Lista de servicios" />}
+          ListHeaderComponent={() => (
+            <ListHeader
+              title={`Lista de servicios: ${moneyFormat(
+                getTotal(servicesCart),
+              )}`}
+            />
+          )}
           style={styles.cartBody}
           data={servicesCart}
           renderItem={({item}) => {
@@ -206,7 +218,7 @@ function ShoppingCart() {
       <TouchableOpacity
         style={styles.soldBtn}
         onPress={() => {
-          postearVenta({total, cliente, productCart, servicesCart});
+          postearVenta({total, cliente, productsCart, servicesCart});
           limpiarCampos();
         }}>
         <Text style={{color: '#f7f8f9', textTransform: 'uppercase'}}>
@@ -229,12 +241,11 @@ const ListItem = ({item, cantidad}) => {
           flexDirection: 'row',
         }}>
         {item.nombre}
-        {` ${moneyFormat(item.precioVenta)}`}
       </Text>
       <TextInput
         style={styles.cartInput}
         keyboardType="numeric"
-        defaultValue={'1'}
+        defaultValue={"1"}
         onChangeText={(text) =>
           store.dispatch({
             type: 'SET_QUANTITY',

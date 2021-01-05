@@ -44,7 +44,10 @@ const ListItem = ({navigation, route, data, title, subtitle}) => {
       ) : null}
       <View style={styles.listItemText}>
         <Text style={styles.itemTitle}>{title}</Text>
-        <Text style={styles.itemSubtitle}>
+        <Text
+          ellipsizeMode="tail"
+          numberOfLines={1}
+          style={styles.itemSubtitle}>
           {subtitle.map((item, index) => {
             return (
               <Text key={item}>
