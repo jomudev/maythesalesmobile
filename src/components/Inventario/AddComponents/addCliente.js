@@ -45,7 +45,6 @@ const AddCliente = () => {
         <TextBox
           placeholder="Nombres*"
           style={styles.txtInput}
-          ref={nombre}
           onChangeText={(text) => setValue('nombre', text)}
         />
         {errors.nombre && <Text>Este campo es obligatorio</Text>}
@@ -53,7 +52,6 @@ const AddCliente = () => {
           placeholder="Número de teléfono"
           keyboardType="numeric"
           style={styles.txtInput}
-          ref={telefono}
           onChangeText={(text) => setValue('telefono', text)}
         />
         <TextBox
@@ -61,13 +59,11 @@ const AddCliente = () => {
           keyboardType="email-address"
           autoCapitalize="none"
           style={styles.txtInput}
-          ref={email}
           onChangeText={(text) => setValue('email', text)}
         />
         <TextBox
           placeholder="Descripción"
           style={styles.txtInput}
-          ref={descripcion}
           onChangeText={(text) => setValue('descripcion', text)}
         />
         <Button action={handleSubmit(onSubmit)} />

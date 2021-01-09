@@ -21,29 +21,34 @@ const Ventas = () => {
       .doc(auth().currentUser.uid)
       .collection('ventas')
       .onSnapshot((snap) => {
-        let newList = listaVentas;
-        snap.docChanges().forEach((change) => {
-          let docData = change.doc.data();
-          if (isActual(docData.timestamp)) {
-            switch (change.type) {
-              case 'added':
-                const isInList =
-                  newList.filter((item) => item.timestamp === docData.timestamp)
-                    .length > 0;
-                if (!isInList) {
-                  newList = newList.concat(docData);
-                }
-                break;
-              case 'removed':
-                newList = newList.filter((item) => item.id !== docData.id);
-                break;
-              default:
-                break;
+        try {
+          let newList = listaVentas;
+          snap.docChanges().forEach((change) => {
+            let docData = change.doc.data();
+            if (isActual(docData.timestamp)) {
+              switch (change.type) {
+                case 'added':
+                  const isInList =
+                    newList.filter(
+                      (item) => item.timestamp === docData.timestamp,
+                    ).length > 0;
+                  if (!isInList) {
+                    newList = newList.concat(docData);
+                  }
+                  break;
+                case 'removed':
+                  newList = newList.filter((item) => item.id !== docData.id);
+                  break;
+                default:
+                  break;
+              }
             }
+          });
+          if (JSON.stringify(listaVentas) !== JSON.stringify(newList)) {
+            setListaVentas(newList.reverse());
           }
-        });
-        if (JSON.stringify(listaVentas) !== JSON.stringify(newList)) {
-          setListaVentas(newList.reverse());
+        } catch (err) {
+          console.log(err);
         }
       });
     return () => {

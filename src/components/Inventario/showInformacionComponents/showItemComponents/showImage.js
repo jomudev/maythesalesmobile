@@ -6,9 +6,31 @@ import styles from '../styles';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import {shareImage, moneyFormat} from '../../../mainFunctions';
+import LoadingScreen from '../../../loadingScreen';
 
 const ShowImage = ({data, setShowImage, type, navigation}) => {
   const [isUpload, setIsUpload] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleShare = async () => {
+    setIsLoading(true);
+    shareImage(
+      data.imageURL,
+      {
+        message: `${data.nombre} ${moneyFormat(data.precioVenta)} ${
+          data.descripcion
+        }`,
+      },
+      () => {
+        setIsLoading(false);
+      },
+      (err) => {
+        setIsLoading(false);
+        console.log(err)
+      }
+    );
+  };
 
   const updateImage = () => {
     ImagePicker.openPicker({
@@ -66,6 +88,7 @@ const ShowImage = ({data, setShowImage, type, navigation}) => {
 
   return (
     <View style={styles.imageContainer}>
+      <LoadingScreen isLoading={isLoading} />
       {isUpload ? (
         <ActivityIndicator
           style={styles.uploadingImageIcon}
@@ -74,11 +97,16 @@ const ShowImage = ({data, setShowImage, type, navigation}) => {
         />
       ) : null}
       {data.imageURL ? (
-        <TouchableOpacity
-          style={styles.updateImageButton}
-          onPress={updateImage}>
-          <Icon name="image-edit" style={styles.updateImageIcon} />
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.shareImageIcon} onPress={handleShare}>
+            <Icon name="share-variant" size={28} color="#101e5a" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.updateImageButton}
+            onPress={updateImage}>
+            <Icon name="image-edit" size={28} color="#101e5a" />
+          </TouchableOpacity>
+        </>
       ) : null}
       <TouchableOpacity
         onPress={() => (data.imageURL ? setShowImage(true) : updateImage())}

@@ -19,6 +19,7 @@ import Snackbar from 'react-native-snackbar-component';
 import Wave from '../../assets/AdditionalMedia/wave.svg';
 import Logo from '../../assets/AdditionalMedia/Logo.svg';
 import {PasswordInput} from '../auxComponents';
+import LoadingScreen from '../loadingScreen';
 
 const ErrorMessage = ({text}) => {
   return (
@@ -62,6 +63,9 @@ const Login = ({navigation}) => {
       } else {
         auth()
           .signInWithEmailAndPassword(data.email, data.password)
+          .then(() => {
+            setInitializing(false);
+          })
           .catch((err) => {
             console.log(err.code);
             let msg;
@@ -90,15 +94,7 @@ const Login = ({navigation}) => {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: '#f1f2f3',
       }}>
-      {initializing ? (
-        <View style={styles.loadingScreen}>
-          <ActivityIndicator
-            style={{marginTop: 25}}
-            size={38}
-            color="#101e5a"
-          />
-        </View>
-      ) : null}
+      <LoadingScreen isLoading={initializing} />
       <StatusBar
         barStyle="light-content"
         translucent

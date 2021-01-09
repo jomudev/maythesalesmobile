@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 0.5,
     height: 70,
     overflow: 'hidden',
+    fontFamily: 'Varela Round',
   },
   txtInput: {
     padding: 10,
@@ -100,6 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 4,
+    padding: 10,
   },
   btnTxt: {
     fontSize: 12,

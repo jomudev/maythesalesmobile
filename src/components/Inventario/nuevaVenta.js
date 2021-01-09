@@ -19,32 +19,33 @@ import auth from '@react-native-firebase/auth';
 const Stack = createStackNavigator();
 
 const handleGetList = (snap, list, setList) => {
-  if (!snap) {
-    return;
-  }
-  let newList = list;
-  snap.docChanges().forEach((change) => {
-    const data = change.doc.data();
-    switch (change.type) {
-      case 'added':
-        const filter = list.filter((item) => item.id === data.id);
-        const isInList = filter.length > 0;
-        if (!isInList) {
-          newList = newList.concat(data);
-        }
-        break;
-      case 'modified':
-        newList = list.map((item) => (item.id === data.id ? data : item));
-        break;
-      case 'removed':
-        newList = list.filter((item) => item.id !== data.id);
-        break;
-      default:
-        break;
+  try {
+    let newList = list;
+    snap.docChanges().forEach((change) => {
+      const data = change.doc.data();
+      switch (change.type) {
+        case 'added':
+          const filter = list.filter((item) => item.id === data.id);
+          const isInList = filter.length > 0;
+          if (!isInList) {
+            newList = newList.concat(data);
+          }
+          break;
+        case 'modified':
+          newList = list.map((item) => (item.id === data.id ? data : item));
+          break;
+        case 'removed':
+          newList = list.filter((item) => item.id !== data.id);
+          break;
+        default:
+          break;
+      }
+    });
+    if (JSON.stringify(list) !== JSON.stringify(newList)) {
+      setList(newList);
     }
-  });
-  if (JSON.stringify(list) !== JSON.stringify(newList)) {
-    setList(newList);
+  } catch (err) {
+    console.log(err);
   }
 };
 

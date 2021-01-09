@@ -3,18 +3,17 @@ import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import DrawerContent from './drawerContent';
 import HomeContainer from '../../containers/HomeContainer';
-//import CotizacionContainer from './src/containers/CotizacionContainer';
 import ReportesContainer from '../../containers/ReportesContainer';
 import Configuracion from '../../containers/configuracionContainer';
 import auth from '@react-native-firebase/auth';
-import {StatusBar} from 'react-native';
+import {StatusBar, StyleSheet, View} from 'react-native';
 
 const DrawerApp = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   const user = auth().currentUser;
   return (
-    <>
+    <View style={{...StyleSheet.absoluteFillObject}}>
       <StatusBar
         barStyle="dark-content"
         translucent={true}
@@ -32,7 +31,7 @@ const DrawerNavigator = () => {
         <DrawerApp.Screen name="Reportes" component={ReportesContainer} />
         <DrawerApp.Screen name="Configuracion" component={Configuracion} />
       </DrawerApp.Navigator>
-    </>
+    </View>
   );
 };
 

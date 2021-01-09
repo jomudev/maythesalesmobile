@@ -1,6 +1,8 @@
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
+import RNFetchBlob from 'rn-fetch-blob';
+import Share from 'react-native-share';
 
 const moneyFormat = (number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -78,6 +80,28 @@ const getTotal = (list) =>
         .map((item) => item.precioVenta * item.cantidad)
         .reduce((accumulator, currentValue) => accumulator + currentValue)
     : 0;
+
+const shareImage = (url, options, callback, errCallback) => {
+  let imagePath = null;
+  RNFetchBlob.config({
+    fileCache: true,
+  })
+    .fetch('GET', url)
+    .then((resp) => {
+      imagePath = resp.path();
+      return resp.readFile('base64');
+    })
+    .then(async (base64Data) => {
+      var base64Data = `data:image/jpeg;base64,${base64Data}`;
+      await Share.open({...options, url: base64Data});
+      callback.call(this, base64Data);
+      return RNFetchBlob.fs.unlink(imagePath);
+    })
+    .catch((err) => {
+      callback.call(this, err);
+    });
+};
+
 export {
   moneyFormat,
   update,
@@ -85,4 +109,5 @@ export {
   getSales,
   handleSetSnackMessage,
   getTotal,
+  shareImage,
 };

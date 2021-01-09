@@ -2,8 +2,10 @@ import React from 'react';
 import {Modal, View, Image, TouchableOpacity, StatusBar} from 'react-native';
 import styles from '../styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Share from 'react-native-share';
 
 const DisplayImageComponent = ({imageURL, showImage, setShowImage}) => {
+
   return (
     <Modal
       visible={showImage}

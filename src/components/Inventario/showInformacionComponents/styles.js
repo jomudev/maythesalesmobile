@@ -218,10 +218,6 @@ const styles = StyleSheet.create({
     fontSize: 225,
     color: '#101e5a',
   },
-  updateImageIcon: {
-    fontSize: 46,
-    color: '#101e5a',
-  },
   uploadingImageIcon: {
     zIndex: 10,
     color: '#000',
@@ -249,6 +245,16 @@ const styles = StyleSheet.create({
     left: 10,
     zIndex: 100,
     elevation: 3,
+  },
+  shareImageIcon: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 1,
+    backgroundColor: '#f6f7f8aa',
+    borderRadius: 100,
+    padding: 10,
+    elevation: 30,
   },
   emptyListContainer: {
     alignItems: 'center',

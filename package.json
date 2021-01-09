@@ -37,11 +37,13 @@
     "react-native-safe-area-context": "^3.1.8",
     "react-native-screens": "^2.12.0",
     "react-native-shadow": "^1.2.2",
+    "react-native-share": "^5.1.0",
     "react-native-snackbar-component": "^1.1.11",
     "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^7.1.0",
     "react-router-native": "^5.2.0",
     "redux": "^4.0.5",
+    "rn-fetch-blob": "^0.12.0",
     "watchman": "^1.0.0"
   },
   "devDependencies": {
@@ -57,5 +59,10 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "rnpm": {
+    "assets": [
+      "./src/assets/fonts"
+    ]
   }
 }
