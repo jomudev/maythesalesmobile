@@ -34,13 +34,13 @@ const App = () => {
   });
 
   if (initializing) {
-    return <LoadingScreen />;
+    return <LoadingScreen text="Iniciando" />;
   }
 
   if (user) {
     return (
-      <NavigationContainer>
-        <Stack.Navigator headerMode="none">
+      <NavigationContainer >
+        <Stack.Navigator headerMode="none" >
           <Stack.Screen name="drawerNavigator" component={DrawerNavigator} />
         </Stack.Navigator>
       </NavigationContainer>

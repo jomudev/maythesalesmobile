@@ -13,77 +13,25 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import store from '../../../store';
-import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
-import moment from 'moment';
-import {moneyFormat, getTotal} from '../mainFunctions';
-
-function postearVenta({productsCart, servicesCart, total, cliente}) {
-  const db = firestore();
-  let areAllProductsAvaiable = true;
-  let productsNoAvaiable = [];
-
-  productsCart.forEach((item) => {
-    db.runTransaction(async (t) => {
-      let productNombre = item.nombre.toLocaleUpperCase();
-      console.log(productNombre);
-      const productRef = db
-        .collection('negocios')
-        .doc(auth().currentUser.uid)
-        .collection('productos')
-        .doc(productNombre);
-      return t.get(productRef).then((doc) => {
-        let cantidad = doc.data().cantidad;
-        if (cantidad > 0) {
-          cantidad -= item.cantidad;
-          if (cantidad > 0) {
-            return t.update(productRef, {
-              cantidad,
-            });
-          }
-        } else {
-          areAllProductsAvaiable = false;
-          productsNoAvaiable = productsNoAvaiable.concat(item.nombre);
-        }
-      });
-    });
-  });
-  if (areAllProductsAvaiable) {
-    const timestamp = moment().format('x');
-    db.collection('negocios')
-      .doc(auth().currentUser.uid)
-      .collection('ventas')
-      .doc(timestamp)
-      .set({
-        timestamp,
-        productos: productsCart,
-        servicios: servicesCart,
-        total,
-        cliente,
-      });
-  } else {
-    Alert.alert(
-      'Algunos productos no están disponibles',
-      `los siguientes productos no están disponibles: ${productsNoAvaiable.join()}`,
-    );
-  }
-}
+import store from '../../../cartStore';
+import {moneyFormat, getTotal, verifyChanges, postSale} from '../mainFunctions';
+import {removeFromCart} from './functions';
 
 function ShoppingCart() {
-  const [productsCart, setProductsCart] = useState(store.getState().cart || []);
-  const [servicesCart, setServicesCart] = useState(
-    store.getState().servicesCart || [],
-  );
-  const [cliente, setCliente] = useState(store.getState().cartClient || null);
-  const [total, setTotal] = useState(store.getState().total || 0);
+  const [productsCart, setProductsCart] = useState([]);
+  const [servicesCart, setServicesCart] = useState([]);
+  const [client, setClient] = useState(null);
+  const [wholesaler, setWholesaler] = useState(null);
+  const [totalProducts, setProductsTotal] = useState(0);
+  const [totalServices, setServicesTotal] = useState(0);
+  const [total, setTotal] = useState(0);
   const [cartHeight, setCartHeight] = useState(0);
   const cartPosition = useRef(new Animated.Value(+500)).current;
   const [isOpen, setIsOpen] = useState(false);
   const [toggleIcon, setToggleIcon] = useState('keyboard-arrow-down');
   const [menuOpen, toggleMenu] = useState(false);
 
-  const limpiarCampos = () => {
+  const clean = () => {
     store.dispatch({
       type: 'CLEAR_CART',
     });
@@ -115,10 +63,9 @@ function ShoppingCart() {
     }
   };
 
-  const verifyCart = (productsCartToVerify, servicesCartToVerify) => {
-    const productsCartAndServiceCartHaveProducts =
-      productsCartToVerify.length > 0 || servicesCartToVerify.length > 0;
-    if (productsCartAndServiceCartHaveProducts) {
+  const verifyCart = (state) => {
+    const cartHaveData = state.products.length > 0 || state.services.length > 0;
+    if (cartHaveData) {
       showCart();
     } else {
       hideCart(true);
@@ -128,19 +75,33 @@ function ShoppingCart() {
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
       const state = store.getState();
-      verifyCart(state.cart, state.servicesCart);
-      if (state.cart !== productsCart) {
-        setProductsCart(state.cart);
-      }
-      if (state.servicesCart !== servicesCart) {
-        setServicesCart(state.servicesCart);
-      }
-      if (state.total !== total) {
-        setTotal(state.total);
-      }
-      if (state.cartClient !== cliente) {
-        setCliente(state.cartClient);
-      }
+      verifyChanges([
+        {
+          prevValue: productsCart,
+          newValue: state.products,
+          updateFunction: setProductsCart,
+        },
+        {
+          prevValue: servicesCart,
+          newValue: state.services,
+          updateFunction: setServicesCart,
+        },
+        {
+          prevValue: client,
+          newValue: state.client,
+          updateFunction: setClient,
+        },
+        {
+          prevValue: wholesaler,
+          newValue: state.wholesaler,
+          updateFunction: setWholesaler,
+        },
+      ]);
+
+      setTotal(getTotal([state.products, state.services], state.wholesaler));
+      setProductsTotal(getTotal([state.products], state.wholesaler));
+      setServicesTotal(getTotal([state.services], state.wholesaler));
+      verifyCart(state);
     });
     return () => {
       unsubscribe();
@@ -164,53 +125,45 @@ function ShoppingCart() {
         <Icon
           name={toggleIcon}
           style={styles.toggle}
-          size={28}
+          size={24}
           onPress={() => toggle()}
         />
         <Icon
           name="more-vert"
-          size={28}
+          size={24}
           style={styles.more}
           onPress={() => toggleMenu(!menuOpen)}
         />
       </View>
+      {wholesaler ? <Text>Mayorista: {wholesaler.nombre}</Text> : null}
       <View style={{flexDirection: 'row'}}>
-        <Text style={{flex: 1, fontSize: 18}}>
-          Cliente: {cliente ? cliente.nombre : 'Anonimo'}
-        </Text>
+        {client ? <Text>Cliente: {client.nombre}</Text> : null}
         <Text style={{flex: 1, textAlign: 'right', fontSize: 18}}>
-          Total: {moneyFormat(total)}
+          Total:{' '}
+          {moneyFormat(getTotal([productsCart, servicesCart], wholesaler))}
         </Text>
       </View>
       {productsCart.length > 0 ? (
         <FlatList
           ListHeaderComponent={() => (
-            <ListHeader
-              title={`Lista de productos: ${moneyFormat(
-                getTotal(productsCart),
-              )}`}
-            />
+            <ListHeader title={`Productos: ${moneyFormat(totalProducts)}`} />
           )}
           style={styles.cartBody}
           data={productsCart}
           renderItem={({item}) => {
-            return <ListItem item={item} />;
+            return <ListItem item={item} isWholesaler={wholesaler} />;
           }}
         />
       ) : null}
       {servicesCart.length > 0 ? (
         <FlatList
           ListHeaderComponent={() => (
-            <ListHeader
-              title={`Lista de servicios: ${moneyFormat(
-                getTotal(servicesCart),
-              )}`}
-            />
+            <ListHeader title={`Servicios: ${moneyFormat(totalServices)}`} />
           )}
           style={styles.cartBody}
           data={servicesCart}
           renderItem={({item}) => {
-            return <ListItem item={item} />;
+            return <ListItem item={item} isWholesaler={wholesaler} />;
           }}
         />
       ) : null}
@@ -218,8 +171,14 @@ function ShoppingCart() {
       <TouchableOpacity
         style={styles.soldBtn}
         onPress={() => {
-          postearVenta({total, cliente, productsCart, servicesCart});
-          limpiarCampos();
+          postSale({
+            total,
+            client,
+            wholesaler,
+            productsCart,
+            servicesCart,
+          });
+          clean();
         }}>
         <Text style={{color: '#f7f8f9', textTransform: 'uppercase'}}>
           Postear
@@ -230,7 +189,8 @@ function ShoppingCart() {
   );
 }
 
-const ListItem = ({item, cantidad}) => {
+const ListItem = ({item, isWholesaler}) => {
+  const [quantity, setQuantity] = useState(1);
   return (
     <View style={styles.cartItem}>
       <Text
@@ -240,26 +200,31 @@ const ListItem = ({item, cantidad}) => {
           flex: 5,
           flexDirection: 'row',
         }}>
-        {item.nombre}
+        {item.nombre} {isWholesaler ? moneyFormat(item.precioMayoreo) : null}
       </Text>
       <TextInput
         style={styles.cartInput}
         keyboardType="numeric"
-        defaultValue={"1"}
-        onChangeText={(text) =>
+        defaultValue={'1'}
+        onChangeText={(text) => setQuantity(Number(text))}
+        onEndEditing={() =>
           store.dispatch({
             type: 'SET_QUANTITY',
-            object: item,
-            quantity: text,
+            element: item,
+            quantity: quantity,
           })
         }
       />
-      <Text style={{flex: 5, fontSize: 12, textAlign: 'center'}}>
-        {`subtotal: ${moneyFormat(item.precioVenta * item.cantidad)}`}
+      <Text style={{flex: 5, fontSize: 12, textAlign: 'right'}}>
+        {moneyFormat(
+          isWholesaler
+            ? item.precioMayoreo * item.cantidad
+            : item.precioVenta * item.cantidad,
+        )}
       </Text>
       <TouchableOpacity
         style={styles.removeFromCart}
-        onPress={() => store.dispatch({type: 'REMOVE_FROM_CART', id: item.id})}>
+        onPress={() => removeFromCart(item.id)}>
         <Icon name="delete" style={styles.removeFromCart} size={24} />
       </TouchableOpacity>
     </View>
@@ -322,12 +287,10 @@ export default ShoppingCart;
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    maxHeight: 500,
+    maxHeight: '100%',
     bottom: 0,
     alignSelf: 'center',
     width: '100%',
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
     padding: 10,
     backgroundColor: '#f2f3f4',
   },
@@ -359,8 +322,6 @@ const styles = StyleSheet.create({
   },
   modalView: {
     backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
     bottom: 0,
     width: '100%',
     alignItems: 'center',
@@ -382,18 +343,25 @@ const styles = StyleSheet.create({
   },
   menuOptions: {
     flexDirection: 'row',
-    paddingVertical: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     width: '100%',
     alignContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
   },
   menuOptionsIcon: {
-    fontSize: 26,
-    paddingHorizontal: 10,
+    fontSize: 12,
+    width: 24,
+    height: 24,
+    marginRight: 8,
+    borderRadius: 100,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    backgroundColor: '#acbdd3',
   },
   menuOptionsText: {
-    fontSize: 16,
+    fontSize: 12,
     alignSelf: 'center',
     textAlign: 'center',
   },
@@ -401,12 +369,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#101e5a',
-    borderRadius: 20,
+    width: '100%',
     padding: 20,
   },
   removeFromCart: {
     flex: 1,
     elevation: 5,
+    paddingHorizontal: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
     color: '#cbc6c3',
   },
   total: {

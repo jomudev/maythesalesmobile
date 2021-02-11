@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useRef} from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -9,33 +9,36 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {RenderItemProducto, RenderItemServicio} from './Item';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './listStyles';
-import moment from 'moment';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNPrint from 'react-native-print';
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import {moneyFormat} from '../mainFunctions';
+import {moneyFormat, getTotal, getUserData} from '../mainFunctions';
+import {InterstitialUnitId} from '../ads';
+import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
+import {format, formatDistanceToNow} from 'date-fns';
+import {es} from 'date-fns/locale';
+import htmlData from './htmlData';
 
 const deviceHeight = Dimensions.get('window').height;
 
-const subtotal = (lista) => {
+const ganancias = (lista, isWholesaler) => {
   let sum = 0;
-  lista.forEach((item) => (sum += item.precioVenta * item.cantidad));
-  return sum;
-};
-
-const ganancias = (lista) => {
-  let sum = 0;
-  lista.forEach(
-    (item) => (sum += (item.precioVenta - item.precioCosto) * item.cantidad),
-  );
+  lista.forEach((item) => {
+    if (isWholesaler) {
+      sum +=
+        (item.precioMayoreo ? item.precioMayoreo : item.precioVenta) -
+        item.precioCosto;
+    } else {
+      sum += item.precioVenta - item.precioCosto;
+    }
+  });
   return sum;
 };
 
 const RenderVentasCollection = ({venta}) => {
   let popupRef = React.createRef();
+  const saleDate = new Date(venta.timestamp.seconds * 1000);
 
   const onClosePopup = () => {
     popupRef.close();
@@ -49,50 +52,74 @@ const RenderVentasCollection = ({venta}) => {
     <View style={styles.venta}>
       <View style={styles.ventaHeader}>
         <TouchableWithoutFeedback onPress={() => onShowPopup()}>
-          <Icon name="more-vert" size={28} style={styles.contextMenuBtn} />
+          <Icon name="dots-vertical" size={28} style={styles.contextMenuBtn} />
         </TouchableWithoutFeedback>
+        <Text style={styles.ventaTitleText}>
+          {format(saleDate, 'PPpp', {locale: es})}{' '}
+          {formatDistanceToNow(saleDate, {locale: es, addSuffix: true})}
+        </Text>
         <ContextMenu
           ref={(target) => (popupRef = target)}
           data={venta}
           onTouchOutside={() => onClosePopup()}
         />
-        <Text style={styles.ventaTitleText}>
-          {moment(venta.timestamp, 'x', 'x').format('LLL')}{' '}
-          {moment(venta.timestamp, 'x', 'x').fromNow()}
-        </Text>
-        <Text>{venta.cliente ? venta.cliente.nombre : null}</Text>
+
+        {venta.mayorista && <Text>Mayorista: {venta.mayorista.nombre}</Text>}
+        {venta.cliente && <Text>Cliente: {venta.cliente.nombre}</Text>}
       </View>
-      {venta.servicios.length > 0 ? (
+
+      {venta.servicios.length > 0 && (
         <Text style={styles.ventaTitleText}>Productos</Text>
-      ) : null}
+      )}
+
       {venta.productos.map((producto) => {
-        return <RenderItemProducto key={producto.id} producto={producto} />;
+        return (
+          <RenderItemProducto
+            key={producto.id}
+            isWholesaler={venta.mayorista}
+            producto={producto}
+          />
+        );
       })}
-      <View style={styles.subtotalContainer}>
-        <Text style={styles.subtotalTitle}>subtotal productos:</Text>
-        <Text style={styles.subtotal}>
-          {moneyFormat(subtotal(venta.productos))}
-        </Text>
-      </View>
-      {venta.servicios.length > 0 ? (
+
+      {venta.productos.length > 0 && (
+        <View style={styles.subtotalContainer}>
+          <Text style={styles.subtotalTitle}>subtotal productos:</Text>
+          <Text style={styles.subtotal}>
+            {moneyFormat(getTotal([venta.productos], venta.mayorista))}
+          </Text>
+        </View>
+      )}
+
+      {venta.servicios.length > 0 && (
         <Text style={styles.ventaTitleText}>Servicios adicionales</Text>
-      ) : null}
+      )}
       {venta.servicios.map((servicio) => (
-        <RenderItemServicio key={servicio.id} servicio={servicio} />
+        <RenderItemServicio
+          key={servicio.id}
+          servicio={servicio}
+          isWholesaler={venta.wholesaler}
+        />
       ))}
-      <View style={styles.subtotalContainer}>
-        <Text style={styles.subtotalTitle}>
-          subtotal servicios adicionales:
-        </Text>
-        <Text style={styles.subtotal}>
-          {moneyFormat(subtotal(venta.servicios))}
-        </Text>
-      </View>
+
+      {venta.servicios.length > 0 && (
+        <View style={styles.subtotalContainer}>
+          <Text style={styles.subtotalTitle}>
+            subtotal servicios adicionales:
+          </Text>
+          <Text style={styles.subtotal}>
+            {moneyFormat(getTotal([venta.servicios], venta.wholesaler))}
+          </Text>
+        </View>
+      )}
       <View
         style={{flexDirection: 'row', borderTopWidth: 1, borderColor: '#ccc'}}>
         <Text style={{textAlign: 'left', fontWeight: 'bold', flex: 1}}>
           Ganancias:{' '}
-          {moneyFormat(ganancias(venta.productos) + ganancias(venta.servicios))}
+          {moneyFormat(
+            ganancias(venta.productos, venta.mayorista) +
+              ganancias(venta.servicios),
+          )}
         </Text>
         <Text style={{textAlign: 'right', fontWeight: 'bold', flex: 1}}>
           Total: {moneyFormat(venta.total)}
@@ -107,7 +134,30 @@ class ContextMenu extends React.Component {
     super();
     this.state = {
       show: false,
+      loadedAd: false,
     };
+  }
+
+  interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, {
+    requestNonPersonalizedAdsOnly: true,
+    keywords: ['business', 'marketing'],
+  });
+
+  eventListener = this.interstitial.onAdEvent((type) => {
+    if (type === AdEventType.LOADED) {
+      this.setState({
+        loadedAd: true,
+      });
+    }
+  });
+
+  UNSAFE_componentWillMount() {
+    this.eventListener();
+    this.interstitial.load();
+  }
+
+  componentWillUnmount() {
+    this.eventListener();
   }
 
   close = () => {
@@ -138,8 +188,9 @@ class ContextMenu extends React.Component {
   };
 
   render() {
-    const {show} = this.state;
+    const {show, loadedAd} = this.state;
     const {onTouchOutside, data} = this.props;
+
     return (
       <Modal
         visible={show}
@@ -158,11 +209,22 @@ class ContextMenu extends React.Component {
               ...styles.contextMenuOptions,
               maxHeight: deviceHeight * 0.4,
             }}>
-            <TouchableOpacity
-              onPress={() => printPDF(data)}
-              style={styles.contextMenuOption}>
-              <Text>GENERAR REPORTE</Text>
-            </TouchableOpacity>
+            {!loadedAd ? (
+              <TouchableOpacity
+                onPress={() => {
+                  this.close();
+                  this.interstitial.show();
+                  printPDF(data);
+                }}
+                style={styles.contextMenuOption}>
+                <View style={styles.contextMenuIcons}>
+                  <Icon name="file-document" size={32} />
+                </View>
+                <Text style={{textAlign: 'center'}}>GENERAR REPORTE</Text>
+              </TouchableOpacity>
+            ) : (
+              <Text>Cargando...</Text>
+            )}
           </View>
         </View>
       </Modal>
@@ -171,179 +233,20 @@ class ContextMenu extends React.Component {
 }
 
 const printPDF = async (venta) => {
-  const user = auth().currentUser;
-  await firestore()
-    .collection('negocios')
-    .doc(user.uid)
-    .get()
-    .then(async (doc) => {
-      const userData = doc.data();
-      const html = `
-        <style>
-          .nofactura {
-            text-align: right;
-          }
+  try {
+    const saleDate = new Date(venta.timestamp.seconds * 1000);
+    const {userData} = await getUserData();
+    const html = htmlData(venta, userData);
 
-          thead {
-            background-color: rgba(20, 100, 256, 0.2);
-          }
-
-          .list td {
-            font-size: 12px; 
-            text-align: center              
-          }
-
-          .list .name {
-            text-align: left;
-          }
-
-          .total {
-            align-text: right;
-            align-items: flex-end;
-            justify-content: flex-end;
-          }
-
-          .totalTd {
-            background-color: rgba(20, 100, 256, 0.2);
-            font-weight: bolder;
-          }
-
-          .mainTable {
-            width: 100%;
-          }
-
-        </style>
-        <div class="nofactura">No. Factura: ${moment(
-          venta.timestamp,
-          'x',
-        ).format('DDMMYYYYhhmmss')}</div>
-        ${userData.negocio ? `<h1>${userData.negocio}</h1>` : ''}
-        ${userData.displayName ? `<h2>${user.displayName}</h2>` : ''}
-
-        <h3>fecha: ${moment(venta.timestamp, 'x').format('ll')} - ${moment(
-        venta.timestamp,
-        'x',
-      ).format('DD/MM/YYYY')}</h3>
-        ${
-          venta.cliente
-            ? `
-          <table>
-            <caption>Facturar a:</caption>
-            <tr><td>${
-              venta.cliente.nombre ? venta.cliente.nombre : null
-            }</td></tr>
-            ${
-              venta.cliente.email
-                ? `<tr><td>correo: ${venta.cliente.email}</td></tr>`
-                : null
-            }
-            ${
-              venta.cliente.telefono
-                ? `<tr><td>cel: ${venta.cliente.telefono}</td></tr>`
-                : null
-            }
-          </table>
-        `
-            : ''
-        }
-        <table class="mainTable list">
-        ${
-          venta.productos.length
-            ? `
-          <thead>
-            <tr>
-              <th colspan="5">PRODUCTOS</th>
-            </tr>
-            <tr>
-                <th>CODIGO</th>
-                <th>DESCRIPCION</th>
-                <th>CANTIDAD</th>
-                <th>COSTO POR UNIDAD</th>
-                <th>TOTALES</th>
-            </tr>
-          </thead>
-          <tbody>
-          ${venta.productos.map(
-            (producto) =>
-              `
-              <tr>
-              <td>${
-                producto.codigoDeBarras ? producto.codigoDeBarras : producto.id
-              }</td>
-              <td class="name">${producto.nombre.toLocaleUpperCase()}${
-                producto.descripcion ? ', ' + producto.marca : ''
-              }</td>
-              <td>${producto.cantidad}</td>
-                <td>${moneyFormat(producto.precioVenta)}</td>
-                <td>${moneyFormat(
-                  producto.precioVenta * producto.cantidad,
-                )}</td>
-              </tr>`,
-          )}
-            <tr>
-              <td colspan="3"></td>
-              <td>SUBTOTAL PRODUCTOS</td>
-              <td>${moneyFormat(subtotal(venta.productos))}</td>
-            </tr>
-          </tbody>`
-            : null
-        }
-        ${
-          venta.servicios.length
-            ? `<thead>
-                <tr>
-                  <th colspan="5">SERVICIOS</th>
-                </tr>
-                <tr>
-                    <th>CODIGO</th>
-                    <th>DESCRIPCION</th>
-                    <th>CANTIDAD</th>
-                    <th>COSTO POR UNIDAD</th>
-                    <th>TOTALES</th>
-                </tr>
-              </thead>
-              <tbody>
-              ${venta.servicios.map(
-                (servicio) =>
-                  `
-                  <tr>
-                  <td>${servicio.id}</td>
-                  <td>${servicio.nombre.toLocaleUpperCase()}${
-                    servicio.descripcion ? ', ' + servicio.descripcion : ''
-                  }</td>
-                  <td>${servicio.cantidad}</td>
-                  <td>${moneyFormat(servicio.precioVenta)}</td>
-                    <td>L${moneyFormat(
-                      servicio.precioVenta * servicio.cantidad,
-                    )}</td>
-                  </tr>`,
-              )}
-                <tr>
-                  <td colspan="3"></td>
-                  <td>SUBTOTAL SERVICIOS</td>
-                  <td>${moneyFormat(subtotal(venta.servicios))}</td>
-                </tr>
-              </tbody>`
-            : ''
-        }
-        <tr>
-          <td colspan="3"></td>
-          <td class="totalTd">TOTAL</td>
-          <td class="totalTd">${moneyFormat(venta.total)}</td>
-        </tr>
-      </table>
-        `;
-
-      const results = await RNHTMLtoPDF.convert({
-        html,
-        fileName: `REPORTE VENTA ${moment(venta.timestamp, 'x').format(
-          'DD-MM-YYYY',
-        )}`,
-        base64: true,
-      });
-      await RNPrint.print({filePath: results.filePath});
-    })
-    .catch((err) => console.log(err));
+    const results = await RNHTMLtoPDF.convert({
+      html,
+      fileName: `REPORTE VENTA ${format(saleDate, 'yMd-hms')}`,
+      base64: true,
+    });
+    await RNPrint.print({filePath: results.filePath});
+  } catch (err) {
+    console.log('error al intentar generar el reporte: ', err);
+  }
 };
 
 export default RenderVentasCollection;

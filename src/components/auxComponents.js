@@ -1,7 +1,17 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import authStyles from './auth/authStyles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {View, TextInput} from 'react-native';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Image,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native';
+import buttonStyles from './AddComponents/styles';
 
 const PasswordInput = (props) => {
   const [icon, setIcon] = useState('eye');
@@ -19,23 +29,74 @@ const PasswordInput = (props) => {
 
   return (
     <View style={authStyles.passwordView}>
-      <TextInput
-        {...props}
-        secureTextEntry={!showPassword}
-        ref={props.passRef}
-      />
-      <Icon
-        name={icon}
-        size={24}
-        style={authStyles.showPasswordIcon}
-        onPress={toggleShowPassword}
-      />
+      <TextBox {...props} secureTextEntry={!showPassword} Ref={props.passRef} />
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <Icon
+          name={icon}
+          size={24}
+          style={authStyles.showPasswordIcon}
+          onPress={toggleShowPassword}
+        />
+      </View>
     </View>
   );
 };
 
 const TextBox = (props) => {
-  return <TextInput {...props} underlineColorAndroid={'#acbdd3'} />;
+  return (
+    <TextInput
+      maxFontSizeMultiplier={1.5}
+      allowFontScaling={false}
+      {...props}
+      underlineColorAndroid={'#acbdd3'}
+      ref={props.Ref}
+    />
+  );
 };
 
-export {PasswordInput, TextBox};
+const Button = ({action, additionalStyles, text}) => {
+  return (
+    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+      <TouchableOpacity
+        style={[buttonStyles.btn, additionalStyles ? additionalStyles : null]}
+        onPress={() => action()}>
+        <Text style={{color: 'white', fontSize: 24}}>{text || 'Agregar'}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const RenderImage = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (props.source) {
+    return (
+      <>
+        {isLoading ? (
+          <ActivityIndicator
+            size="small"
+            color="#101e5a"
+            style={styles.imageLoading}
+          />
+        ) : null}
+        <Image
+          {...props}
+          onLoadStart={() => setIsLoading(true)}
+          onLoad={() => setIsLoading(false)}
+        />
+      </>
+    );
+  } else {
+    return <Icon name="image-plus" style={styles.addImageIcon} />;
+  }
+};
+
+export {PasswordInput, TextBox, Button, RenderImage};
+
+const styles = StyleSheet.create({
+  imageLoading: {
+    alignSelf: 'center',
+    position: 'absolute',
+    top: '45%',
+  },
+});

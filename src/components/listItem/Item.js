@@ -4,7 +4,7 @@ import {View, Text} from 'react-native';
 import styles from './listStyles';
 import {moneyFormat} from '../mainFunctions';
 
-const RenderItemProducto = ({producto}) => {
+const RenderItemProducto = ({producto, isWholesaler}) => {
   return (
     <View style={styles.productContainer}>
       <Text
@@ -12,13 +12,16 @@ const RenderItemProducto = ({producto}) => {
           width: '50%',
         }}>{`${producto.cantidad} ${producto.nombre}`}</Text>
       <Text style={{width: '50%', textAlign: 'right'}}>
-        {moneyFormat(producto.precioVenta * producto.cantidad)}
+        {moneyFormat(
+          (isWholesaler ? producto.precioMayoreo : producto.precioVenta) *
+            producto.cantidad,
+        )}
       </Text>
     </View>
   );
 };
 
-const RenderItemServicio = ({servicio}) => {
+const RenderItemServicio = ({servicio, isWholesaler}) => {
   return (
     <View style={styles.productContainer}>
       <Text
@@ -26,7 +29,13 @@ const RenderItemServicio = ({servicio}) => {
           width: '50%',
         }}>{`${servicio.cantidad} ${servicio.nombre}`}</Text>
       <Text style={{width: '50%', textAlign: 'right'}}>
-        {moneyFormat(servicio.precioVenta * servicio.cantidad)}
+        {moneyFormat(
+          (isWholesaler
+            ? servicio.precioMayoreo
+              ? servicio.precioMayoreo
+              : servicio.precioVenta
+            : servicio.precioVenta) * servicio.cantidad,
+        )}
       </Text>
     </View>
   );

@@ -1,17 +1,26 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View} from 'react-native';
-import {BannerAd, TestIds, BannerAdSize} from '@react-native-firebase/admob';
+import {
+  BannerAd,
+  InterstitialAd,
+  TestIds,
+  BannerAdSize,
+} from '@react-native-firebase/admob';
 import menuListStyles from './Inventario/styles';
 const BannerUnitId = __DEV__
   ? TestIds.BANNER
-  : 'ca-app-pub-890346611752950s9/6769370981';
+  : 'ca-app-pub-8903466117529509/6769370981';
 
-const Banner = () => (
-  <BannerAd unitId={BannerUnitId} size={BannerAdSize.SMART_BANNER} />
-);
+const InterstitialUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : 'ca-app-pub-8903466117529509/7535385646';
 
-const MenuListBannerAd = () => (
+function BannerAdvert() {
+  return <BannerAd unitId={BannerUnitId} size={BannerAdSize.SMART_BANNER} />;
+}
+
+const MenuListBannerAdvert = () => (
   <View
     style={{
       ...menuListStyles.menuListItem,
@@ -23,4 +32,4 @@ const MenuListBannerAd = () => (
   </View>
 );
 
-export {Banner, MenuListBannerAd};
+export {BannerAdvert, MenuListBannerAdvert, InterstitialUnitId};

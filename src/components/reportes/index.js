@@ -1,31 +1,27 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
-import moment from 'moment';
-import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
-import {moneyFormat, getSales} from '../mainFunctions';
-import {BannerAd, BannerAdSize, TestIds} from '@react-native-firebase/admob';
-
-const adUnitId = TestIds.BANNER;
+import {moneyFormat, getSales, db} from '../mainFunctions';
+import {BannerAdvert} from '../ads';
+import {format} from 'date-fns';
+import {es} from 'date-fns/locale';
 
 const Index = ({navigation}) => {
   const [salesList, setSalesList] = useState([]);
   const [monthsList, setMonthsList] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = firestore()
-      .collection('negocios')
-      .doc(auth().currentUser.uid)
-      .collection('ventas')
-      .onSnapshot((snap) => {
-        getSales(snap, salesList, setSalesList, setMonthsList);
-      });
-
-    return () => {
-      unsubscribe;
-    };
-  }, []);
+    try {
+      const unsubscribe = db()
+        .collection('ventas')
+        .onSnapshot((snap) => {
+          getSales(snap, salesList, setSalesList, setMonthsList);
+        });
+      return unsubscribe;
+    } catch (err) {
+      console.warn('error al intentar obtener los reportes mensuales', err);
+    }
+  }, [salesList]);
 
   const ListItem = ({item}) => {
     const ListItemStyles = StyleSheet.create({
@@ -46,8 +42,8 @@ const Index = ({navigation}) => {
         padding: 15,
         width: '100%',
       },
-      month: {fontSize: 28, textAlign: 'center'},
-      year: {color: '#777'},
+      year: {fontSize: 28, textAlign: 'center'},
+      month: {color: '#777'},
       total: {fontSize: 12},
     });
 
@@ -57,23 +53,23 @@ const Index = ({navigation}) => {
         onPress={() =>
           navigation.navigate('reporteMes', {
             params: {
-              ventas: salesList.filter((venta) => {
-                return moment(venta.timestamp, 'x').format('MMMM YYYY') ===
-                  item.period
-                  ? venta
-                  : null;
-              }),
+              ventas: salesList.filter(
+                (venta) =>
+                  format(venta.timestamp.seconds * 1000, 'yyyy MMMM', {
+                    locale: es,
+                  }) === item.period,
+              ),
             },
           })
         }>
         <View style={ListItemStyles.content}>
           <View style={ListItemStyles.header}>
+            <Text style={ListItemStyles.year}>{item.period.split(' ')[1]}</Text>
+          </View>
+          <View style={ListItemStyles.body}>
             <Text style={ListItemStyles.month}>
               {item.period.split(' ')[0]}
             </Text>
-          </View>
-          <View style={ListItemStyles.body}>
-            <Text style={ListItemStyles.year}>{item.period.split(' ')[1]}</Text>
             <Text style={ListItemStyles.total}>
               total vendido: {moneyFormat(item.total)}
             </Text>
@@ -91,7 +87,7 @@ const Index = ({navigation}) => {
           Todavía no hay ventas registradas
         </Text>
         <View style={styles.emptyListBannerAd}>
-          <BannerAd unitId={adUnitId} size={BannerAdSize.SMART_BANNER} />
+          <BannerAdvert />
         </View>
       </View>
     );
@@ -107,7 +103,7 @@ const Index = ({navigation}) => {
         renderItem={ListItem}
         keyExtractor={(item) => item + Math.random()}
       />
-      <BannerAd unitId={adUnitId} size={BannerAdSize.SMART_BANNER} />
+      <BannerAdvert />
     </View>
   );
 };
@@ -119,8 +115,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-    borderBottomEndRadius: 30,
-    borderBottomStartRadius: 30,
     overflow: 'hidden',
   },
   flatList: {

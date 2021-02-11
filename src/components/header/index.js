@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
+import {View, StyleSheet, SafeAreaView, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const Header = ({navigation}) => {
@@ -19,9 +13,7 @@ const Header = ({navigation}) => {
           }}>
           <Icon name="menu" color="#101e5a" size={28} />
         </TouchableOpacity>
-        <View style={styles.headerCenterComponent}>
-          <Text style={styles.headerTitle}>Inicio</Text>
-        </View>
+        <View style={styles.headerCenterComponent} />
         <View style={styles.headerRightComponent} />
       </View>
     </SafeAreaView>
@@ -36,12 +28,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginTop: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#101e5a',
   },
   headerCenterComponent: {
     height: '100%',

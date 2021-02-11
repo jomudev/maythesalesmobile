@@ -1,73 +1,78 @@
 import React from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {moneyFormat} from '../mainFunctions';
+import {
+  addProductToCart,
+  addServiceToCart,
+  addClientToCart,
+  addWholesalerToCart,
+} from './functions';
 import styles from './styles';
-import store from '../../../store';
 
 const itemStyles = StyleSheet.create({
-  title: {fontSize: 16, fontWeight: 'bold'},
+  title: {fontSize: 12, fontFamily: 'VarelaRound-Regular'},
   subtitle: {
     fontSize: 12,
     color: '#aaa',
-    fontWeight: 'bold',
+    fontFamily: 'VarelaRound-Regular',
     overflow: 'hidden',
-    height: 30,
+    maxHeight: 16,
   },
 });
 
-const ProductItem = ({data, index}) => (
+const ProductItem = ({data}) => (
   <TouchableOpacity
-    key={data + index}
     style={styles.itemList}
-    onPress={() => {
-      store.dispatch({
-        type: 'ADD_PRODUCT_TO_CART',
-        product: data,
-      });
-    }}>
+    onPress={() => addProductToCart(data)}>
     <Text style={itemStyles.title}>
       {`${data.nombre} ${moneyFormat(data.precioVenta)}`}
     </Text>
-    {data.descripcion ? (
-      <Text style={itemStyles.subtitle}>{data.marca}</Text>
-    ) : null}
+    <Text style={itemStyles.subtitle} ellipsizeMode="tail">
+      {data.marca}
+    </Text>
   </TouchableOpacity>
 );
 
-const ServiceItem = ({data, index}) => (
+const ServiceItem = ({data}) => (
   <TouchableOpacity
-    key={data + index}
     style={styles.itemList}
-    onPress={() => {
-      store.dispatch({
-        type: 'ADD_SERVICE_TO_CART',
-        service: data,
-      });
-    }}>
+    onPress={() => addServiceToCart(data)}>
     <Text style={itemStyles.title}>{data.nombre}</Text>
-    <Text style={itemStyles.subtitle}>
+    <Text style={itemStyles.subtitle} ellipsizeMode="tail">
       {moneyFormat(data.precioVenta)}
       {data.descripcion ? ` ${data.descripcion}` : ' '}
     </Text>
   </TouchableOpacity>
 );
-const ClientItem = ({data, index}) => (
+
+const ClientItem = ({data}) => (
   <TouchableOpacity
-    key={data + index}
     style={styles.itemList}
-    onPress={() => {
-      store.dispatch({
-        type: 'SET_CART_CLIENT',
-        clientData: data,
-      });
-    }}>
+    onPress={() => addClientToCart(data)}>
     <Text style={itemStyles.title}>{data.nombre}</Text>
     {data.telefono || data.email ? (
-      <Text style={itemStyles.subtitle}>
-        {data.telefono ? data.telefono : ''} {data.email ? data.email : ''}
+      <Text style={itemStyles.subtitle} ellipsizeMode="tail">
+        {data.telefono ? data.telefono : ''}
+        {data.telefono && data.email ? ' - ' : ''}
+        {data.email ? data.email : ''}
       </Text>
     ) : null}
   </TouchableOpacity>
 );
 
-export {ProductItem, ServiceItem, ClientItem};
+const WholesalerItem = ({data, index}) => (
+  <TouchableOpacity
+    style={styles.itemList}
+    onPress={() => addWholesalerToCart(data)}>
+    <Text style={itemStyles.title}>{data.nombre}</Text>
+    {data.telefono || data.email ? (
+      <Text style={itemStyles.subtitle} ellipsizeMode="tail">
+        {data.telefono ? data.telefono : ''}{' '}
+        {data.telefono && data.email ? ' - ' : ''}{' '}
+        {data.email ? data.email : ''}
+      </Text>
+    ) : null}
+  </TouchableOpacity>
+);
+
+export {ProductItem, ServiceItem, ClientItem, WholesalerItem};

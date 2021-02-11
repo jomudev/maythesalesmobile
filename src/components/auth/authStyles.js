@@ -1,94 +1,49 @@
 import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
-  button: {
-    width: '70%',
-    padding: 20,
-    shadowColor: '#101e5a',
-    alignSelf: 'center',
-    borderRadius: 20,
-    backgroundColor: '#101e5a',
-    marginBottom: 10,
-    marginTop: 20,
-  },
-  imageContainer: {
-    width: '100%',
-    flex: 1,
-    top: 0,
-  },
-  loadingScreen: {
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    flex: 1,
+  mainContainer: {
+    ...StyleSheet.absoluteFillObject,
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    alignContent: 'center',
-    width: '100%',
-    height: '100%',
-    zIndex: 1,
   },
-  container: {
-    width: '100%',
+  wave: {
     flex: 1,
+    position: 'absolute',
+    top: '-45%',
   },
-  textInputContainer: {
-    flex: 1,
-    paddingTop: 50,
+  welcomeTitle: {
+    position: 'relative',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#acbdd3',
+    top: '-8%',
   },
-  errorMsg: {
-    width: '70%',
-    alignSelf: 'center',
-    margin: 3,
-    padding: 5,
-    backgroundColor: '#ffaaaaaa',
-    borderRadius: 4,
-  },
-  registrarse: {
-    textAlign: 'center',
-    padding: 5,
-  },
-  textInput: {
-    padding: 15,
-    margin: 2.5,
-    width: '70%',
-    borderRadius: 20,
-    backgroundColor: 'white',
-    alignSelf: 'center',
-  },
-  passwordInput: {
-    flex: 9,
-  },
-  showPasswordIcon: {
-    flex: 1,
-    color: '#101e5a',
-    height: '100%',
-    textAlignVertical: 'center',
-    textAlign: 'center',
-  },
-  passwordView: {
-    padding: 5,
-    margin: 2.5,
-    width: '70%',
-    borderRadius: 20,
-    backgroundColor: 'white',
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  Wave: {
-    flex: 1,
-    alignSelf: 'center',
-    height: 200,
-    width: '500%',
-    resizeMode: 'center',
+  logoContainer: {
+    top: '-8%',
+    width: '50%',
+    height: '20%'
   },
   logo: {
-    position: 'relative',
-    top: '-25%',
-    left: '50%',
-    transform: [{translateX: -105}],
-    width: 200,
-    height: 200,
+    height: '100%',
+    width: '100%',
+    resizeMode: 'center',
+  },
+  textInputContainer: {
+    top: '-8%',
+    width: '80%',
+    height: '30%',
+  },
+  passwordView: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 7,
+  },
+  changeScreen: {
+    textAlign: 'center',
   }
 });
 

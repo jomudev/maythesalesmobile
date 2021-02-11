@@ -10,7 +10,7 @@ const ListItem = ({item, navigation}) => {
       style={styles.ListItem}
       onPress={() => navigation.navigate(item.screen)}>
       <View style={styles.listIcon}>
-        <Icon name={item.icon} size={28} color="#101e5a" />
+        <Icon name={item.icon} size={36} color="#101e5a" />
       </View>
       <View style={styles.listInfo}>
         <Text style={{fontSize: 18}}>{item.name}</Text>

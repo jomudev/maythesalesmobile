@@ -1,31 +1,37 @@
 const FormOptions = [
   {
     name: 'Agregar cliente',
-    icon: 'favorite',
+    icon: 'heart',
     type: 'Clientes',
-    descripcion:
+    description:
       'Visualiza y añade los clientes que han comprado en tu negocio.',
   },
   {
     name: 'Agregar producto',
-    icon: 'shopping-basket',
+    icon: 'basket',
     type: 'Productos',
-    descripcion:
+    description:
       'Agrega y muestra los productos que vendes.',
   },
   {
     name: 'Agregar Servicio',
-    icon: 'loyalty',
+    icon: 'tag-heart',
     type: 'Servicios',
-    descripcion: 'Muestra y agrega los servicios que ofrece tu negocio.',
+    description: 'Muestra y agrega los servicios que ofrece tu negocio.',
   },
   {
     name: 'Agregar Proveedor',
-    icon: 'assignment-ind',
+    icon: 'clipboard-account',
     type: 'Proveedores',
-    descripcion:
+    description:
       'Agrega y muestra los proveedores con los que esta asociado el negocio.',
   },
+  {
+    name: 'Agregar Mayorista',
+    icon: 'account-tie',
+    type: 'Mayoristas',
+    description: 'Agrega vendedores mayoristas a quienes les vendes.',
+  }
 ];
 
 export default FormOptions;

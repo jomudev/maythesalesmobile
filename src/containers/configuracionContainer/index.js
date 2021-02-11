@@ -38,8 +38,14 @@ const Configuracion = ({navigation}) => {
         name="Configuracion"
         component={ConfigOpciones}
       />
-      <Stack.Screen name="Perfil" component={Perfil} />
-      <Stack.Screen name="Agregar Usuario" component={AgregarUsuario} />
+      <Stack.Screen
+        name="personalData"
+        options={{
+          title: 'Información personal',
+        }}
+        component={Perfil}
+      />
+      <Stack.Screen name="addData" component={AgregarUsuario} />
     </Stack.Navigator>
   );
 };

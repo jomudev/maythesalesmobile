@@ -1,9 +1,9 @@
 const opciones = [
   {
-    name: 'Perfil',
+    name: 'Información personal',
     icon: 'account-circle',
-    description: 'Visualiza y actualiza tus datos',
-    screen: 'Perfil',
+    description: 'Visualiza y actualiza tus datos personales.',
+    screen: 'personalData',
   },
   /**
    * {
@@ -11,7 +11,7 @@ const opciones = [
     icon: 'home',
     description:
       'Añade los usuarios que tendrán autorización para realizar ventas',
-    screen: 'Agregar Usuario',
+    screen: 'addUser',
   },
    */
 ];

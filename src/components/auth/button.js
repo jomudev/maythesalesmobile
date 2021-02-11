@@ -1,14 +1,27 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {Text, TouchableOpacity} from 'react-native';
-import styles from './authStyles';
+import {TouchableOpacity, StyleSheet} from 'react-native';
 
-const Button = ({onPress, text}) => {
+const Button = (props) => {
+  const {onPress, children} = props;
   return (
     <TouchableOpacity style={styles.button} onPress={() => onPress()}>
-      <Text style={{color: '#f7f8f9', textAlign: 'center'}}>{text}</Text>
+      {children}
     </TouchableOpacity>
   );
 };
 
 export default Button;
+
+const styles = StyleSheet.create({
+  button: {
+    width: 56,
+    height: 56,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    backgroundColor: '#101e5a',
+    margin: 16,
+  },
+})

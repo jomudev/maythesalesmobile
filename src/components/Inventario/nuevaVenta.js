@@ -2,16 +2,18 @@
 import React, {useState, useEffect} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import store from '../../../store';
-import {View, ScrollView, TextInput} from 'react-native';
+import {View, ScrollView, Text, TextInput} from 'react-native';
 import ShoppingCart from './shoppingCart';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AddCliente from './AddComponents/addCliente';
-import AddProducto from './AddComponents/addProducto';
-import AddServicio from './AddComponents/addServicio';
+import AddCliente from '../AddComponents/addCliente';
+import AddProducto from '../AddComponents/addProducto';
+import AddServicio from '../AddComponents/addServicio';
+import AddWholesaler from '../AddComponents/addWholesaler';
 import CamScanner from './../CamScanner';
-import {ProductItem, ServiceItem, ClientItem} from './items';
-import {Banner} from '../ads';
+import {ProductItem, ServiceItem, ClientItem, WholesalerItem} from './items';
+import {filterItems} from '../mainFunctions';
+import {BannerAdvert} from '../ads';
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -50,12 +52,16 @@ const handleGetList = (snap, list, setList) => {
 };
 
 const Component = ({navigation}) => {
-  const [searchedProduct, setFundProduct] = useState(null);
-  const [searchedClient, setFundClient] = useState(null);
-  const [searchedService, setFundService] = useState(null);
+  const [foundProduct, setFindProduct] = useState(null);
+  const [foundClient, setFindClient] = useState(null);
+  const [foundService, setFindService] = useState(null);
+  const [foundWholesaler, setFindWholesaler] = useState(null);
   const [products, setProducts] = useState(store.getState().products || []);
   const [clients, setClients] = useState(store.getState().clients || []);
   const [services, setServices] = useState(store.getState().services || []);
+  const [wholesalers, setWholesalers] = useState(
+    store.getState().wholesalers || [],
+  );
 
   const handleSetProduct = (list) => {
     setProducts(list);
@@ -81,71 +87,93 @@ const Component = ({navigation}) => {
     });
   };
 
-  useEffect(() => {
-    const unsubscribeProducts = firestore()
-      .collection('negocios')
-      .doc(auth().currentUser.uid)
-      .collection('productos')
-      .onSnapshot((snap) => handleGetList(snap, products, handleSetProduct));
-
-    const unsubscribeClients = firestore()
-      .collection('negocios')
-      .doc(auth().currentUser.uid)
-      .collection('clientes')
-      .onSnapshot((snap) => handleGetList(snap, clients, handleSetClients));
-
-    const unsubscribeServices = firestore()
-      .collection('negocios')
-      .doc(auth().currentUser.uid)
-      .collection('servicios')
-      .onSnapshot((snap) => handleGetList(snap, services, handleSetServices));
-
-    return () => {
-      unsubscribeProducts();
-      unsubscribeClients();
-      unsubscribeServices();
-    };
-  }, []);
-
-  const filter = (list, search) => {
-    const newList = list.filter((item) => {
-      search = search.toLowerCase();
-      const name = item.nombre.toLowerCase();
-      const description = item.descripcion
-        ? item.descripcion.toLowerCase()
-        : '';
-      const brand = item.marca ? item.marca.toLowerCase() : '';
-      return (
-        name.includes(search) ||
-        description.includes(search) ||
-        brand.includes(search)
-      );
+  const handleSetWholesalers = (list) => {
+    setWholesalers(list);
+    store.dispatch({
+      type: 'SET_WHOLESALERS',
+      data: list,
     });
-    return newList;
   };
 
+  useEffect(() => {
+    try {
+      const db = firestore().collection('negocios').doc(auth().currentUser.uid);
+      const unsubscribeProducts = db
+        .collection('productos')
+        .onSnapshot((snap) => handleGetList(snap, products, handleSetProduct));
+
+      const unsubscribeClients = db
+        .collection('clientes')
+        .onSnapshot((snap) => handleGetList(snap, clients, handleSetClients));
+
+      const unsubscribeServices = db
+        .collection('servicios')
+        .onSnapshot((snap) => handleGetList(snap, services, handleSetServices));
+
+      const unsubscribeWholesalers = db
+        .collection('mayoristas')
+        .onSnapshot((snap) =>
+          handleGetList(snap, wholesalers, handleSetWholesalers),
+        );
+
+      return () => {
+        unsubscribeProducts();
+        unsubscribeClients();
+        unsubscribeServices();
+        unsubscribeWholesalers();
+      };
+    } catch (err) {
+      console.warn('error al intentar obtener los registros', err);
+    }
+  }, [clients, products, services, wholesalers]);
+
   const Search = ({list, type}) => {
-    let finded = [];
+    let found = [];
     if (type === 'products') {
-      if (searchedProduct) {
-        finded = filter(list, searchedProduct);
-        return finded.map((product, index) => (
-          <ProductItem data={product} index={index} key={product + index} />
+      if (foundProduct) {
+        found = list.filter((item) => filterItems(item, foundProduct));
+        return found.map((product, index) => (
+          <ProductItem
+            data={product}
+            index={index}
+            key={JSON.stringify(product) + index}
+          />
         ));
       } else {
         return list.map((product, index) => (
-          <ProductItem data={product} index={index} key={product + index} />
+          <ProductItem
+            data={product}
+            index={index}
+            key={JSON.stringify(product) + index}
+          />
         ));
       }
     } else if (type === 'clients') {
-      finded = filter(list, searchedClient);
-      return finded.map((client, index) => (
-        <ClientItem data={client} index={index} key={client + index} />
+      found = list.filter((item) => filterItems(item, foundClient));
+      return found.map((client, index) => (
+        <ClientItem
+          data={client}
+          index={index}
+          key={JSON.stringify(client) + index}
+        />
       ));
     } else if (type === 'services') {
-      finded = filter(list, searchedService);
-      return finded.map((service, index) => (
-        <ServiceItem data={service} index={index} key={service + index} />
+      found = list.filter((item) => filterItems(item, foundService));
+      return found.map((service, index) => (
+        <ServiceItem
+          data={service}
+          index={index}
+          key={JSON.stringify(service) + index}
+        />
+      ));
+    } else if (type === 'wholesalers') {
+      found = list.filter((item) => filterItems(item, foundWholesaler));
+      return found.map((wholesaler, index) => (
+        <WholesalerItem
+          data={wholesaler}
+          index={index}
+          key={JSON.stringify(wholesaler) + index}
+        />
       ));
     }
   };
@@ -154,6 +182,7 @@ const Component = ({navigation}) => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.form}>
+          <Text style={styles.screenTitle}>Realizar una venta</Text>
           <View style={styles.formGroup}>
             <View style={styles.textContainer}>
               <Icon
@@ -167,8 +196,8 @@ const Component = ({navigation}) => {
               />
               <TextInput
                 style={styles.txtInput}
-                onChangeText={(text) => setFundProduct(text)}
-                value={searchedProduct}
+                onChangeText={(text) => setFindProduct(text)}
+                value={foundProduct}
                 placeholder="Buscar producto"
               />
               <Icon
@@ -188,12 +217,39 @@ const Component = ({navigation}) => {
               <Icon
                 name="close"
                 style={styles.Icon}
-                onPress={() => setFundClient('')}
+                onPress={() => setFindWholesaler('')}
               />
               <TextInput
-                onChangeText={(text) => setFundClient(text)}
+                onChangeText={(text) => setFindWholesaler(text)}
                 style={styles.txtInput}
-                value={searchedClient}
+                value={foundWholesaler}
+                placeholder="Buscar mayorista"
+              />
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Mayoristas')}
+              />
+            </View>
+            <ScrollView
+              style={styles.findProductsList}
+              showsVerticalScrollIndicator={false}>
+              {foundWholesaler ? (
+                <Search list={wholesalers} type="wholesalers" />
+              ) : null}
+            </ScrollView>
+          </View>
+          <View style={styles.formGroup}>
+            <View style={styles.textContainer}>
+              <Icon
+                name="close"
+                style={styles.Icon}
+                onPress={() => setFindClient('')}
+              />
+              <TextInput
+                onChangeText={(text) => setFindClient(text)}
+                style={styles.txtInput}
+                value={foundClient}
                 placeholder="Buscar cliente"
               />
               <Icon
@@ -205,7 +261,7 @@ const Component = ({navigation}) => {
             <ScrollView
               style={styles.findProductsList}
               showsVerticalScrollIndicator={false}>
-              {searchedClient ? <Search list={clients} type="clients" /> : null}
+              {foundClient ? <Search list={clients} type="clients" /> : null}
             </ScrollView>
           </View>
           <View style={styles.formGroup}>
@@ -213,12 +269,12 @@ const Component = ({navigation}) => {
               <Icon
                 name="close"
                 style={styles.Icon}
-                onPress={() => setFundService('')}
+                onPress={() => setFindService('')}
               />
               <TextInput
                 style={styles.txtInput}
-                value={searchedService}
-                onChangeText={(text) => setFundService(text)}
+                value={foundService}
+                onChangeText={(text) => setFindService(text)}
                 placeholder="Buscar Servicio Adicional"
               />
               <Icon
@@ -230,14 +286,12 @@ const Component = ({navigation}) => {
             <ScrollView
               style={styles.findProductsList}
               showsVerticalScrollIndicator={false}>
-              {searchedService ? (
-                <Search list={services} type="services" />
-              ) : null}
+              {foundService ? <Search list={services} type="services" /> : null}
             </ScrollView>
           </View>
         </View>
       </ScrollView>
-      <Banner />
+      <BannerAdvert />
       <ShoppingCart />
     </View>
   );
@@ -250,6 +304,7 @@ const NuevaVenta = (props) => {
       <Stack.Screen name="Clientes" component={AddCliente} />
       <Stack.Screen name="Productos" component={AddProducto} />
       <Stack.Screen name="Servicios" component={AddServicio} />
+      <Stack.Screen name="Mayoristas" component={AddWholesaler} />
       <Stack.Screen name="CamScanner" component={CamScanner} />
     </Stack.Navigator>
   );

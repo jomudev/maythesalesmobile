@@ -4,12 +4,12 @@ const styles = StyleSheet.create({
   productContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderBottomColor: '#ddd',
   },
   contextMenu: {
-    paddingVertical: 20,
+    paddingVertical: 16,
     elevation: 30,
   },
   contextMenuBtn: {
@@ -19,25 +19,36 @@ const styles = StyleSheet.create({
     right: 0,
   },
   contextMenuOption: {
-    padding: 10,
+    padding: 16,
     backgroundColor: 'white',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   contextMenuOptions: {
+    flexDirection: 'row',
     backgroundColor: 'white',
     width: '100%',
-    borderTopStartRadius: 20,
-    borderTopEndRadius: 20,
-    padding: 10,
+    padding: 16,
     elevation: 60,
   },
+  contextMenuIcons: {
+    alignItems: 'center',
+    borderRadius: 100,
+    justifyContent: 'center',
+    marginRight: 16,
+    width: 50,
+    height: 50,
+    backgroundColor: '#ddd',
+  },
   venta: {
-    margin: 10,
-    borderRadius: 20,
-    padding: 10,
+    marginTop: 16,
+    padding: 16,
     backgroundColor: '#fff',
   },
   ventaHeader: {
     borderBottomColor: '#ccc',
+    paddingVertical: 8,
   },
   ventaTitleText: {
     fontSize: 14,
@@ -45,11 +56,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   listVentas: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
   },
   subtotalContainer: {
     flexDirection: 'row',
-    padding: 10,
+    paddingVertical: 24,
   },
   subtotalTitle: {
     flex: 2,

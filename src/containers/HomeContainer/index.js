@@ -19,7 +19,10 @@ const HomeContainer = ({navigation}) => {
       <Header navigation={navigation} />
       <Tab.Navigator
         adaptive={true}
-        barStyle={{backgroundColor: '#f1f2f3', elevation: 0}}
+        barStyle={{
+          backgroundColor: '#f1f2f3',
+          elevation: 0,
+        }}
         activeColor="#101e5a"
         inactiveColor="#acbdd3">
         <Tab.Screen

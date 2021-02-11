@@ -5,11 +5,8 @@ import {
   View,
   StatusBar,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   Text,
-  StyleSheet,
-  ActivityIndicator,
 } from 'react-native';
 import Button from './button';
 import auth from '@react-native-firebase/auth';
@@ -18,8 +15,9 @@ import {useForm} from 'react-hook-form';
 import Snackbar from 'react-native-snackbar-component';
 import Wave from '../../assets/AdditionalMedia/wave.svg';
 import Logo from '../../assets/AdditionalMedia/Logo.svg';
-import {PasswordInput} from '../auxComponents';
+import {PasswordInput, TextBox} from '../auxComponents';
 import LoadingScreen from '../loadingScreen';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ErrorMessage = ({text}) => {
   return (
@@ -89,55 +87,62 @@ const Login = ({navigation}) => {
     }
   };
   return (
-    <View
-      style={{
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: '#f1f2f3',
-      }}>
-      <LoadingScreen isLoading={initializing} />
+    <View style={styles.mainContainer}>
+      {initializing ? (
+        <LoadingScreen text="Cargando datos del usuario" />
+      ) : null}
       <StatusBar
         barStyle="light-content"
-        translucent
+        translucent={true}
         backgroundColor="rgba(0,0,0,0)"
       />
-      <>
-        <View style={styles.imageContainer}>
-          <Wave style={styles.Wave} />
-          <Logo style={styles.logo} />
-        </View>
-        <ScrollView style={styles.container}>
-          <View style={styles.textInputContainer}>
-            <TextInput
-              style={styles.textInput}
-              onChangeText={(text) => setValue('email', text)}
-              keyboardType="email-address"
-              blurOnSubmit={true}
-              onSubmitEditing={() => passwordRef.current.focus()}
-              value={watch('email')}
-              autoCapitalize="none"
-              returnKeyType="next"
-              placeholder="Correo electrónico"
-            />
-            {errors.email && (
-              <ErrorMessage text="Debes proporcionar el correo de inicio de sesion" />
-            )}
-            <PasswordInput
-              style={styles.passwordInput}
-              value={watch('password')}
-              onChangeText={(text) => setValue('password', text)}
-              placeholder="Contraseña"
-              passRef={passwordRef}
-            />
-            {errors.password && (
-              <ErrorMessage text="debes proporcionar la contraseña" />
-            )}
-          </View>
-          <Button onPress={handleSubmit(onSubmit)} text="Iniciar Sesion" />
-        </ScrollView>
-      </>
-      <TouchableOpacity onPress={() => navigation.navigate('signIn')}>
-        <Text style={styles.registrarse}>Registrarse</Text>
-      </TouchableOpacity>
+      <Wave style={styles.wave} />
+      <View style={styles.logoContainer}>
+        <Logo style={styles.logo} />
+      </View>
+      <Text style={styles.welcomeTitle}>Bienvenido</Text>
+      <View style={styles.textInputContainer}>
+        <Text style={styles.label}>Mi correo:</Text>
+        <TextBox
+          style={styles.textInput}
+          onChangeText={(text) => setValue('email', text)}
+          keyboardType="email-address"
+          blurOnSubmit={true}
+          onSubmitEditing={() => passwordRef.current.focus()}
+          value={watch('email')}
+          placeholder="alguien@ejemplo.com"
+          autoCapitalize="none"
+          returnKeyType="next"
+        />
+        {errors.email && (
+          <ErrorMessage text="Debes proporcionar el correo de inicio de sesion" />
+        )}
+        <Text style={styles.label}>Mi contraseña:</Text>
+        <PasswordInput
+          style={styles.passwordInput}
+          placeholder="contraseña"
+          autoCapitalize="none"
+          value={watch('password')}
+          onChangeText={(text) => setValue('password', text)}
+          passRef={passwordRef}
+        />
+        {errors.password && (
+          <ErrorMessage text="debes proporcionar la contraseña" />
+        )}
+        <Button onPress={handleSubmit(onSubmit)}>
+          <Icon
+            name="login"
+            size={36}
+            maxFontSizeMultiplier={1.5}
+            color="white"
+          />
+        </Button>
+        <TouchableOpacity onPress={() => navigation.navigate('signIn')}>
+          <Text style={styles.changeScreen}>
+            ¿No tienes cuenta? Registrarse
+          </Text>
+        </TouchableOpacity>
+      </View>
       <Snackbar
         visible={snackIsVisible}
         textMessage={snackMessage}

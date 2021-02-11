@@ -1,9 +1,4 @@
 /* eslint-disable react-native/no-inline-styles */
-
-/**
- * @var {user} Object = Datos de sesion del usuario.
- * @var {userData} Object = Datos e información del usuario.
- */
 import React, {useState, useEffect} from 'react';
 import {View} from 'react-native';
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
@@ -12,48 +7,28 @@ import store from '../../../store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './draweStyles';
 import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
+import {db} from '../mainFunctions';
 
 async function signOut() {
   try {
+    store.dispatch({
+      type: 'SIGN_OUT',
+    });
     return await auth().signOut();
   } catch (e) {
     console.log(e, 'signout error');
   }
 }
 
-async function getUser() {
-  try {
-    let user = null;
-    let userData = null;
-
-    user = auth().currentUser;
-    return await firestore()
-      .collection('negocios')
-      .doc(user.uid)
-      .get()
-      .then((doc) => {
-        userData = doc.data();
-        return {userData, user};
-      });
-  } catch (err) {
-    console.log('error al obtener los datos del usuario', err);
-  }
-}
-
 const DrawerContent = (props) => {
-  const [user, setUser] = useState();
+  const user = auth().currentUser;
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const unsubscriber = getUser().then((data) => {
-      //console.log(data);
-      setUser(data.user);
-      setUserData(data.userData);
+    const unsubscribe = db().onSnapshot((snap) => {
+      setUserData(snap.data());
     });
-    return () => {
-      unsubscriber;
-    };
+    return unsubscribe;
   }, []);
 
   return (
@@ -64,11 +39,11 @@ const DrawerContent = (props) => {
             <View style={styles.userSection}>
               <View style={styles.userInfo}>
                 <View style={{marginLeft: 15, flexDirection: 'column'}}>
-                  {user.displayName ? (
+                  {user.displayName && (
                     <Title style={{fontWeight: 'bold'}}>
                       {user.displayName}
                     </Title>
-                  ) : null}
+                  )}
                   {userData ? (
                     <Caption style={{fontWeight: 'bold'}}>
                       {userData ? userData.negocio : ''}
@@ -115,7 +90,7 @@ const DrawerContent = (props) => {
       <Drawer.Section style={styles.bottomDrawerSection}>
         <DrawerItem
           icon={({color, size}) => (
-            <Icon name="exit-to-app" color={color} size={size} />
+            <Icon name="logout" color={color} size={size} />
           )}
           label="Cerrar sesion"
           onPress={() =>
