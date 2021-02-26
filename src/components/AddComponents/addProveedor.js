@@ -18,20 +18,22 @@ const AddProveedor = () => {
   const onSubmit = (data) => {
     setIsLoading(true);
     save('provider', data)
-      .then(() =>
+      .then(() => {
         handleSetSnackMessage(
           'El registro se ha guardado con exito',
           setSnackIsActive,
           setSnackMessage,
-        ),
-      )
-      .catch(() =>
+        );
+        setIsLoading(false);
+      })
+      .catch(() => {
         handleSetSnackMessage(
           '¡Ups! Ha ocurrido un error al intentar guardar el registro.',
           setSnackIsActive,
           setSnackMessage,
-        ),
-      );
+        );
+        setIsLoading(false);
+      });
     reset();
   };
 
@@ -48,6 +50,7 @@ const AddProveedor = () => {
       <ScrollView>
         <TextBox
           placeholder="Nombre*"
+          autoCapitalize="words"
           value={watch('nombre')}
           style={styles.txtInput}
           onChangeText={(text) => setValue('nombre', text)}
@@ -63,6 +66,7 @@ const AddProveedor = () => {
         <TextBox
           placeholder="Correo Electrónico"
           value={watch('email')}
+          autoCapitalize="none"
           keyboardType="email-address"
           style={styles.txtInput}
           onChangeText={(text) => setValue('email', text)}

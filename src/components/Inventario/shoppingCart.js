@@ -3,25 +3,30 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
   Text,
   TextInput,
   StyleSheet,
-  Modal,
+  Alert,
   Animated,
   ScrollView,
-  Alert,
   Switch,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import store from '../../../cartStore';
+import store from '../../../store';
 import {moneyFormat, getTotal, verifyChanges, postSale} from '../mainFunctions';
-import {removeFromCart} from './functions';
+import {
+  removeProductFromCart,
+  removeServicesFromCart,
+  updateQuantity,
+  clearStoreCart,
+} from './functions';
+import {ContextMenu} from '../auxComponents';
 
 function ShoppingCart() {
   // saleState describe if the sale is sold out or not; true: sold out, false: pending;
   const [saleState, setSaleState] = useState(store.getState().defaultSaleState);
-  console.log(saleState);
 
   const [productsCart, setProductsCart] = useState([]);
   const [servicesCart, setServicesCart] = useState([]);
@@ -34,13 +39,7 @@ function ShoppingCart() {
   const cartPosition = useRef(new Animated.Value(+500)).current;
   const [isOpen, setIsOpen] = useState(false);
   const [toggleIcon, setToggleIcon] = useState('keyboard-arrow-down');
-  const [menuOpen, toggleMenu] = useState(false);
-
-  const clean = () => {
-    store.dispatch({
-      type: 'CLEAR_CART',
-    });
-  };
+  let contextMenuRef = React.createRef();
 
   const showCart = () => {
     Animated.spring(cartPosition, {
@@ -49,6 +48,27 @@ function ShoppingCart() {
     }).start();
     setIsOpen(true);
     setToggleIcon('keyboard-arrow-down');
+  };
+
+  const clearCart = (withAlert) => {
+    if (withAlert) {
+      Alert.alert(
+        '¿Estás seguro?',
+        'Esta acción eliminara todos los registros que has seleccionado para realizar una nueva venta.',
+        [
+          {
+            text: 'No, Cancelar',
+            onPress: () => {},
+          },
+          {
+            text: 'Sí, estoy seguro',
+            onPress: clearStoreCart,
+          },
+        ],
+      );
+    } else {
+      clearStoreCart();
+    }
   };
 
   const hideCart = (full) => {
@@ -69,7 +89,8 @@ function ShoppingCart() {
   };
 
   const verifyCart = (state) => {
-    const cartHaveData = state.products.length > 0 || state.services.length > 0;
+    const cartHaveData =
+      state.cartProducts.length > 0 || state.cartServices.length > 0;
     if (cartHaveData) {
       showCart();
     } else {
@@ -83,29 +104,34 @@ function ShoppingCart() {
       verifyChanges([
         {
           prevValue: productsCart,
-          newValue: state.products,
+          newValue: state.cartProducts,
           updateFunction: setProductsCart,
         },
         {
           prevValue: servicesCart,
-          newValue: state.services,
+          newValue: state.cartServices,
           updateFunction: setServicesCart,
         },
         {
           prevValue: client,
-          newValue: state.client,
+          newValue: state.cartClient,
           updateFunction: setClient,
         },
         {
           prevValue: wholesaler,
-          newValue: state.wholesaler,
+          newValue: state.cartWholesaler,
           updateFunction: setWholesaler,
         },
       ]);
-
-      setTotal(getTotal([state.products, state.services], state.wholesaler));
-      setProductsTotal(getTotal([state.products], state.wholesaler));
-      setServicesTotal(getTotal([state.services], state.wholesaler));
+      setSaleState(state.defaultSaleState);
+      setTotal(
+        getTotal(
+          [state.cartProducts, state.cartServices],
+          state.cartWholesaler,
+        ),
+      );
+      setProductsTotal(getTotal([state.cartProducts], state.cartWholesaler));
+      setServicesTotal(getTotal([state.cartServices], state.cartWholesaler));
       verifyCart(state);
     });
     return () => {
@@ -134,22 +160,21 @@ function ShoppingCart() {
           onPress={() => toggle()}
         />
         <View style={styles.saleState}>
-          <Text style={{flex: 3, textAlign: 'right'}}>Estado de la venta: </Text>
+          <Text style={{flex: 3, textAlign: 'right'}}>
+            Estado de la venta:{' '}
+          </Text>
           <Switch
             style={{flex: 1}}
-            trackColor={{false: '#cbc6c3', true: '#acbdd3'}}
-            thumbColor={saleState ? '#101e5a' : '#5d80b6'}
+            trackColor={{false: '#fff', true: '#fff'}}
+            thumbColor={saleState ? '#434588' : '#b4b6be'}
             onValueChange={() => setSaleState(!saleState)}
             value={saleState}
           />
           <Text style={{flex: 2}}>{saleState ? 'Vendida' : 'Pendiente'}</Text>
         </View>
-        <Icon
-          name="more-vert"
-          size={32}
-          style={styles.more}
-          onPress={() => toggleMenu(!menuOpen)}
-        />
+        <TouchableWithoutFeedback onPress={() => contextMenuRef.show()}>
+          <Icon name="more-vert" size={32} style={styles.more} />
+        </TouchableWithoutFeedback>
       </View>
       {wholesaler ? <Text>Mayorista: {wholesaler.nombre}</Text> : null}
       <View style={{flexDirection: 'row'}}>
@@ -166,7 +191,13 @@ function ShoppingCart() {
         {productsCart.length > 0
           ? productsCart
               .map((item) => (
-                <ListItem key={item.id} item={item} isWholesaler={wholesaler} />
+                <ListItem
+                  type="product"
+                  remove={removeProductFromCart}
+                  key={item.id}
+                  item={item}
+                  isWholesaler={wholesaler}
+                />
               ))
               .reverse()
           : null}
@@ -176,7 +207,13 @@ function ShoppingCart() {
         {servicesCart.length > 0
           ? servicesCart
               .map((item) => (
-                <ListItem key={item.id} item={item} isWholesaler={wholesaler} />
+                <ListItem
+                  type="service"
+                  remove={removeServicesFromCart}
+                  key={item.id}
+                  item={item}
+                  isWholesaler={wholesaler}
+                />
               ))
               .reverse()
           : null}
@@ -193,18 +230,28 @@ function ShoppingCart() {
             servicesCart,
             saleState,
           });
-          clean();
+          clearCart();
         }}>
         <Text style={{color: '#f7f8f9', textTransform: 'uppercase'}}>
           Postear
         </Text>
       </TouchableOpacity>
-      <OptionMenu open={menuOpen} closeMenu={() => toggleMenu(!menuOpen)} />
+      <ContextMenu
+        ref={(target) => (contextMenuRef = target)}
+        optionsList={[
+          {
+            iconName: 'cart-remove',
+            text: 'Cancelar venta',
+            onPress: () => clearCart(true),
+          },
+        ]}
+        onTouchOutside={() => contextMenuRef.close()}
+      />
     </Animated.View>
   );
 }
 
-const ListItem = ({item, isWholesaler}) => {
+const ListItem = ({item, isWholesaler, type, remove}) => {
   const [quantity, setQuantity] = useState(1);
   return (
     <View style={styles.cartItem}>
@@ -223,11 +270,9 @@ const ListItem = ({item, isWholesaler}) => {
         defaultValue={'1'}
         onChangeText={(text) => setQuantity(Number(text))}
         onEndEditing={() =>
-          store.dispatch({
-            type: 'SET_QUANTITY',
-            element: item,
-            quantity: quantity,
-          })
+          quantity > 0
+            ? updateQuantity(type.toUpperCase(), quantity, item.id)
+            : null
         }
       />
       <Text style={{flex: 5, fontSize: 14, textAlign: 'right'}}>
@@ -239,64 +284,9 @@ const ListItem = ({item, isWholesaler}) => {
       </Text>
       <TouchableOpacity
         style={styles.removeFromCart}
-        onPress={() => removeFromCart(item.id)}>
+        onPress={() => remove(item.id)}>
         <Icon name="delete" style={styles.removeFromCart} size={24} />
       </TouchableOpacity>
-    </View>
-  );
-};
-
-const OptionMenu = ({open, closeMenu}) => {
-  return (
-    <View style={styles.centeredView} onTouchEnd={() => closeMenu()}>
-      <Modal animationType="slide" transparent={true} visible={open}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <TouchableOpacity
-              onPress={() => {
-                Alert.alert(
-                  'Cancelar venta',
-                  'esto vaciara el carrito, presiona aceptar si estas de acuerdo',
-                  [
-                    {
-                      text: 'Cancelar',
-                    },
-                    {
-                      text: 'Aceptar',
-                      onPress: () => {
-                        closeMenu();
-                        store.dispatch({
-                          type: 'CLEAR_CART',
-                        });
-                      },
-                    },
-                  ],
-                );
-              }}
-              style={styles.menuOptions}>
-              <Icon
-                name="remove-shopping-cart"
-                style={styles.menuOptionsIcon}
-              />
-              <Text style={styles.menuOptionsText}>Cancelar Venta</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                closeMenu();
-              }}
-              style={styles.menuOptions}>
-              <Icon
-                name="close"
-                style={styles.menuOptionsIcon}
-                color="#101e5a"
-              />
-              <Text style={[styles.menuOptionsText, {color: 'red'}]}>
-                Cancelar
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -311,7 +301,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     padding: 10,
-    backgroundColor: '#f2f3f4',
+    backgroundColor: '#e6e8f1',
   },
   modalCloseMenu: {
     position: 'relative',

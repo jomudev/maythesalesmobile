@@ -28,7 +28,12 @@ const AddCliente = () => {
         reset();
       })
       .catch((err) => {
-        console.log('err saving client ' + JSON.stringify(err));
+        console.warn('err saving client ' + JSON.stringify(err));
+        handleSetSnackMessage(
+          'Error al intentar registrar el cliente, intentelo de nuevo.',
+          setSnackIsActive,
+          setSnackMessage,
+        )
         setIsLoading(false);
       });
   };

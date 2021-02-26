@@ -22,6 +22,7 @@ const AddWholesaler = () => {
   }, [register]);
 
   const onSubmit = (data) => {
+    setIsLoading(true);
     save('wholesaler', data)
       .then(() => {
         handleSetSnackMessage(
@@ -32,7 +33,7 @@ const AddWholesaler = () => {
         setIsLoading(false);
         reset();
       })
-      .catch(() => {
+      .catch((err) => {
         console.log('err saving client ' + JSON.stringify(err));
         setIsLoading(false);
       });
@@ -43,7 +44,7 @@ const AddWholesaler = () => {
       {isLoading ? <LoadingScreen /> : null}
       <ScrollView>
         <TextBox
-          placeholder="Nombre"
+          placeholder="Nombre*"
           autoCapitalize="words"
           onChangeText={(text) => setValue('nombre', text)}
           value={watch('nombre')}
@@ -69,6 +70,7 @@ const AddWholesaler = () => {
         />
         <Button action={handleSubmit(onSubmit)} />
       </ScrollView>
+      <Button action={handleSubmit(onSubmit)} />
       <Snackbar
         visible={snackIsActive}
         textMessage={snackMessage}

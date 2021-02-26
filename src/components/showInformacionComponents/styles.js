@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     height: '0%',
   },
   AddBtn: {
-    backgroundColor: '#101e5a',
+    backgroundColor: '#e6e8f1',
     padding: 15,
     borderRadius: 100,
     position: 'absolute',
@@ -125,11 +125,11 @@ const styles = StyleSheet.create({
   quantityBadge: {
     width: 24,
     height: 24,
-    backgroundColor: '#acbdd3',
+    backgroundColor: '#e6e8f1',
     textAlign: 'center',
     textAlignVertical: 'center',
     borderRadius: 100,
-    color: '#101e5a',
+    color: '#000',
   },
   listItem: {
     width: '100%',
@@ -142,12 +142,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listItemImage: {
+    width: 56,
+    height: 56,
+    resizeMode: 'cover',
     marginRight: 8,
-    height: '100%',
     borderRadius: 4,
-    width: 64,
-    overflow: 'hidden',
-    backgroundColor: '#f8f8f8',
   },
   listItemText: {
     flex: 7,
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
     padding: 2,
     width: 24,
     height: 24,
-    backgroundColor: '#acbdd3',
+    backgroundColor: '#e6e8f1',
     top: 16,
     right: 8,
     alignItems: 'center',
@@ -172,11 +171,13 @@ const styles = StyleSheet.create({
   },
   itemSubtitle: {
     fontSize: 14,
-    color: '#777',
+    color: '#b4b6be',
     paddingBottom: 16,
+    width: '100%',
+    paddingRight: 50,
     overflow: 'hidden',
     fontFamily: 'VarelaRound-Regular',
-    borderColor: '#ccc',
+    borderColor: '#e6e8f1',
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   form: {
@@ -191,12 +192,12 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 4,
     backgroundColor: 'white',
   },
   imageContainer: {
     alignItems: 'center',
     alignContent: 'center',
+    alignSelf: 'center',
     position: 'relative',
     height: 260,
     width: '100%',
@@ -208,7 +209,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#f1f2f3',
-    borderRadius: 8,
     zIndex: -1,
     overflow: 'hidden',
   },
@@ -233,7 +233,6 @@ const styles = StyleSheet.create({
   displayImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
   },
   displayImageContainer: {
     ...StyleSheet.absoluteFillObject,

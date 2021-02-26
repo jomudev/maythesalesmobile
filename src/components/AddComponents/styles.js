@@ -3,7 +3,6 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   form: {
     ...StyleSheet.absoluteFillObject,
-    padding: 8,
     backgroundColor: 'white',
   },
   formTitle: {
@@ -26,7 +25,7 @@ const styles = StyleSheet.create({
   },
   btn: {
     backgroundColor: '#101e5a',
-    marginVertical: 24,
+    marginTop: 24,
     padding: 16,
     justifyContent: 'center',
     alignItems: 'center',
@@ -41,7 +40,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f1f2f3',
+    backgroundColor: '#e6e8f1',
     height: 200,
   },
   setImageButton: {
@@ -57,6 +56,8 @@ const styles = StyleSheet.create({
   },
   imageIcon: {
     fontSize: 140,
+    alignSelf: 'center',
+    top: '10%',
     color: '#101e5a',
   },
   imageRemoveButton: {
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     borderRadius: 100,
     elevation: 30,
-    backgroundColor: '#f6f7f8dd',
+    backgroundColor: '#e6e8f1aa',
     padding: 16,
     top: 8,
     right: 8,

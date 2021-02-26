@@ -1,7 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
-import {moneyFormat, getSales, db, getPeriodsReports} from '../mainFunctions';
+import {moneyFormat, db, getPeriodsReports} from '../mainFunctions';
+import EmptyListImages from '../emptyListImage';
 import {BannerAdvert} from '../ads';
 
 const Index = ({navigation}) => {
@@ -9,40 +10,39 @@ const Index = ({navigation}) => {
   const [periodsList, setPeriods] = useState([]);
 
   useEffect(() => {
-    try {
-      const unsubscribe = db('ventas').onSnapshot(async (snap) => {
-        const newSalesList = await getSales(snap, salesList);
-        setPeriods(getPeriodsReports(newSalesList));
-        setSalesList(newSalesList);
-      });
-      return unsubscribe;
-    } catch (err) {
-      console.warn('error trying to get monthly report', err);
-    }
+    const unsubscribe = db('ventas').onSnapshot(async (snap) => {
+      let newSalesList = await db('ventas').get();
+      newSalesList = newSalesList
+        .docChanges()
+        .map((change) => change.doc.data());
+      setPeriods(getPeriodsReports(newSalesList));
+      setSalesList(newSalesList);
+    });
+    return unsubscribe;
   }, [salesList]);
 
   const ListItem = ({item}) => {
     const ListItemStyles = StyleSheet.create({
       container: {
-        width: '50%',
-        padding: 5,
+        width: '100%',
       },
       content: {
-        backgroundColor: '#f2f3f4',
-        borderRadius: 15,
+        backgroundColor: '#e6e8f1',
+        borderTopWidth: 1,
+        borderColor: '#ddd',
         overflow: 'hidden',
       },
       header: {
         width: '100%',
-        padding: 10,
+        padding: 8,
       },
       body: {
-        padding: 15,
+        padding: 16,
         width: '100%',
       },
-      year: {fontSize: 28, textAlign: 'center'},
-      month: {color: '#777'},
-      total: {fontSize: 12},
+      month: {fontSize: 32, textTransform: 'uppercase', textAlign: 'center'},
+      year: {color: '#777', fontSize: 24},
+      total: {fontSize: 16},
     });
 
     return (
@@ -57,14 +57,14 @@ const Index = ({navigation}) => {
         }>
         <View style={ListItemStyles.content}>
           <View style={ListItemStyles.header}>
-            <Text style={ListItemStyles.year}>{item.period.split(' ')[1]}</Text>
+            <Text style={ListItemStyles.month}>
+              {item.period.split(' ')[1]}
+            </Text>
           </View>
           <View style={ListItemStyles.body}>
-            <Text style={ListItemStyles.month}>
-              {item.period.split(' ')[0]}
-            </Text>
+            <Text style={ListItemStyles.year}>{item.period.split(' ')[0]}</Text>
             <Text style={ListItemStyles.total}>
-              total vendido: {moneyFormat(item.total)}
+              total: {moneyFormat(item.total)}
             </Text>
           </View>
         </View>
@@ -75,13 +75,14 @@ const Index = ({navigation}) => {
   if (periodsList.length < 1) {
     return (
       <View style={styles.container}>
-        <Text
-          style={{fontSize: 20, color: '#777', textAlignVertical: 'center'}}>
-          Todavía no hay ventas registradas
+        {EmptyListImages.default()}
+        <Text style={{fontSize: 20, color: '#777', textAlign: 'center'}}>
+          Todavía no hay ventas registradas.
         </Text>
+        {/**
         <View style={styles.emptyListBannerAd}>
           <BannerAdvert />
-        </View>
+        </View> */}
       </View>
     );
   }
@@ -89,14 +90,12 @@ const Index = ({navigation}) => {
   return (
     <View style={styles.container}>
       <FlatList
-        style={styles.flatList}
-        numColumns={2}
-        contentContainerStyle={styles.listStyle}
         data={periodsList}
         renderItem={ListItem}
         keyExtractor={(item) => item + Math.random()}
       />
-      <BannerAdvert />
+      {/**
+      <BannerAdvert /> */}
     </View>
   );
 };
@@ -106,16 +105,6 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  flatList: {
-    width: '100%',
-    padding: 10,
-  },
-  listStyle: {
-    ...StyleSheet.absoluteFill,
   },
   emptyListBannerAd: {
     position: 'absolute',

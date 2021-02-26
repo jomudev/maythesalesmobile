@@ -3,7 +3,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
-import {update, moneyFormat, deleteFromInventory} from '../mainFunctions';
+import {update, moneyFormat} from '../mainFunctions';
 import {useForm} from 'react-hook-form';
 import {TextBox, Button} from '../auxComponents';
 
@@ -11,7 +11,6 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState(editIcon);
   const {register, setValue, getValues} = useForm();
-  const serviceName = useRef();
 
   useEffect(() => {
     register('nombre');
@@ -107,20 +106,6 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
           Ganancias:
           {' ' + moneyFormat(data.precioVenta - data.precioCosto)}
         </Text>
-        <Button
-          text="Eliminar del inventario"
-          styles={{
-            backgroundColor: '#ff4444',
-          }}
-          action={() => {
-            deleteFromInventory('servicios', data.id)
-              .then(() => console.log('registro eliminado con exito'))
-              .catch((err) => {
-                console.warn(err);
-              });
-            navigation.goBack();
-          }}
-        />
       </View>
     </View>
   );

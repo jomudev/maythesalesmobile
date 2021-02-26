@@ -3,6 +3,7 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   mainContainer: {
     ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#e6e8f1',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
@@ -10,13 +11,14 @@ const styles = StyleSheet.create({
   wave: {
     flex: 1,
     position: 'absolute',
-    top: '-45%',
+    transform: [{scaleY: 2}],
+    top: '-40%',
   },
   welcomeTitle: {
     position: 'relative',
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#acbdd3',
+    color: 'black',
     top: '-8%',
   },
   logoContainer: {

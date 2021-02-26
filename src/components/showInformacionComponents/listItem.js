@@ -1,8 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {TouchableOpacity, Text, View, Image} from 'react-native';
+import FastImage from 'react-native-fast-image';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import defaultImage from '../../assets/AdditionalMedia/productDefaultImage.png';
+const defaultImageURI = Image.resolveAssetSource(defaultImage).uri;
 
 const Dot = () => (
   <>
@@ -20,24 +23,14 @@ const Dot = () => (
 );
 
 const ItemImage = ({imageURL}) => {
-  return imageURL ? (
-    <Image
-      source={{uri: imageURL}}
-      progressiveRenderingEnabled={true}
-      style={styles.listItemImage}
-      resizeMode="cover"
-      resizeMethod="resize"
-    />
-  ) : (
-    <Image
-      source={require('../../assets/AdditionalMedia/productDefaultImage.png')}
-      style={{
-        ...styles.listItemImage,
-        alignItems: 'center',
-        justifyContent: 'center',
+  return (
+    <FastImage
+      source={{
+        uri: imageURL ? imageURL : defaultImageURI,
+        priority: FastImage.priority.high,
+        cache: FastImage.cacheControl.immutable,
       }}
-      resizeMode="center"
-      resizeMethod="resize"
+      style={styles.listItemImage}
     />
   );
 };
@@ -54,7 +47,11 @@ const ListItem = ({navigation, type, route, data, title, subtitle}) => {
       }>
       {data.cantidad ? (
         <View style={styles.listItemQuantity}>
-          <Text adjustsFontSizeToFit>{data.cantidad}</Text>
+          <Text
+            adjustsFontSizeToFit
+            style={{color: 'black', fontWeight: 'bold'}}>
+            {data.cantidad}
+          </Text>
         </View>
       ) : null}
       {type === 'productos' ? <ItemImage imageURL={data.imageURL} /> : null}

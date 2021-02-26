@@ -1,12 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect, useRef} from 'react';
-import {
-  View,
-  StatusBar,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import {View, StatusBar, Text, TouchableOpacity} from 'react-native';
 import Button from './button';
 import styles from './authStyles';
 import auth from '@react-native-firebase/auth';
@@ -14,7 +8,7 @@ import {useForm} from 'react-hook-form';
 import Wave from '../../assets/AdditionalMedia/wave.svg';
 import {PasswordInput, TextBox} from '../auxComponents';
 import LoadingScreen from '../loadingScreen';
-import {db} from '../mainFunctions';
+import firestore from '@react-native-firebase/firestore';
 import Logo from '../../assets/AdditionalMedia/Logo.svg';
 import Snackbar from 'react-native-snackbar-component';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -43,25 +37,27 @@ const SignIn = ({navigation}) => {
     register('repeatPassword', {required: true});
   }, [register]);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setInitializing(true);
     if (data.email !== '' && data.password !== '' && data.nombre !== '') {
       if (data.password !== data.repeatPassword) {
         setSnackIsVisible(true);
         setSnackMessage('Las contaseñas no coinciden verifica nuevamente');
       } else {
-        auth()
+        await auth()
           .createUserWithEmailAndPassword(data.email, data.password)
           .then(async (res) => {
-            await db()
+            await firestore()
+              .collection('negocios')
               .doc(res.user.uid)
               .set({
-                defaultCurrencyFormat: {
-                  label: 'HNL   Lempira hondureño',
-                  value: 'HNL',
-                }
+                defaultCurrencyFormat: 'HNL',
+                defaultSaleState: true,
               })
-              .catch((err) => console.log(err.code));
+              .catch((err) => {
+                console.warn(err.code);
+                setInitializing(false);
+              });
           })
           .catch((err) => {
             console.log(err);
@@ -168,7 +164,7 @@ const SignIn = ({navigation}) => {
         {verifyPasswords()}
         <Button onPress={handleSubmit(onSubmit)}>
           <Icon
-            name="account-check"
+            name="account-plus-outline"
             size={36}
             maxFontSizeMultiplier={1.5}
             color="white"

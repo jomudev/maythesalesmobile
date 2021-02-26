@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import ConfigOpciones from '../../components/configuracion';
@@ -26,7 +27,7 @@ const Configuracion = ({navigation}) => {
           headerLeft: (props) => {
             return (
               <Icon
-                style={styles.icon}
+                style={{padding: 16}}
                 name="menu"
                 size={28}
                 color="#101e5a"

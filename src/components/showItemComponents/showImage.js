@@ -79,11 +79,7 @@ const ShowImage = ({data, setShowImage, setIsLoading}) => {
         }
         style={styles.showImageButton}>
         {data.imageURL ? (
-          <RenderImage
-            source={{uri: data.imageURL}}
-            progressiveRenderingEnabled={true}
-            style={styles.image}
-          />
+          <RenderImage source={{uri: data.imageURL}} style={styles.image} />
         ) : (
           <Icon name="image-plus" style={styles.addImageIcon} />
         )}

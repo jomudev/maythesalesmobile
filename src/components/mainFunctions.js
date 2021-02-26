@@ -17,45 +17,36 @@ const db = (collection) => {
   return collection ? ref.doc(authId).collection(collection) : ref.doc(authId);
 };
 
-async function initializeAppData() {
+async function initializeAppData(authUser) {
   try {
-    const getData = (item) => item.doc.data();
-
-    if (getUserData().currentUser) {
-      db().onSnapshot(async (snapshot) => {
+    const getDocData = (item) => item.doc.data();
+    const getCollections = async (collection) =>
+      (await db().collection(collection).get()).docChanges().map(getDocData);
+    if (authUser) {
+      await db().onSnapshot(async (snapshot) => {
         try {
           if (!snapshot) {
             return;
           }
-          const data = await snapshot.data();
-          await store.dispatch({
+          const newData = await snapshot.data();
+          const clients = await getCollections('clientes');
+          const products = await getCollections('productos');
+          const services = await getCollections('servicios');
+          const wholesalers = await getCollections('mayoristas');
+          const data = {
+            ...newData,
+            clients,
+            products,
+            services,
+            wholesalers,
+          };
+          store.dispatch({
             type: 'INITIALIZE_APP_DATA',
             data,
           });
         } catch (err) {
           console.warn('error trying to initialize app data ', err);
         }
-      });
-
-      const data = {
-        ...(await db().get()).data(),
-        clients: (await db().collection('clientes').get())
-          .docChanges()
-          .map(getData),
-        products: (await db().collection('productos').get())
-          .docChanges()
-          .map(getData),
-        services: (await db().collection('servicios').get())
-          .docChanges()
-          .map(getData),
-        wholesalers: (await db().collection('mayoristas').get())
-          .docChanges()
-          .map(getData),
-      };
-
-      await store.dispatch({
-        type: 'INITIALIZE_APP_DATA',
-        data,
       });
     }
   } catch (err) {
@@ -131,6 +122,7 @@ async function update(collectionToUpdate, data) {
       ' ',
       err,
     );
+
   }
 }
 
@@ -176,37 +168,6 @@ function getPeriodsReports(list) {
   return newList;
 }
 
-async function getSales(snap, prevList) {
-  if (!snap) {
-    return;
-  }
-  var newList = prevList;
-  try {
-    const changes = snap.docChanges();
-    for (let i = 0; i < changes.length; i++) {
-      const change = changes[i];
-      const data = change.doc.data();
-      if (change.type === 'added') {
-        const search = prevList.filter((item) => item.id === data.id);
-        const isInList = search.length > 0;
-        if (!isInList) {
-          newList = newList.concat(data);
-        }
-      } else if (change.type === 'modified') {
-        newList = prevList.map((item) =>
-          JSON.stringify(item) === JSON.stringify(data) ? data : item,
-        );
-      } else if (change.type === 'removed') {
-        newList = prevList.filter(
-          (item) => JSON.stringify(item) !== JSON.stringify(data),
-        );
-      }
-    }
-    return newList;
-  } catch (err) {
-    console.warn('error intentando obtener los registros de ventas ', err);
-  }
-}
 
 //function that send a message and a true value to a snackbar hook
 function handleSetSnackMessage(message, activeSnackbarHook, setMessageHook) {
@@ -299,11 +260,7 @@ const postSale = async ({
 
     productsCart.forEach((item) => {
       firestore().runTransaction(async (t) => {
-        const productRef = db
-          .collection('negocios')
-          .doc(auth().currentUser.uid)
-          .collection('productos')
-          .doc(item.id);
+        const productRef = db('productos').doc(item.id);
         return await t.get(productRef).then((doc) => {
           let cantidad = doc.data().cantidad;
           if (cantidad > 0) {
@@ -318,9 +275,7 @@ const postSale = async ({
       });
     });
     const timestamp = Date.now();
-    return await db('negocios')
-      .doc(auth().currentUser.uid)
-      .collection('ventas')
+    return await db('ventas')
       .doc(`${timestamp}`)
       .set({
         id: timestamp,
@@ -350,7 +305,6 @@ export {
   moneyFormat,
   update,
   getPeriodsReports,
-  getSales,
   handleSetSnackMessage,
   getTotal,
   shareImage,

@@ -5,5 +5,6 @@
     "**/.project": true,
     "**/.settings": true,
     "**/.factorypath": true
-  }
+  },
+  "cSpell.language": "es,en-US,en,en-GB"
 }

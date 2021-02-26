@@ -1,53 +1,11 @@
-import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
-
-var uid = null;
-var storageRef = null;
-var productRef = null;
-var products = null;
-var clients = null;
-var services = null;
-var providers = null;
-var wholesaler = null;
-
-if (auth().currentUser) {
-  uid = auth().currentUser.uid;
-  storageRef = storage().ref(`negocios/${uid}`);
-  productRef = storageRef.child('productos');
-}
+import {db, getUserData} from '../mainFunctions';
 
 const cleanString = (string) => {
-  return string.match(/[0-9]/g).join('');
-};
-
-const collectData = () => {
-  try {
-    if (uid !== null) {
-      products = firestore()
-        .collection('negocios')
-        .doc(uid)
-        .collection('productos');
-      clients = firestore()
-        .collection('negocios')
-        .doc(uid)
-        .collection('clientes');
-      services = firestore()
-        .collection('negocios')
-        .doc(uid)
-        .collection('servicios');
-      providers = firestore()
-        .collection('negocios')
-        .doc(uid)
-        .collection('proveedores');
-      wholesaler = firestore()
-        .collection('negocios')
-        .doc(uid)
-        .collection('mayoristas');
-    }
-  } catch (err) {
-    console.warn('error al intentar obtener los datos del inventario', err);
+  if (!string) {
+    return '';
   }
+  return string.match(/[0-9]/g).join('');
 };
 
 const getLetters = (length) => {
@@ -73,94 +31,130 @@ const randomId = (lettersLength, numbersLength) => {
   return `${getLetters(lettersLength)}${getNumbers(numbersLength)}`;
 };
 
-const saveProduct = async (data, imageDownloadURL) => {
+const saveProductImage = async (productRef, data) => {
+  await productRef.child(`${data.nombre}/mainImage`).putFile(data.image);
+  let url = await productRef.child(`${data.nombre}/mainImage`).getDownloadURL();
+  return url;
+};
+
+const saveProduct = (data, imageDownloadURL) => {
   try {
     const id = randomId(0, 6);
-    return products.doc(id).set({
-      nombre: data.nombre,
-      id,
-      marca: data.marca,
-      barcode: data.barcode,
-      cantidad: Number(data.cantidad),
-      descripcion: data.descripcion,
-      precioCosto: Number(data.precioCosto),
-      precioVenta: Number(data.precioVenta),
-      precioMayoreo: Number(data.precioMayoreo),
-      imageURL: imageDownloadURL ? imageDownloadURL : null,
-    });
+    return db('productos')
+      .doc(id)
+      .set({
+        nombre: data.nombre,
+        id,
+        marca: data.marca,
+        barcode: data.barcode,
+        cantidad: Number(data.cantidad),
+        descripcion: data.descripcion,
+        precioCosto: Number(data.precioCosto),
+        precioVenta: Number(data.precioVenta),
+        precioMayoreo: Number(data.precioMayoreo),
+        imageURL: imageDownloadURL ? imageDownloadURL : null,
+      });
   } catch (err) {
     console.log('error trying to save the product');
   }
 };
 
-const save = async (type, data) => {
+const saveClient = (data) => {
   try {
-    collectData();
+    const id = randomId(5, 3);
+    return db('clientes')
+      .doc(id)
+      .set({
+        id,
+        nombre: data.nombre,
+        telefono: cleanString(data.telefono),
+        email: data.email,
+        descripcion: data.descripcion,
+      });
+  } catch (err) {
+    console.warn(`error trying to save the client on the inventory ${err}`);
+  }
+};
+
+const saveService = (data) => {
+  try {
+    const id = randomId(4, 6);
+    return db('servicios')
+      .doc(id)
+      .set({
+        nombre: data.nombre,
+        id,
+        marca: data.marca,
+        barcode: data.barcode,
+        cantidad: Number(data.cantidad),
+        descripcion: data.descripcion,
+        precioCosto: Number(data.precioCosto),
+        precioVenta: Number(data.precioVenta),
+        precioMayoreo: Number(data.precioMayoreo),
+      });
+  } catch (err) {
+    console.warn(`error trying to save the service on the inventory ${err}`);
+  }
+};
+
+const saveProvider = (data) => {
+  try {
+    const id = randomId(5, 2);
+    return db('proveedores')
+      .doc(id)
+      .set({
+        id,
+        nombre: data.nombre,
+        telefono: cleanString(data.telefono),
+        email: data.email,
+        descripcion: data.descripcion,
+      });
+  } catch (err) {
+    console.warn(`error trying to save the provider on the inventory ${err}`);
+  }
+};
+
+const saveWholesaler = (data) => {
+  try {
+    const id = randomId(5, 3);
+    return db('mayoristas')
+      .doc(id)
+      .set({
+        id,
+        ...data,
+        telefono: cleanString(data.telefono),
+      });
+  } catch (err) {
+    console.warn(`error trying to save the wholesaler on the inventory ${err}`);
+  }
+};
+
+const save = async (type, data) => {
+  const uid = (await getUserData()).currentUser.uid;
+  let productRef = storage().ref(`negocios/${uid}`).child('productos');
+  try {
     if (data.nombre !== '') {
       if (type === 'product') {
-        var url = null;
         if (data.image) {
-          const uploadTask = productRef
-            .child(`${data.nombre}/mainImage`)
-            .putFile(data.image);
-          uploadTask.on('state_changed', (snap) => {
-            console.log((snap.bytesTransferred / snap.totalBytes) * 100, '%');
-          });
-
-          uploadTask.then(async () => {
-            url = await productRef
-              .child(`${data.nombre}/mainImage`)
-              .getDownloadURL();
-            return saveProduct(data, url);
-          });
-          return;
+          const imageDownloadURL = await saveProductImage(productRef, data);
+          return await saveProduct(data, imageDownloadURL);
         }
-        return saveProduct(data);
+        return await saveProduct(data);
       }
       if (type === 'client') {
-        const id = randomId(5, 3);
-        return clients.doc(id).set({
-          id,
-          nombre: data.nombre,
-          telefono: cleanString(data.telefono),
-          email: data.email,
-          descripcion: data.descripcion,
-        });
+        return await saveClient(data);
       }
       if (type === 'service') {
-        const id = randomId(4, 6);
-        return services.doc(id).set({
-          nombre: data.nombre,
-          id,
-          marca: data.marca,
-          barcode: data.barcode,
-          cantidad: Number(data.cantidad),
-          descripcion: data.descripcion,
-          precioCosto: Number(data.precioCosto),
-          precioVenta: Number(data.precioVenta),
-          precioMayoreo: Number(data.precioMayoreo),
-        });
+        return await saveService(data);
       }
       if (type === 'provider') {
-        const id = randomId(5, 2);
-        return providers.doc(id).set({
-          id,
-          nombre: data.nombre,
-          telefono: cleanString(data.telefono),
-          email: data.email,
-          descripcion: data.descripcion,
-        });
+        return await saveProvider(data);
       }
       if (type === 'wholesaler') {
-        const id = randomId(3, 3);
-        return wholesaler.doc(id).set({
-          id,
-          nombre: data.nombre,
-          telefono: cleanString(data.telefono),
-          email: data.email,
-          descripcion: data.descripcion,
-        });
+        return await saveWholesaler(data);
       }
+    } else {
+      throw 'error/invalid-name';
     }
   } catch (err) {
     console.log(

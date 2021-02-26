@@ -36,6 +36,7 @@ const AddProducto = ({navigation, route}) => {
   useEffect(() => {
     register('image');
     register('nombre', {required: true});
+    register('categoria');
     register('marca');
     register('cantidad');
     register('proveedor');
@@ -122,7 +123,7 @@ const AddProducto = ({navigation, route}) => {
               )}
             </TouchableOpacity>
           </View>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{flexDirection: 'row', padding: 8}}>
             <TextBox
               editable={false}
               placeholder="Codigo de barras"
@@ -155,6 +156,12 @@ const AddProducto = ({navigation, route}) => {
             value={watch('marca')}
           />
           <TextBox
+            placeholder="Categoría"
+            style={styles.txtInput}
+            onChangeText={(text) => setValue('categoria', text)}
+            value={watch('categorias')}
+          />
+          <TextBox
             placeholder="Cantidad"
             style={styles.txtInput}
             onChangeText={(text) => setValue('cantidad', text)}
@@ -177,11 +184,11 @@ const AddProducto = ({navigation, route}) => {
           />
 
           <TextBox
-            placeholder="Precio de para mayoristas"
+            placeholder="Precio para mayoristas"
             keyboardType="number-pad"
             style={styles.txtInput}
             onChangeText={(text) => setValue('precioMayoreo', text)}
-            value={watch('mayorista')}
+            value={watch('precioMayoreo')}
           />
 
           <TextBox

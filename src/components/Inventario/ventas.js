@@ -4,79 +4,65 @@ import {View, Text, ScrollView, StyleSheet} from 'react-native';
 import RenderVentasCollection from '../listItem';
 import {isToday} from 'date-fns';
 import {db, moneyFormat} from '../mainFunctions';
+import EmptyListImages from '../emptyListImage';
 
 const Ventas = () => {
   const [salesList, setSalesList] = useState([]);
   const [totalSoldOut, setTotalSoldOut] = useState(0);
   const [totalProfits, setTotalProfits] = useState(0);
 
-  const calculateTotalSoldOut = (list) => {
-    console.log('update soldOut');
-    let total = 0;
-    list.forEach((item) => {
-      total += item.estado ? item.total : 0;
-    });
-    return total;
-  };
-
-  const calculateTotalProfits = (list) => {
-    let total = 0;
-    let costPrice = 0;
-    list.forEach((item) => {
-      if (item.estado) {
-        total += item.total;
-        item.productos.forEach((product) => {
-          costPrice += product.precioCosto * product.cantidad;
-        });
-        item.servicios.forEach((servicio) => {
-          costPrice += servicio.precioCosto * servicio.cantidad;
-        });
-      }
-    });
-    return total - costPrice;
-  };
-
   useEffect(() => {
-    const unsubscribe = db('ventas').onSnapshot((snap) => {
-      try {
-        let newList = salesList;
-        const changes = snap.docChanges();
-        let isModifying = false;
-        for (let i = 0; i < changes.length; i++) {
-          const change = changes[i];
-          if (isToday(new Date(change.doc.data().timestamp.seconds * 1000))) {
-            const docData = change.doc.data();
-            switch (change.type) {
-              case 'added':
-                const isInList = salesList.filter(
-                  (item) => item.id === docData.id,
-                ).length;
-                if (isInList === 0) {
-                  newList = newList.concat(docData);
-                }
-                break;
-              case 'modified':
-                isModifying = true;
-                newList = salesList.map((item) =>
-                  item.timestamp.seconds === docData.timestamp.seconds
-                    ? docData
-                    : item,
-                );
-                break;
-              case 'removed':
-                newList = newList.filter((item) => item.id !== docData.id);
-                break;
-              default:
-                break;
-            }
-          }
-        }
+    const filterBySold = (item) => item.estado;
 
+    const calculateTotalSoldOut = (list) => {
+      if (list.length === 0) {
+        return 0;
+      }
+      list = list.map((item) => item.total);
+      return list.reduce(function (accumulator, currentValue) {
+        return accumulator + currentValue;
+      });
+    };
+
+    const calculateTotalProfits = (list) => {
+      if (list.length === 0) {
+        return 0;
+      }
+      const total = calculateTotalSoldOut(list);
+      const costs = list
+        .map((item) => {
+          let saleProfits = 0;
+          if (item.servicios.length) {
+            saleProfits = item.productos
+              .map((producto) => producto.precioCosto * producto.cantidad)
+              .reduce((productCost, currentCost) => productCost + currentCost);
+          }
+          if (item.servicios.length) {
+            saleProfits += item.servicios
+              .map((services) => services.precioCosto * services.cantidad)
+              .reduce(
+                (servicesCost, currentCost) => servicesCost + currentCost,
+              );
+          }
+          return saleProfits;
+        })
+        .reduce((accumulator, currentValue) => accumulator + currentValue);
+      return total - costs;
+    };
+
+    const unsubscribe = db('ventas').onSnapshot(async (snap) => {
+      try {
+        const request = await db('ventas').get();
+        let newList = request.docChanges().map((change) => change.doc.data());
+        newList = newList.filter((sale) => {
+          const saleDate = new Date(sale.timestamp.seconds * 1000);
+          return isToday(saleDate);
+        });
         if (JSON.stringify(salesList) !== JSON.stringify(newList)) {
-          setSalesList(isModifying ? newList : newList.reverse());
+          setSalesList(newList.reverse());
         }
-        setTotalSoldOut(calculateTotalSoldOut(salesList));
-        setTotalProfits(calculateTotalProfits(salesList));
+        setTotalSoldOut(calculateTotalSoldOut(newList.filter(filterBySold)));
+        setTotalProfits(calculateTotalProfits(newList.filter(filterBySold)));
       } catch (err) {
         console.log(err);
       }
@@ -91,7 +77,9 @@ const Ventas = () => {
           ...StyleSheet.absoluteFillObject,
           justifyContent: 'center',
           alignItems: 'center',
+          backgroundColor: '#e6e8f1',
         }}>
+        {EmptyListImages.default()}
         <Text style={{fontSize: 20, color: '#00000055'}}>
           No hay registros de ventas este día...
         </Text>
@@ -100,45 +88,60 @@ const Ventas = () => {
   }
 
   return (
-    <>
+    <View style={styles.mainContainer}>
       <View style={styles.totalContainer}>
         <Text style={styles.totalSoldOut}>
           Vendido en el día: {moneyFormat(totalSoldOut)}
         </Text>
         <Text style={styles.totalProfits}>
-          ganancias del día: {moneyFormat(totalProfits)}
+          Ganancias del día: {moneyFormat(totalProfits)}
         </Text>
       </View>
-      <ScrollView>
+      <ScrollView style={styles.salesContainer}>
         {salesList.map((venta) => (
           <RenderVentasCollection
-            venta={venta}
+            sale={venta}
             key={venta.timestamp.nanoseconds * Math.random()}
           />
         ))}
       </ScrollView>
-    </>
+    </View>
   );
 };
 
 export default Ventas;
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#e6e8f1',
+  },
+  salesContainer: {
+    backgroundColor: '#e6e8f1',
+  },
   totalContainer: {
     flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    textAlignVertical: 'center',
+    alignContent: 'center',
   },
   totalSoldOut: {
     flex: 1,
-    textAlign: 'left',
-    color: '#101e5a',
+    textAlign: 'center',
+    color: 'black',
+    backgroundColor: '#e6e8f1',
+    borderRadius: 4,
+    margin: 1,
+    padding: 16,
     fontSize: 16,
   },
   totalProfits: {
-    color: '#101e5a',
+    margin: 1,
+    color: 'black',
+    padding: 16,
+    backgroundColor: '#e6e8f1',
+    borderRadius: 4,
     flex: 1,
-    textAlign: 'right',
+    textAlign: 'center',
     fontSize: 16,
   },
 });

@@ -1,14 +1,13 @@
 import React from 'react';
-import {View, Modal, StyleSheet, StatusBar, Text} from 'react-native';
+import {View, Modal, StyleSheet, ActivityIndicator} from 'react-native';
 import Logo from '../assets/AdditionalMedia/Logo.svg';
 
-const LoadingScreen = ({text}) => {
-  const loadingText = text || 'Cargando...';
+const LoadingScreen = () => {
   return (
     <Modal visible={true} animationType="fade">
       <View style={styles.container}>
         <Logo style={styles.logo} width={100} height={100} />
-        <Text>{loadingText}</Text>
+        <ActivityIndicator color="#334790" size="large" />
       </View>
     </Modal>
   );

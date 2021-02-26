@@ -4,6 +4,7 @@ import {Text, TouchableOpacity, ScrollView, Animated} from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ListItem from './listItem';
+import EmptyListImage from '../emptyListImage';
 import {
   moneyFormat,
   phoneFormat,
@@ -11,7 +12,7 @@ import {
   filterItems,
   db,
 } from '../mainFunctions';
-import {TextBox} from '../auxComponents';
+import store from '../../../store';
 
 const renderItem = (list, search) => {
   if (search.trim() !== '') {
@@ -55,19 +56,24 @@ function ShowClientes({navigation, route}) {
       const unsubscribe = db()
         .collection('clientes')
         .onSnapshot((snap) => handleGetList(snap, clientsList, setClients));
-      return unsubscribe;
+
+      const searchSubscriber = store.subscribe(() => {
+        const stateSearch = store.getState().search;
+        if (search !== stateSearch) {
+          setSearch(stateSearch);
+        }
+      });
+      return () => {
+        unsubscribe();
+        searchSubscriber();
+      };
     } catch (err) {
       console.warn('error al intentar obtener los clientes ', err);
     }
-  }, [clientsList]);
+  }, [clientsList, search]);
 
   return (
     <>
-      <TextBox
-        placeholder="Buscar..."
-        onChangeText={setSearch}
-        style={{backgroundColor: '#ffff'}}
-      />
       <ScrollView
         style={styles.container}
         onScroll={(event) =>
@@ -107,7 +113,7 @@ function ShowClientes({navigation, route}) {
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
         onPress={() => navigation.navigate('Clientes')}>
-        <Icon name="add" color="white" size={28} />
+        <Icon name="add" color="black" size={28} />
       </TouchableOpacity>
     </>
   );
@@ -124,19 +130,24 @@ function ShowProductos({navigation, route}) {
       const unsubscribe = db()
         .collection('productos')
         .onSnapshot((snap) => handleGetList(snap, productsList, setProducts));
-      return unsubscribe;
+
+      const searchSubscriber = store.subscribe(() => {
+        const stateSearch = store.getState().search;
+        if (search !== stateSearch) {
+          setSearch(stateSearch);
+        }
+      });
+      return () => {
+        unsubscribe();
+        searchSubscriber();
+      };
     } catch (err) {
       console.warn('error al intentar obtener los datos de productos ', err);
     }
-  }, [productsList]);
+  }, [productsList, search]);
 
   return (
     <>
-      <TextBox
-        placeholder="Buscar..."
-        onChangeText={setSearch}
-        style={{backgroundColor: '#ffff'}}
-      />
       <ScrollView
         style={styles.container}
         onScroll={(event) =>
@@ -169,15 +180,18 @@ function ShowProductos({navigation, route}) {
             );
           })
         ) : (
-          <Text style={styles.emptyList}>
-            Agrega productos para visualizarlos aquí...
-          </Text>
+          <>
+            {EmptyListImage.default()}
+            <Text style={styles.emptyList}>
+              Agrega productos para visualizarlos aquí...
+            </Text>
+          </>
         )}
       </ScrollView>
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
         onPress={() => navigation.navigate('Productos')}>
-        <Icon name="add" color="white" size={28} />
+        <Icon name="add" color="black" size={28} />
       </TouchableOpacity>
     </>
   );
@@ -194,22 +208,27 @@ function ShowServicios({navigation, route}) {
       const unsubscribe = db()
         .collection('servicios')
         .onSnapshot((snap) => handleGetList(snap, servicesList, setServices));
-      return unsubscribe;
+
+      const searchSubscriber = store.subscribe(() => {
+        const stateSearch = store.getState().search;
+        if (search !== stateSearch) {
+          setSearch(stateSearch);
+        }
+      });
+      return () => {
+        unsubscribe();
+        searchSubscriber();
+      };
     } catch (err) {
       console.warn(
         'error al intentar obtener los datos de los servicios ',
         err,
       );
     }
-  }, [servicesList]);
+  }, [search, servicesList]);
 
   return (
     <>
-      <TextBox
-        placeholder="Buscar..."
-        onChangeText={setSearch}
-        style={{backgroundColor: '#ffff'}}
-      />
       <ScrollView
         style={styles.container}
         onScroll={(event) =>
@@ -238,15 +257,18 @@ function ShowServicios({navigation, route}) {
             );
           })
         ) : (
-          <Text style={styles.emptyList}>
-            Agrega servicios adicionales para visualizarlos aquí...
-          </Text>
+          <>
+            {EmptyListImage.default()}
+            <Text style={styles.emptyList}>
+              Agrega servicios adicionales para visualizarlos aquí...
+            </Text>
+          </>
         )}
       </ScrollView>
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
         onPress={() => navigation.navigate('Servicios')}>
-        <Icon name="add" color="white" size={28} />
+        <Icon name="add" color="black" size={28} />
       </TouchableOpacity>
     </>
   );
@@ -263,19 +285,23 @@ function ShowProveedores({navigation, route}) {
       const unsubscribe = db()
         .collection('proveedores')
         .onSnapshot((snap) => handleGetList(snap, providersList, setProviders));
-      return unsubscribe;
+      const searchSubscriber = store.subscribe(() => {
+        const stateSearch = store.getState().search;
+        if (search !== stateSearch) {
+          setSearch(stateSearch);
+        }
+      });
+      return () => {
+        unsubscribe();
+        searchSubscriber();
+      };
     } catch (err) {
       console.warn('error al intentar obtener los datos de proveedores ', err);
     }
-  }, [providersList]);
+  }, [providersList, search]);
 
   return (
     <>
-      <TextBox
-        placeholder="Buscar..."
-        onChangeText={setSearch}
-        style={{backgroundColor: '#ffff'}}
-      />
       <ScrollView
         style={styles.container}
         onScroll={(event) =>
@@ -307,15 +333,18 @@ function ShowProveedores({navigation, route}) {
             );
           })
         ) : (
-          <Text style={styles.emptyList}>
-            Agrega proveedores para visualizarlos aquí...
-          </Text>
+          <>
+            {EmptyListImage.default()}  
+            <Text style={styles.emptyList}>
+              Agrega proveedores para visualizarlos aquí...
+            </Text>
+          </>
         )}
       </ScrollView>
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
         onPress={() => navigation.navigate('Proveedores')}>
-        <Icon name="add" color="white" size={28} />
+        <Icon name="add" color="black" size={28} />
       </TouchableOpacity>
     </>
   );
@@ -334,18 +363,22 @@ const ShowWholesalers = ({navigation, route}) => {
         .onSnapshot((snap) =>
           handleGetList(snap, wholesalersList, setWholesaler),
         );
-      return unsubscribe;
+      const searchSubscriber = store.subscribe(() => {
+        const stateSearch = store.getState().search;
+        if (search !== stateSearch) {
+          setSearch(stateSearch);
+        }
+      });
+      return () => {
+        unsubscribe();
+        searchSubscriber();
+      };
     } catch (err) {
-      console.log('error al intentar los registros de mayoristas', err);
+      console.warn('error al intentar los registros de mayoristas', err);
     }
-  }, [wholesalersList]);
+  }, [search, wholesalersList]);
   return (
     <>
-      <TextBox
-        placeholder="Buscar..."
-        onChangeText={setSearch}
-        style={{backgroundColor: '#ffff'}}
-      />
       <ScrollView
         style={styles.container}
         onScroll={(event) =>
@@ -377,15 +410,18 @@ const ShowWholesalers = ({navigation, route}) => {
             );
           })
         ) : (
-          <Text style={styles.emptyList}>
-            Agrega vendedores mayoristas para visualizarlos aquí...
-          </Text>
+          <>
+            {EmptyListImage.default()}
+            <Text style={styles.emptyList}>
+              Agrega compradores mayoristas para visualizarlos aquí...
+            </Text>
+          </>
         )}
       </ScrollView>
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
-        onPress={() => navigation.navigate('Proveedores')}>
-        <Icon name="add" color="white" size={28} />
+        onPress={() => navigation.navigate('Mayoristas')}>
+        <Icon name="add" color="black" size={28} />
       </TouchableOpacity>
     </>
   );

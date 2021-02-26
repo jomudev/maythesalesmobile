@@ -4,19 +4,24 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'white',
-    paddingVertical: 8,
+    padding: 8,
   },
   label: {
     fontSize: 14,
-    width: '96%',
-    paddingHorizontal: 16,
+  },
+  info: {
+    marginVertical: 16,
   },
   ListItem: {
     alignItems: 'center',
     justifyContent: 'center',
     borderColor: '#ddd',
-    padding: 4,
+    paddingVertical: 4,
     flexDirection: 'row',
+  },
+  logoutButton: {
+    position: 'absolute',
+    bottom: 0,
   },
   listIcon: {
     flex: 1,
@@ -32,9 +37,8 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   text: {
-    width: '96%',
+    width: '100%',
     backgroundColor: 'white',
-    paddingHorizontal: 16,
     fontSize: 14,
     alignSelf: 'center',
     borderColor: '#ccc',

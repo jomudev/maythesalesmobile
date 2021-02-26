@@ -3,9 +3,9 @@ import React, {useState, useEffect} from 'react';
 import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
-import {update, deleteFromInventory} from '../mainFunctions';
+import {update} from '../mainFunctions';
 import {useForm} from 'react-hook-form';
-import {TextBox, Button} from '../auxComponents';
+import {TextBox} from '../auxComponents';
 
 const ShowWholesalerItem = ({data, closeIcon, editIcon, navigation}) => {
   const [edit, setEdit] = useState(false);
@@ -83,20 +83,6 @@ const ShowWholesalerItem = ({data, closeIcon, editIcon, navigation}) => {
           onEndEditing={() =>
             handleUpdate('descripcion', getValues('descripcion'))
           }
-        />
-        <Button
-          text="Eliminar del inventario"
-          styles={{
-            backgroundColor: '#ff4444',
-          }}
-          action={() => {
-            deleteFromInventory('mayoristas', data.id)
-              .then(() => console.log('registro eliminado con exito'))
-              .catch((err) => {
-                console.warn(err);
-              });
-            navigation.goBack();
-          }}
         />
       </View>
     </View>

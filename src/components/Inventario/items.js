@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {TouchableOpacity, View, Text, StyleSheet, Image} from 'react-native';
+import FastImage from 'react-native-fast-image';
 import {moneyFormat} from '../mainFunctions';
 import {
   addProductToCart,
@@ -9,12 +10,20 @@ import {
   addWholesalerToCart,
 } from './functions';
 import styles from './styles';
+import defaultImage from '../../assets/AdditionalMedia/productDefaultImage.png';
+
+const defaultImageURI = Image.resolveAssetSource(defaultImage).uri;
 
 const itemStyles = StyleSheet.create({
-  title: {fontSize: 12, fontFamily: 'VarelaRound-Regular'},
+  title: {
+    fontSize: 12,
+    color: '#101e5a',
+    fontWeight: 'bold',
+    fontFamily: 'VarelaRound-Regular',
+  },
   subtitle: {
     fontSize: 12,
-    color: '#aaa',
+    color: '#6f7daf',
     fontFamily: 'VarelaRound-Regular',
     overflow: 'hidden',
     maxHeight: 16,
@@ -25,20 +34,20 @@ const ProductItem = ({data}) => (
   <TouchableOpacity
     style={styles.itemList}
     onPress={() => addProductToCart(data)}>
-    <Image
+    <FastImage
       style={styles.itemImage}
-      source={
-        data.imageURL
-          ? {uri: data.imageURL}
-          : require('../../assets/AdditionalMedia/productDefaultImage.png')
-      }
+      source={{
+        uri: data.imageURL ? data.imageURL : defaultImageURI,
+        priority: FastImage.priority.high,
+        cache: FastImage.cacheControl.immutable,
+      }}
     />
     <View>
       <Text style={itemStyles.title}>
         {`${data.nombre} ${moneyFormat(data.precioVenta)}`}
       </Text>
       <Text style={itemStyles.subtitle} ellipsizeMode="tail">
-        {data.marca}
+        {data.marca || data.descripcion}
       </Text>
     </View>
   </TouchableOpacity>

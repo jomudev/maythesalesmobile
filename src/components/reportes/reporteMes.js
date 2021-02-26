@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import {ScrollView} from 'react-native';
+import {ScrollView, View, Text} from 'react-native';
 import RenderVentasCollection from '../listItem';
-import {db} from '../mainFunctions';
+import {db, moneyFormat} from '../mainFunctions';
 import {format} from 'date-fns';
 import {es} from 'date-fns/locale';
 import styles from '../listItem/listStyles';
@@ -9,22 +9,61 @@ import styles from '../listItem/listStyles';
 const ReporteMes = ({route}) => {
   const [sales, setSales] = useState([]);
   const month = route.params.params.month;
+  const [totalSoldOut, setTotalSoldOut] = useState(0);
+  const [totalProfits, setTotalProfits] = useState(0);
 
   useEffect(() => {
-    const subscriber = db('ventas').onSnapshot((snapshot) => {
+
+    const filterBySold = (item) => item.estado;
+
+    const calculateTotalSoldOut = (list) => {
+      if (list.length === 0) {
+        return 0;
+      }
+      list = list.map((item) => item.total);
+      return list.reduce(function (accumulator, currentValue) {
+        return accumulator + currentValue;
+      });
+    };
+
+    const calculateTotalProfits = (list) => {
+      if (list.length === 0) {
+        return 0;
+      }
+      const total = calculateTotalSoldOut(list);
+      const costs = list
+        .map((item) => {
+          let saleProfits = 0;
+          if (item.productos.length) {
+            saleProfits = item.productos
+              .map((producto) => producto.precioCosto * producto.cantidad)
+              .reduce((productCost, currentCost) => productCost + currentCost);
+          }
+          if (item.servicios.length) {
+            saleProfits += item.servicios
+              .map((service) => service.precioCosto * service.cantidad)
+              .reduce((serviceCost, currentCost) => serviceCost + currentCost);
+          }
+          return saleProfits;
+        })
+        .reduce((accumulator, currentValue) => accumulator + currentValue);
+      return total - costs;
+    };
+
+    const subscriber = db('ventas').onSnapshot(async (snapshot) => {
       if (!snapshot) {
         return;
       }
-      let docChanges = snapshot.docChanges();
-      docChanges = docChanges.map((change) => change.doc.data());
-      docChanges = docChanges.filter(
-        (data) =>
-          format(new Date(data.timestamp.seconds * 1000), 'MMMM', {
-            locale: es,
-          }) === month,
-      );
-      if (JSON.stringify(docChanges) !== JSON.stringify(sales)) {
-        setSales(docChanges);
+      const request = await db('ventas').get();
+      let collection = request.docChanges().map((change) => change.doc.data());
+      collection = collection.filter((doc) => {
+        const docDate = new Date(doc.timestamp.seconds * 1000);
+        return format(docDate, 'MMMM', {locale: es}) === month;
+      })
+      if (JSON.stringify(collection) !== JSON.stringify(sales)) {
+        setSales(collection);
+        setTotalSoldOut(calculateTotalSoldOut(collection.filter(filterBySold)));
+        setTotalProfits(calculateTotalProfits(collection.filter(filterBySold)));
       }
     });
 
@@ -33,9 +72,17 @@ const ReporteMes = ({route}) => {
 
   return (
     <ScrollView style={styles.listVentas}>
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalSoldOut}>
+          Vendido en el mes: {moneyFormat(totalSoldOut)}
+        </Text>
+        <Text style={styles.totalProfits}>
+          Ganancias del mes: {moneyFormat(totalProfits)}
+        </Text>
+      </View>
       {sales
         .map((item) => (
-          <RenderVentasCollection venta={item} key={Math.random()} />
+          <RenderVentasCollection sale={item} key={Math.random()} />
         ))
         .reverse()}
     </ScrollView>

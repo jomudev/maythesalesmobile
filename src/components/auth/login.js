@@ -1,13 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import React, {useEffect, useState, useRef} from 'react';
-import {
-  View,
-  StatusBar,
-  ScrollView,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
+import {View, StatusBar, TouchableOpacity, Text} from 'react-native';
 import Button from './button';
 import auth from '@react-native-firebase/auth';
 import styles from './authStyles';
@@ -39,7 +33,7 @@ const Login = ({navigation}) => {
     register('password', {required: true});
   }, [register]);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setInitializing(true);
     if (!data.email || !data.password) {
       setSnackMessage('Debes rellenar ambos campos para poder proseguir');
@@ -59,11 +53,8 @@ const Login = ({navigation}) => {
         setSnackIsVisible(true);
         setInitializing(false);
       } else {
-        auth()
+        await auth()
           .signInWithEmailAndPassword(data.email, data.password)
-          .then(() => {
-            setInitializing(false);
-          })
           .catch((err) => {
             console.log(err.code);
             let msg;
@@ -100,7 +91,7 @@ const Login = ({navigation}) => {
       <View style={styles.logoContainer}>
         <Logo style={styles.logo} />
       </View>
-      <Text style={styles.welcomeTitle}>Bienvenido</Text>
+      <Text style={styles.welcomeTitle}>Inicia sesión</Text>
       <View style={styles.textInputContainer}>
         <Text style={styles.label}>Mi correo:</Text>
         <TextBox
@@ -131,7 +122,7 @@ const Login = ({navigation}) => {
         )}
         <Button onPress={handleSubmit(onSubmit)}>
           <Icon
-            name="login"
+            name="account-key-outline"
             size={36}
             maxFontSizeMultiplier={1.5}
             color="white"

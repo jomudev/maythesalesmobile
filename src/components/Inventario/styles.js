@@ -11,8 +11,8 @@ const styles = StyleSheet.create({
   },
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'white',
     overflow: 'hidden',
+    backgroundColor: '#fff',
   },
   screenTitle: {
     fontFamily: 'VarelaRound-Regular',
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '88%',
     padding: 0,
-    backgroundColor: '#f7f8f9',
+    backgroundColor: '#e6e8f1',
     borderRadius: 4,
     maxHeight: 120,
   },
@@ -39,15 +39,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
     flex: 1,
-    borderRadius: 10,
-    fontSize: 24,
+    fontSize: 32,
     color: '#101e5a',
   },
   itemList: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#aaa',
+    padding: 8,
     flexDirection: 'row',
     overflow: 'hidden',
   },
@@ -66,55 +62,56 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'VarelaRound-Regular',
   },
-  flatList: {
-    backgroundColor: 'transparent',
+  inventoryOptionsContainer: {
+    flexDirection: 'column',
+    alignContent: 'stretch',
+    ...StyleSheet.absoluteFillObject,
   },
-  menuListItem: {
-    backgroundColor: '#f3f4f5',
-    borderRadius: 4,
-    width: '88%',
-    alignSelf: 'center',
-    overflow: 'hidden',
-    marginVertical: 8,
-  },
-  menuListHeader: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
+  optionBackground: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    alignContent: 'stretch',
     alignItems: 'center',
+    position: 'absolute',
+    opacity: 0.6,
   },
-  menuListTitle: {
-    fontWeight: 'bold',
-    fontSize: 12,
-    color: '#101e5a',
-  },
-  menuListBodyText: {
-    fontSize: 12,
-    color: '#555',
-  },
-  menuListBody: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  menuListFooter: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  menuListIcon: {
-    color: '#101e5a',
-    paddingRight: 16,
-  },
-  btn: {
+  menuOptionItem: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
+    backgroundColor: '#101e5a',
   },
-  btnTxt: {
-    fontSize: 12,
+  menuTitle: {
+    flex: 1,
+    paddingHorizontal: 8,
+    width: '100%',
+    paddingVertical: 16,
+  },
+  menuOptionTitle: {
     fontWeight: 'bold',
-    textTransform: 'uppercase',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    fontSize: 32,
+    textShadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    textShadowColor: '#000f',
+    flex: 1,
+    textShadowRadius: 16,
+    color: '#fff',
+  },
+  menuOptionIcon: {
+    color: '#fff',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    flex: 1,
+    textShadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    textShadowColor: '#0006',
+    textShadowRadius: 8,
+    fontSize: 48,
   },
 });
 export default styles;

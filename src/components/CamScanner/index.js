@@ -1,6 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {View, Text, StatusBar, Alert} from 'react-native';
+//import FastImage from 'react-native-fast-image';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {RNCamera} from 'react-native-camera';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -34,6 +36,7 @@ export default function CamScanner({navigation, route}) {
   const type = route.params.type;
   const prevScreen = route.params.screen;
   const [barcodeData, setBarcodeData] = useState(null);
+  const [scanIconSize, setScanIconSize] = useState(null);
 
   const readBarcode = (barcode) => {
     if (barcode.type !== 'UNKNOWN_FORMAT') {
@@ -53,6 +56,8 @@ export default function CamScanner({navigation, route}) {
       <RNCamera
         style={{
           flex: 1,
+          position: 'absolute',
+          height: '100%',
           backgroundColor: 'black',
           width: '100%',
         }}
@@ -71,9 +76,42 @@ export default function CamScanner({navigation, route}) {
           }
         }}
       />
-      {barcodeData ? (
-        <Text style={{color: 'white', textAlign: 'center'}}>{barcodeData}</Text>
-      ) : null}
+      <View
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+        }}>
+        <Icon
+          onLayout={(Layout) => {
+            const layout = {
+              width: Layout.nativeEvent.layout.width,
+              height: Layout.nativeEvent.layout.height,
+            };
+            setScanIconSize(layout);
+          }}
+          name="scan-helper"
+          color="white"
+          size={300}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: scanIconSize
+              ? [
+                  {translateX: -scanIconSize.width / 2},
+                  {translateY: -scanIconSize.height / 2},
+                ]
+              : [],
+            opacity: 0.3,
+          }}
+        />
+        {barcodeData ? (
+          <Text style={{color: 'white', textAlign: 'center'}}>
+            {barcodeData}
+          </Text>
+        ) : null}
+      </View>
     </View>
   );
 }

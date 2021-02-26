@@ -1,52 +1,39 @@
-import store from '../../../cartStore';
-
-const searchInCart = (element, data, callback) => {
-  if (element.id === data.id) {
-    callback(true);
-    return data;
-  } else {
-    return element;
-  }
-};
+import store from '../../../store';
 
 const addProductToCart = (data) => {
   data.cantidad = 1;
-  let cartProducts = store.getState().products || [];
-  let isInCart = false;
-  cartProducts = cartProducts.map((element) =>
-    searchInCart(element, data, (res) => (isInCart = res)),
+  let cartProducts = store.getState().cartProducts || [];
+  let isInCart = cartProducts.filter(
+    (cartProduct) => cartProduct.id === data.id,
   );
 
-  if (!isInCart) {
+  if (isInCart.length === 0) {
     cartProducts = cartProducts.concat(data);
+    store.dispatch({
+      type: 'UPDATE_PRODUCTS',
+      data: cartProducts,
+    });
   }
-
-  store.dispatch({
-    type: 'UPDATE_PRODUCTS',
-    data: cartProducts,
-  });
 };
 
 const addServiceToCart = (data) => {
   data.cantidad = 1;
-  let cartServices = store.getState().services || [];
-  let isInCart = false;
-  cartServices = cartServices.map((element) =>
-    searchInCart(element, data, (res) => (isInCart = res)),
+  let cartServices = store.getState().cartServices || [];
+  let isInCart = cartServices.filter(
+    (cartService) => cartService.id === data.id,
   );
 
-  if (!isInCart) {
+  if (isInCart.length === 0) {
     cartServices = cartServices.concat(data);
+    store.dispatch({
+      type: 'UPDATE_SERVICES',
+      data: cartServices,
+    });
   }
-
-  store.dispatch({
-    type: 'UPDATE_SERVICES',
-    data: cartServices,
-  });
 };
 
 const addClientToCart = (data) => {
-  if (data.id !== store.getState().client) {
+  if (data.id !== store.getState().cartClient) {
     store.dispatch({
       type: 'SET_CLIENT',
       data,
@@ -55,7 +42,7 @@ const addClientToCart = (data) => {
 };
 
 const addWholesalerToCart = (data) => {
-  if (data.id !== store.getState().client) {
+  if (data.id !== store.getState().cartClient) {
     store.dispatch({
       type: 'SET_WHOLESALER',
       data,
@@ -63,24 +50,61 @@ const addWholesalerToCart = (data) => {
   }
 };
 
-const removeFromCart = (id) => {
-  let products = store.getState().products;
-  let services = store.getState().services;
-
-  products = products.filter((element) => element.id !== id);
-  services = services.filter((element) => element.id !== id);
-
+const removeProductFromCart = (id) => {
+  console.log(id);
+  let cartProducts = store.getState().cartProducts;
+  cartProducts = cartProducts.filter((product) => product.id !== id);
   store.dispatch({
-    type: 'UPDATE_CART_LISTS',
-    products,
-    services,
+    type: 'UPDATE_PRODUCTS',
+    data: cartProducts,
   });
-} 
+};
+
+const removeServiceFromCart = (id) => {
+  let cartServices = store.getState().cartServices;
+  cartServices = cartServices.filter((service) => service.id !== id);
+  store.dispatch({
+    type: 'UPDATE_SERVICES',
+    data: cartServices,
+  });
+};
+
+const updateQuantity = (type, quantity, id) => {
+  quantity = quantity > 0 ? quantity : 1;
+  let cartProducts = store.getState().cartProducts;
+  let cartServices = store.getState().cartServices;
+  if (type === 'PRODUCT') {
+    cartProducts = cartProducts.map((product) =>
+      product.id === id ? {...product, cantidad: quantity} : product,
+    );
+    store.dispatch({
+      type: 'UPDATE_PRODUCTS',
+      data: cartProducts,
+    });
+  } else if (type === 'SERVICE') {
+    cartServices = cartServices.map((service) =>
+      service.id === id ? {...service, cantidad: quantity} : service,
+    );
+    store.dispatch({
+      type: 'UPDATE_SERVICES',
+      data: cartServices,
+    });
+  }
+};
+
+const clearStoreCart = () => {
+  store.dispatch({
+    type: 'CLEAR_CART',
+  });
+};
 
 export {
   addProductToCart,
   addServiceToCart,
   addClientToCart,
   addWholesalerToCart,
-  removeFromCart,
+  removeProductFromCart,
+  removeServiceFromCart,
+  updateQuantity,
+  clearStoreCart,
 };

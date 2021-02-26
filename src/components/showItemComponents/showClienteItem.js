@@ -3,8 +3,8 @@ import React, {useState, useEffect} from 'react';
 import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
-import {update, deleteFromInventory} from '../mainFunctions';
-import {TextBox, Button} from '../auxComponents';
+import {update} from '../mainFunctions';
+import {TextBox} from '../auxComponents';
 import {useForm} from 'react-hook-form';
 
 const ShowClienteItem = ({data, editIcon, closeIcon, navigation}) => {
@@ -95,20 +95,6 @@ const ShowClienteItem = ({data, editIcon, closeIcon, navigation}) => {
           onSubmitEditing={() =>
             handleUpdate('descripcion', getValues('descripcion'))
           }
-        />
-        <Button
-          text="Eliminar del inventario"
-          styles={{
-            backgroundColor: '#ff4444',
-          }}
-          action={() => {
-            deleteFromInventory('clientes', data.id)
-              .then(() => console.log('registro eliminado con exito'))
-              .catch((err) => {
-                console.warn(err);
-              });
-            navigation.goBack();
-          }}
         />
       </View>
     </View>

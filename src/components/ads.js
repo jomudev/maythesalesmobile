@@ -14,7 +14,7 @@ const BannerUnitId = __DEV__
 
 const InterstitialUnitId = __DEV__
   ? TestIds.INTERSTITIAL
-  : 'ca-app-pub-8903466117529509/7535385646';
+  : 'ca-app-pub-8903466117529509/1216057711';
 
 function BannerAdvert() {
   return <BannerAd unitId={BannerUnitId} size={BannerAdSize.SMART_BANNER} />;

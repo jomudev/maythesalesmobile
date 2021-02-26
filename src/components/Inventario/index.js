@@ -1,156 +1,67 @@
-/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
+import {View, Text, TouchableOpacity, Image} from 'react-native';
+import FastImage from 'react-native-fast-image'
 import FormOptions from './data';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {createStackNavigator} from '@react-navigation/stack';
 import styles from './styles';
-import AddCliente from '../AddComponents/addCliente';
-import AddProducto from '../AddComponents/addProducto';
-import AddServicio from '../AddComponents/addServicio';
-import AddProveedor from '../AddComponents/addProveedor';
-import AddWholesaler from '../AddComponents/addWholesaler';
-import ShowItem from '../showInformacionComponents/ShowItem';
-import CamScanner from '../CamScanner';
-import {
-  ShowClientes,
-  ShowProductos,
-  ShowProveedores,
-  ShowServicios,
-  ShowWholesalers,
-} from '../showInformacionComponents/ShowList';
-import {MenuListBannerAdvert} from '../ads';
+import productOptionsImage from '../../assets/AdditionalMedia/products-option-image.jpg';
+// Foto de Mehrad Vosoughi en Pexels
+import clientsOptionsImage from '../../assets/AdditionalMedia/clients-option-image.jpg';
+// Foto de Jack Sparrow en Pexels
+import servicesOptionsImage from '../../assets/AdditionalMedia/services-option-image.jpg';
+// Foto de Ainis Jankauskas en Pexels
+import providersOptionsImage from '../../assets/AdditionalMedia/providers-option-image.jpg';
+// Foto de Oleg Magni en Pexels
+import wholesalersOptionsImage from '../../assets/AdditionalMedia/wholesalers-option-image.jpg';
+// Foto de Tiger Lily en Pexels
 
-const Stack = createStackNavigator();
+
+//import {MenuListBannerAdvert} from '../ads';
 
 const ItemList = ({navigation, item}) => {
+  let optionImageURI = Image.resolveAssetSource(productOptionsImage).uri;
+  if (item.type === 'Clientes') {
+    optionImageURI = Image.resolveAssetSource(clientsOptionsImage).uri;
+  } else if (item.type === 'Servicios') {
+    optionImageURI = Image.resolveAssetSource(servicesOptionsImage).uri;
+  } else if (item.type === 'Proveedores') {
+    optionImageURI = Image.resolveAssetSource(providersOptionsImage).uri;
+  } else if (item.type === 'Mayoristas') {
+    optionImageURI = Image.resolveAssetSource(wholesalersOptionsImage).uri;
+  }
+
   return (
-    <View style={styles.menuListItem}>
-      <View style={styles.menuListHeader}>
-        <Icon name={item.icon} size={16} style={styles.menuListIcon} />
-        <Text style={styles.menuListTitle}>{item.type}</Text>
+    <TouchableOpacity
+      style={styles.menuOptionItem}
+      onPress={() =>
+        navigation.navigate(`Show${item.type}`, {type: item.type})
+      }>
+      <FastImage 
+        source={{
+          uri: optionImageURI,
+          priority: FastImage.priority.high,
+          cache: FastImage.cacheControl.immutable,
+        }}
+        style={styles.optionBackground} />
+      <View style={styles.menuTitle}>
+        <Icon name={item.icon} style={styles.menuOptionIcon} />
+        <Text style={styles.menuOptionTitle}>{item.type}</Text>
       </View>
-      <View style={styles.menuListBody}>
-        <Text style={styles.menuListBodyText}>{item.description}</Text>
-      </View>
-      <View style={styles.menuListFooter}>
-        <TouchableOpacity
-          style={[styles.btn, styles.leftBtn]}
-          onPress={() => navigation.navigate(item.type)}>
-          <Text style={styles.btnTxt}>Añadir</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          adjustsFontSizeToFit
-          style={[styles.btn, styles.rightBtn]}
-          onPress={() =>
-            navigation.navigate(`Show${item.type}`, {type: item.type})
-          }>
-          <Text style={styles.btnTxt} adjustsFontSizeToFit>
-            Mostrar
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
-const OptionsScreen = ({navigation}) => {
+const Inventory = ({navigation}) => {
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.flatList}>
-        <MenuListBannerAdvert />
+      <View style={styles.inventoryOptionsContainer}>
+        {/**<MenuListBannerAdvert /> */}
         {FormOptions.map((item) => (
           <ItemList navigation={navigation} item={item} key={item.name} />
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 };
 
-const Inventario = (props) => {
-  const MenuIcon = ({navigation}) => (
-    <Icon
-      style={styles.icon}
-      name="menu"
-      size={28}
-      color="#101e5a"
-      onPress={() => navigation.toggleDrawer()}
-    />
-  );
-
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerTintColor: '#103e5a',
-        headerStyle: styles.header,
-        headerLeft: () => <MenuIcon {...props} />,
-      }}>
-      <Stack.Screen
-        name="Main"
-        options={{title: 'Inventario'}}
-        component={OptionsScreen}
-        {...props}
-      />
-      <Stack.Screen
-        name="Clientes"
-        options={{title: 'Añadir nuevo cliente'}}
-        component={AddCliente}
-      />
-      <Stack.Screen
-        name="ShowClientes"
-        options={{title: 'Clientes'}}
-        component={ShowClientes}
-      />
-      <Stack.Screen
-        name="Productos"
-        options={{title: 'Añadir nuevo producto'}}
-        component={AddProducto}
-      />
-      <Stack.Screen
-        name="ShowProductos"
-        options={{title: 'Productos'}}
-        component={ShowProductos}
-      />
-      <Stack.Screen
-        name="Servicios"
-        options={{title: 'Añadir nuevo servicio adicional'}}
-        component={AddServicio}
-      />
-      <Stack.Screen
-        name="ShowServicios"
-        options={{title: 'Servicios adicionales'}}
-        component={ShowServicios}
-      />
-      <Stack.Screen
-        name="Proveedores"
-        options={{title: 'Añadir nuevo proveedor'}}
-        component={AddProveedor}
-      />
-      <Stack.Screen
-        name="ShowProveedores"
-        options={{title: 'Proveedores'}}
-        component={ShowProveedores}
-      />
-      <Stack.Screen
-        name="Mayoristas"
-        options={{title: 'Añadir nuevo comprador mayorista'}}
-        component={AddWholesaler}
-      />
-      <Stack.Screen
-        name="ShowMayoristas"
-        options={{title: 'Compradores mayoristas'}}
-        component={ShowWholesalers}
-      />
-      <Stack.Screen
-        name="ShowItem"
-        options={({route}) => ({
-          title: route.params.data.nombre,
-        })}
-        component={ShowItem}
-      />
-      <Stack.Screen name="CamScanner" component={CamScanner} />
-    </Stack.Navigator>
-  );
-};
-
-export default Inventario;
+export default Inventory;

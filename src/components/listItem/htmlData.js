@@ -1,8 +1,9 @@
 import {format} from 'date-fns';
 import {es} from 'date-fns/locale';
-import {moneyFormat, getTotal} from '../mainFunctions';
+import {moneyFormat, getTotal, getUserData} from '../mainFunctions';
 
-function htmlData(venta, userData) {
+async function htmlData(venta) {
+  const userData = await getUserData();
   const saleDate = new Date(venta.timestamp.seconds * 1000);
   let html = `
     <style>
@@ -40,12 +41,32 @@ function htmlData(venta, userData) {
 
     </style>
     <div class="nofactura">No. Factura: ${format(saleDate, 'dmyhms')}</div>
-    ${userData.negocio ? `<h1>${userData.negocio}</h1>` : ''}
-    ${userData.displayName ? `<h2>${user.displayName}</h2>` : ''}
-
+    <p>
+    ${
+      userData.userData.negocio
+        ? `<br/>Negocio: ${userData.userData.negocio}`
+        : ''
+    }
+    ${
+      userData.currentUser.displayName
+        ? `<br/>Propietario: ${userData.currentUser.displayName}`
+        : ''
+    }
+    ${
+      userData.currentUser.email
+        ? `<br/>Correo electrónico: ${userData.currentUser.email}`
+        : ''
+    }
+    ${
+      userData.userData.telefono
+        ? `<br/>Número telefónico: ${userData.userData.telefono}`
+        : ''
+    }
+    </p>
     <h3>fecha: ${format(saleDate, 'PPpp', {locale: es})} - ${format(
     saleDate,
     'P',
+    {locale: es}
   )}</h3>
   ${
     venta.mayorista
@@ -113,13 +134,15 @@ function htmlData(venta, userData) {
         </tr>`;
   });
 
-  html += `<tr>
-                <td colspan="3"></td>
-                <td>SUBTOTAL PRODUCTOS</td>
-                <td>${moneyFormat(
-                  getTotal([venta.productos], venta.mayorista),
-                )}</td>
-            </tr>`;
+  if (venta.productos.length && venta.servicios.length) {
+    html += `<tr>
+                  <td colspan="3"></td>
+                  <td>SUBTOTAL PRODUCTOS</td>
+                  <td>${moneyFormat(
+                    getTotal([venta.productos], venta.mayorista),
+                  )}</td>
+              </tr>`;
+  }
 
   html += venta.servicios.length
     ? `<tr>

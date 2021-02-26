@@ -6,13 +6,18 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Text,
-  Image,
+  Dimensions,
+  Modal,
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import buttonStyles from './AddComponents/styles';
 import {Picker} from '@react-native-picker/picker';
+
+const deviceHeight = Dimensions.get('window').height;
 
 const PasswordInput = (props) => {
   const [icon, setIcon] = useState('eye');
@@ -49,7 +54,7 @@ const TextBox = (props) => {
       maxFontSizeMultiplier={1.5}
       allowFontScaling={false}
       {...props}
-      underlineColorAndroid={'#acbdd3'}
+      underlineColorAndroid={'#c0c6dd'}
       ref={props.Ref}
     />
   );
@@ -78,8 +83,13 @@ const RenderImage = (props) => {
             style={styles.imageLoading}
           />
         ) : null}
-        <Image
+        <FastImage
           {...props}
+          source={{
+            ...props.source,
+            priority: FastImage.priority.normal,
+            cache: FastImage.cacheControl.immutable,
+          }}
           onLoadStart={() => setIsLoading(true)}
           onLoad={() => setIsLoading(false)}
         />
@@ -87,6 +97,21 @@ const RenderImage = (props) => {
     );
   } else {
     return <Icon name="image-plus" style={styles.addImageIcon} />;
+  }
+};
+
+class Group extends React.Component{
+  render() {
+    return (
+      <View
+        style={{
+          flexDirection: this.props.direction,
+          width: '100%',
+          alignItems: 'center',
+        }}>
+        {this.props.children}
+      </View>
+    );
   }
 };
 
@@ -113,13 +138,126 @@ const Select = ({items, onValueChange, selectedValue}) => {
     </Picker>
   );
 };
+class ContextMenu extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      show: false,
+    };
+  }
 
-export {PasswordInput, TextBox, Button, RenderImage, Select};
+  close = () => {
+    this.setState({
+      show: false,
+    });
+  };
 
+  show = () => {
+    this.setState({
+      show: true,
+    });
+  };
+
+  renderOutsideTouchable = (onTouch) => {
+    const view = <View style={{flex: 1, width: '100%'}} />;
+    if (!onTouch) {
+      return view;
+    }
+
+    return (
+      <TouchableWithoutFeedback
+        onPress={onTouch}
+        style={{flex: 1, width: '100%'}}>
+        {view}
+      </TouchableWithoutFeedback>
+    );
+  };
+
+  render() {
+    const {show} = this.state;
+    const {onTouchOutside, optionsList} = this.props;
+    return (
+      <Modal
+        visible={show}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={this.close}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#00000000',
+            justifyContent: 'flex-end',
+          }}>
+          {this.renderOutsideTouchable(onTouchOutside)}
+          <View
+            style={{
+              ...styles.contextMenuOptions,
+              maxHeight: deviceHeight * 0.4,
+            }}>
+            {optionsList.map(({iconName, text, onPress}) => (
+              <TouchableOpacity
+                key={iconName + text}
+                onPress={() => {
+                  this.close();
+                  onPress();
+                }}
+                style={styles.contextMenuOption}>
+                <View style={styles.contextMenuIcons}>
+                  {iconName ? <Icon name={iconName} size={24} /> : null}
+                </View>
+                <Text style={styles.contextMenuOptionText}>{text}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+}
+
+export {
+  PasswordInput,
+  TextBox,
+  Button,
+  RenderImage,
+  Select,
+  ContextMenu,
+  Group,
+};
 const styles = StyleSheet.create({
   imageLoading: {
     alignSelf: 'center',
     position: 'absolute',
     top: '45%',
+  },
+  contextMenu: {
+    paddingVertical: 8,
+    elevation: 30,
+  },
+  contextMenuOption: {
+    padding: 8,
+    backgroundColor: '#e6e8f1',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: '90%',
+  },
+  contextMenuOptions: {
+    flexDirection: 'column',
+    backgroundColor: '#e6e8f1',
+    width: '100%',
+    paddingVertical: 8,
+    elevation: 30,
+  },
+  contextMenuIcons: {
+    alignItems: 'center',
+    borderRadius: 100,
+    justifyContent: 'center',
+    marginRight: 8,
+    width: 32,
+    height: 32,
+    backgroundColor: 'white',
+  },
+  contextMenuOptionText: {
+    fontSize: 16,
   },
 });
