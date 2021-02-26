@@ -9,8 +9,9 @@ import {
   StyleSheet,
   Modal,
   Animated,
-  FlatList,
+  ScrollView,
   Alert,
+  Switch,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import store from '../../../cartStore';
@@ -18,6 +19,10 @@ import {moneyFormat, getTotal, verifyChanges, postSale} from '../mainFunctions';
 import {removeFromCart} from './functions';
 
 function ShoppingCart() {
+  // saleState describe if the sale is sold out or not; true: sold out, false: pending;
+  const [saleState, setSaleState] = useState(store.getState().defaultSaleState);
+  console.log(saleState);
+
   const [productsCart, setProductsCart] = useState([]);
   const [servicesCart, setServicesCart] = useState([]);
   const [client, setClient] = useState(null);
@@ -125,12 +130,23 @@ function ShoppingCart() {
         <Icon
           name={toggleIcon}
           style={styles.toggle}
-          size={24}
+          size={32}
           onPress={() => toggle()}
         />
+        <View style={styles.saleState}>
+          <Text style={{flex: 3, textAlign: 'right'}}>Estado de la venta: </Text>
+          <Switch
+            style={{flex: 1}}
+            trackColor={{false: '#cbc6c3', true: '#acbdd3'}}
+            thumbColor={saleState ? '#101e5a' : '#5d80b6'}
+            onValueChange={() => setSaleState(!saleState)}
+            value={saleState}
+          />
+          <Text style={{flex: 2}}>{saleState ? 'Vendida' : 'Pendiente'}</Text>
+        </View>
         <Icon
           name="more-vert"
-          size={24}
+          size={32}
           style={styles.more}
           onPress={() => toggleMenu(!menuOpen)}
         />
@@ -143,30 +159,28 @@ function ShoppingCart() {
           {moneyFormat(getTotal([productsCart, servicesCart], wholesaler))}
         </Text>
       </View>
-      {productsCart.length > 0 ? (
-        <FlatList
-          ListHeaderComponent={() => (
-            <ListHeader title={`Productos: ${moneyFormat(totalProducts)}`} />
-          )}
-          style={styles.cartBody}
-          data={productsCart}
-          renderItem={({item}) => {
-            return <ListItem item={item} isWholesaler={wholesaler} />;
-          }}
-        />
-      ) : null}
-      {servicesCart.length > 0 ? (
-        <FlatList
-          ListHeaderComponent={() => (
-            <ListHeader title={`Servicios: ${moneyFormat(totalServices)}`} />
-          )}
-          style={styles.cartBody}
-          data={servicesCart}
-          renderItem={({item}) => {
-            return <ListItem item={item} isWholesaler={wholesaler} />;
-          }}
-        />
-      ) : null}
+      <ScrollView style={styles.cartBody}>
+        {productsCart.length > 0 ? (
+          <ListHeader title={`Productos: ${moneyFormat(totalProducts)}`} />
+        ) : null}
+        {productsCart.length > 0
+          ? productsCart
+              .map((item) => (
+                <ListItem key={item.id} item={item} isWholesaler={wholesaler} />
+              ))
+              .reverse()
+          : null}
+        {servicesCart.length > 0 ? (
+          <ListHeader title={`Servicios: ${moneyFormat(totalServices)}`} />
+        ) : null}
+        {servicesCart.length > 0
+          ? servicesCart
+              .map((item) => (
+                <ListItem key={item.id} item={item} isWholesaler={wholesaler} />
+              ))
+              .reverse()
+          : null}
+      </ScrollView>
       <View />
       <TouchableOpacity
         style={styles.soldBtn}
@@ -177,6 +191,7 @@ function ShoppingCart() {
             wholesaler,
             productsCart,
             servicesCart,
+            saleState,
           });
           clean();
         }}>
@@ -195,7 +210,7 @@ const ListItem = ({item, isWholesaler}) => {
     <View style={styles.cartItem}>
       <Text
         style={{
-          fontSize: 12,
+          fontSize: 14,
           textAlign: 'left',
           flex: 5,
           flexDirection: 'row',
@@ -215,7 +230,7 @@ const ListItem = ({item, isWholesaler}) => {
           })
         }
       />
-      <Text style={{flex: 5, fontSize: 12, textAlign: 'right'}}>
+      <Text style={{flex: 5, fontSize: 14, textAlign: 'right'}}>
         {moneyFormat(
           isWholesaler
             ? item.precioMayoreo * item.cantidad
@@ -270,7 +285,11 @@ const OptionMenu = ({open, closeMenu}) => {
                 closeMenu();
               }}
               style={styles.menuOptions}>
-              <Icon name="close" style={styles.menuOptionsIcon} color="red" />
+              <Icon
+                name="close"
+                style={styles.menuOptionsIcon}
+                color="#101e5a"
+              />
               <Text style={[styles.menuOptionsText, {color: 'red'}]}>
                 Cancelar
               </Text>
@@ -315,10 +334,16 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   toggle: {
-    flex: 9,
+    flex: 1,
     borderRadius: 10,
     textAlign: 'left',
     padding: 10,
+  },
+  saleState: {
+    flex: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   modalView: {
     backgroundColor: 'white',
@@ -335,7 +360,7 @@ const styles = StyleSheet.create({
   cartBody: {
     position: 'relative',
     width: '100%',
-    height: 100,
+    maxHeight: 200,
   },
   cartHeader: {
     position: 'relative',
@@ -351,9 +376,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   menuOptionsIcon: {
-    fontSize: 12,
-    width: 24,
-    height: 24,
+    fontSize: 16,
+    width: 40,
+    height: 40,
     marginRight: 8,
     borderRadius: 100,
     textAlign: 'center',
@@ -361,7 +386,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#acbdd3',
   },
   menuOptionsText: {
-    fontSize: 12,
+    fontSize: 16,
     alignSelf: 'center',
     textAlign: 'center',
   },
@@ -399,6 +424,6 @@ const styles = StyleSheet.create({
     borderColor: '#cbc6c3',
     color: 'black',
     borderRadius: 3,
-    fontSize: 12,
+    fontSize: 14,
   },
 });

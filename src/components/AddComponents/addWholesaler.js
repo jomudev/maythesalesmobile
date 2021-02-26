@@ -42,7 +42,6 @@ const AddWholesaler = () => {
     <View style={styles.form}>
       {isLoading ? <LoadingScreen /> : null}
       <ScrollView>
-        <Text style={styles.formTitle}>Agregar Mayorista</Text>
         <TextBox
           placeholder="Nombre"
           autoCapitalize="words"
@@ -68,9 +67,9 @@ const AddWholesaler = () => {
           onChangeText={(text) => setValue('descripcion', text)}
           value={watch('descripcion')}
         />
+        <Button action={handleSubmit(onSubmit)} />
       </ScrollView>
-      <Button action={handleSubmit(onSubmit)} />
-      <Snackbar 
+      <Snackbar
         visible={snackIsActive}
         textMessage={snackMessage}
         actionText="OK"

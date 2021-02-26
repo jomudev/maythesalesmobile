@@ -5,6 +5,12 @@ const initialState = {
   clients: [],
   services: [],
   wholesalers: [],
+  // Configuration
+  defaultSaleState: true,
+  defaultCurrencyFormat: 'HNL',
+  email: null,
+  negocio: null,
+  telefono: null,
 };
 
 
@@ -36,6 +42,27 @@ const reducers = (prevState, action) => {
     newState = {
       ...prevState,
       wholesalers: action.data,
+    }
+  }
+
+  if (action.type === 'SET_DEFAULT_SALE_STATE') {
+    newState = {
+      ...prevState,
+      defaultSaleState: action.data,
+    }
+  }
+
+  if (action.type === 'SET_DEFAULT_CURRENCY_FORMAT') {
+    newState = {
+      ...prevState,
+      defaultCurrencyFormat: action.data,
+    }
+  }
+
+  if (action.type === 'INITIALIZE_APP_DATA') {
+    newState = {
+      ...prevState,
+      ...action.data,
     }
   }
 

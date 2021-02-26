@@ -70,7 +70,6 @@ const AddServicio = ({navigation, route}) => {
     <View style={styles.form}>
       {isLoading ? <LoadingScreen /> : null}
       <ScrollView>
-        <Text style={styles.formTitle}>Agregar Servicio</Text>
         <View style={{flexDirection: 'row'}}>
           <TextBox
             editable={false}
@@ -137,8 +136,8 @@ const AddServicio = ({navigation, route}) => {
           style={styles.txtInput}
           onChangeText={(text) => setValue('descripcion', text)}
         />
-      </ScrollView>
       <Button action={handleSubmit(onSubmit)} />
+      </ScrollView>
       <Snackbar
         visible={snackIsActive}
         textMessage={snackMessage}

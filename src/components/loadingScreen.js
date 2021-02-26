@@ -7,7 +7,7 @@ const LoadingScreen = ({text}) => {
   return (
     <Modal visible={true} animationType="fade">
       <View style={styles.container}>
-        <Logo style={styles.logo} width={50} height={50} />
+        <Logo style={styles.logo} width={100} height={100} />
         <Text>{loadingText}</Text>
       </View>
     </Modal>

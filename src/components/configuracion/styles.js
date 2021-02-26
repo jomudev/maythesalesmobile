@@ -4,31 +4,29 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'white',
-    paddingVertical: 24,
+    paddingVertical: 8,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     width: '96%',
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
   ListItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ddd',
-    marginHorizontal: 8,
-    padding: 8,
+    padding: 4,
     flexDirection: 'row',
   },
   listIcon: {
     flex: 1,
-    padding: 8,
+    padding: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
   listInfo: {
     flex: 7,
-    padding: 8,
+    paddingVertical: 8,
     flexDirection: 'column',
     overflow: 'hidden',
     borderColor: '#ddd',
@@ -37,18 +35,18 @@ const styles = StyleSheet.create({
     width: '96%',
     backgroundColor: 'white',
     paddingHorizontal: 16,
-    fontSize: 16,
+    fontSize: 14,
     alignSelf: 'center',
     borderColor: '#ccc',
+    paddingVertical: 8,
   },
-  button: {
-    marginTop: 20,
-    paddingVertical: 20,
-    backgroundColor: '#101e5a',
-    width: '90%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
+  picker: {
+    width: '96%',
+    height: 32,
+    alignSelf: 'center',
+  },
+  pickerItem: {
+    fontSize: 12,
   }
 });
 

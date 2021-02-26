@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,14 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   TouchableOpacity,
+  Switch,
 } from 'react-native';
 import {RenderItemProducto, RenderItemServicio} from './Item';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './listStyles';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNPrint from 'react-native-print';
-import {moneyFormat, getTotal, getUserData} from '../mainFunctions';
+import {moneyFormat, getTotal, getUserData, db} from '../mainFunctions';
 import {InterstitialUnitId} from '../ads';
 import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
 import {format, formatDistanceToNow} from 'date-fns';
@@ -38,7 +39,36 @@ const ganancias = (lista, isWholesaler) => {
 
 const RenderVentasCollection = ({venta}) => {
   let popupRef = React.createRef();
+  const [saleState, setSaleState] = useState(venta.estado);
   const saleDate = new Date(venta.timestamp.seconds * 1000);
+
+  const updateSaleState = () => {
+    db('ventas')
+      .where('timestamp', '==', venta.timestamp)
+      .get()
+      .then((snap) => {
+        let ref = snap.docChanges()[0].doc.ref.path.split('/');
+        ref = ref[ref.length - 1];
+        ref = db('ventas').doc(ref);
+        ref.update({
+          estado: !saleState,
+        });
+      });
+  };
+
+  useEffect(() => {
+    const subscribe = db()
+      .collection('ventas')
+      .where('timestamp', '==', venta.timestamp)
+      .onSnapshot((snapshot) => {
+        setSaleState(
+          snapshot.docChanges().map((change) => {
+            return change.doc.data();
+          })[0].estado,
+        );
+      });
+    return subscribe;
+  }, [venta.timestamp]);
 
   const onClosePopup = () => {
     popupRef.close();
@@ -58,6 +88,15 @@ const RenderVentasCollection = ({venta}) => {
           {format(saleDate, 'PPpp', {locale: es})}{' '}
           {formatDistanceToNow(saleDate, {locale: es, addSuffix: true})}
         </Text>
+        <View style={styles.saleState}>
+          <Switch
+            trackColor={{false: '#cbc6c3', true: '#acbdd3'}}
+            thumbColor={saleState ? '#101e5a' : '#5d80b6'}
+            onValueChange={updateSaleState}
+            value={saleState}
+          />
+          <Text>{saleState ? 'Vendido' : 'Pendiente'}</Text>
+        </View>
         <ContextMenu
           ref={(target) => (popupRef = target)}
           data={venta}
@@ -172,6 +211,25 @@ class ContextMenu extends React.Component {
     });
   };
 
+  delete = async (data) => {
+    try {
+      await db('ventas')
+        .where('timestamp', '==', data.timestamp)
+        .get()
+        .then((snap) => {
+          if (!snap) {
+            return;
+          }
+          let ref = snap.docChanges()[0].doc.ref.path.split('/');
+          ref = ref[ref.length - 1];
+          ref = db('ventas').doc(ref);
+          ref.delete();
+        });
+    } catch (err) {
+      console.warn('error trying to delete the sale ', err);
+    }
+  };
+
   renderOutsideTouchable = (onTouch) => {
     const view = <View style={{flex: 1, width: '100%'}} />;
     if (!onTouch) {
@@ -218,13 +276,24 @@ class ContextMenu extends React.Component {
                 }}
                 style={styles.contextMenuOption}>
                 <View style={styles.contextMenuIcons}>
-                  <Icon name="file-document" size={32} />
+                  <Icon name="file-document" size={24} />
                 </View>
-                <Text style={{textAlign: 'center'}}>GENERAR REPORTE</Text>
+                <Text style={styles.contexMenuOptionText}>Generar reporte</Text>
               </TouchableOpacity>
             ) : (
               <Text>Cargando...</Text>
             )}
+            <TouchableOpacity
+              onPress={() => {
+                this.close();
+                this.delete(data);
+              }}
+              style={styles.contextMenuOption}>
+              <View style={styles.contextMenuIcons}>
+                <Icon name="delete" size={24} />
+              </View>
+              <Text style={styles.contexMenuOptionText}>Eliminar venta</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

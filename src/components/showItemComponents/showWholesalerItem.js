@@ -1,12 +1,13 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
-import {update, phoneFormat} from '../mainFunctions';
+import {update, deleteFromInventory} from '../mainFunctions';
 import {useForm} from 'react-hook-form';
-import {TextBox} from '../auxComponents';
+import {TextBox, Button} from '../auxComponents';
 
-const ShowWholesalerItem = ({data, closeIcon, editIcon}) => {
+const ShowWholesalerItem = ({data, closeIcon, editIcon, navigation}) => {
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState(editIcon);
   const {register, setValue, getValues} = useForm();
@@ -58,7 +59,7 @@ const ShowWholesalerItem = ({data, closeIcon, editIcon}) => {
         <Text>Número de teléfono</Text>
         <TextBox
           placeholder="No asignado..."
-          defaultValue={data.telefono ? phoneFormat(data.telefono) : ''}
+          defaultValue={data.telefono ? data.telefono : ''}
           style={styles.txtInput}
           keyboardType="phone-pad"
           onChangeText={(text) => setValue('telefono', text)}
@@ -82,6 +83,20 @@ const ShowWholesalerItem = ({data, closeIcon, editIcon}) => {
           onEndEditing={() =>
             handleUpdate('descripcion', getValues('descripcion'))
           }
+        />
+        <Button
+          text="Eliminar del inventario"
+          styles={{
+            backgroundColor: '#ff4444',
+          }}
+          action={() => {
+            deleteFromInventory('mayoristas', data.id)
+              .then(() => console.log('registro eliminado con exito'))
+              .catch((err) => {
+                console.warn(err);
+              });
+            navigation.goBack();
+          }}
         />
       </View>
     </View>

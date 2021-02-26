@@ -1,15 +1,23 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
-import {update} from '../mainFunctions';
-import {TextBox} from '../auxComponents';
+import {update, deleteFromInventory} from '../mainFunctions';
+import {TextBox, Button} from '../auxComponents';
+import {useForm} from 'react-hook-form';
 
-const ShowClienteItem = ({data, editIcon, closeIcon}) => {
+const ShowClienteItem = ({data, editIcon, closeIcon, navigation}) => {
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState(editIcon);
-  const [nombre, setNombre] = useState(data.nombre);
+  const {register, setValue, getValues} = useForm();
+
+  useEffect(() => {
+    register('nombre');
+    register('telefono');
+    register('email');
+    register('descripcion');
+  }, [register]);
 
   const toggleEdit = () => {
     setEdit(!edit);
@@ -24,11 +32,9 @@ const ShowClienteItem = ({data, editIcon, closeIcon}) => {
       value,
       writable: true,
     });
-    update('productos', data)
-      .then(() => {
-        console.log('coleccion actualizada');
-      })
-      .catch((err) => console.log('async err: ' + err));
+    update('clientes', data).catch((err) =>
+      console.log(`handleUpdate err: ${err}`),
+    );
   };
 
   return (
@@ -43,11 +49,13 @@ const ShowClienteItem = ({data, editIcon, closeIcon}) => {
           }}>
           {edit ? (
             <TextBox
-              placeholder={`Editar nombre: ${data.nombre}`}
               style={styles.txtInput}
+              defaultValue={data.nombre}
               TextContentType="family-name"
-              onChangeText={(text) => setNombre(text)}
-              onSubmitEditing={() => handleUpdate('nombre', nombre)}
+              onChangeText={(text) => setValue('nombre', text)}
+              onSubmitEditing={() =>
+                handleUpdate('nombre', getValues('nombre'))
+              }
             />
           ) : (
             <Text style={styles.nombre}>{data.nombre}</Text>
@@ -64,6 +72,10 @@ const ShowClienteItem = ({data, editIcon, closeIcon}) => {
           placeholder={!data.telefono ? 'No asignado...' : ''}
           defaultValue={data.telefono ? data.telefono : ''}
           style={styles.txtInput}
+          onChangeText={(text) => setValue('telefono', text)}
+          onSubmitEditing={() =>
+            handleUpdate('telefono', getValues('telefono'))
+          }
           keyboardType="phone-pad"
         />
         <Text>Email</Text>
@@ -71,12 +83,32 @@ const ShowClienteItem = ({data, editIcon, closeIcon}) => {
           placeholder={!data.email ? 'No asignado...' : ''}
           defaultValue={data.email ? data.email : ''}
           style={styles.txtInput}
+          onChangeText={(text) => setValue('email', text)}
+          onSubmitEditing={() => handleUpdate('email', getValues('email'))}
         />
         <Text>Descripción</Text>
         <TextBox
           placeholder={!data.descripcion ? 'No asignado...' : ''}
           defaultValue={data.descripcion !== '' ? data.descripcion : ''}
           style={styles.txtInput}
+          onChangeText={(text) => setValue('descripcion', text)}
+          onSubmitEditing={() =>
+            handleUpdate('descripcion', getValues('descripcion'))
+          }
+        />
+        <Button
+          text="Eliminar del inventario"
+          styles={{
+            backgroundColor: '#ff4444',
+          }}
+          action={() => {
+            deleteFromInventory('clientes', data.id)
+              .then(() => console.log('registro eliminado con exito'))
+              .catch((err) => {
+                console.warn(err);
+              });
+            navigation.goBack();
+          }}
         />
       </View>
     </View>

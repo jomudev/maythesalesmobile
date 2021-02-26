@@ -1,5 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {TouchableOpacity, View, Text, StyleSheet, Image} from 'react-native';
 import {moneyFormat} from '../mainFunctions';
 import {
   addProductToCart,
@@ -24,18 +25,28 @@ const ProductItem = ({data}) => (
   <TouchableOpacity
     style={styles.itemList}
     onPress={() => addProductToCart(data)}>
-    <Text style={itemStyles.title}>
-      {`${data.nombre} ${moneyFormat(data.precioVenta)}`}
-    </Text>
-    <Text style={itemStyles.subtitle} ellipsizeMode="tail">
-      {data.marca}
-    </Text>
+    <Image
+      style={styles.itemImage}
+      source={
+        data.imageURL
+          ? {uri: data.imageURL}
+          : require('../../assets/AdditionalMedia/productDefaultImage.png')
+      }
+    />
+    <View>
+      <Text style={itemStyles.title}>
+        {`${data.nombre} ${moneyFormat(data.precioVenta)}`}
+      </Text>
+      <Text style={itemStyles.subtitle} ellipsizeMode="tail">
+        {data.marca}
+      </Text>
+    </View>
   </TouchableOpacity>
 );
 
 const ServiceItem = ({data}) => (
   <TouchableOpacity
-    style={styles.itemList}
+    style={{...styles.itemList, flexDirection: 'column'}}
     onPress={() => addServiceToCart(data)}>
     <Text style={itemStyles.title}>{data.nombre}</Text>
     <Text style={itemStyles.subtitle} ellipsizeMode="tail">
@@ -47,7 +58,7 @@ const ServiceItem = ({data}) => (
 
 const ClientItem = ({data}) => (
   <TouchableOpacity
-    style={styles.itemList}
+    style={{...styles.itemList, flexDirection: 'column'}}
     onPress={() => addClientToCart(data)}>
     <Text style={itemStyles.title}>{data.nombre}</Text>
     {data.telefono || data.email ? (
@@ -60,9 +71,9 @@ const ClientItem = ({data}) => (
   </TouchableOpacity>
 );
 
-const WholesalerItem = ({data, index}) => (
+const WholesalerItem = ({data}) => (
   <TouchableOpacity
-    style={styles.itemList}
+    style={{...styles.itemList, flexDirection: 'column'}}
     onPress={() => addWholesalerToCart(data)}>
     <Text style={itemStyles.title}>{data.nombre}</Text>
     {data.telefono || data.email ? (

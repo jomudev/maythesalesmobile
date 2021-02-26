@@ -5,10 +5,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
 import DisplayImageComponent from './displayImageComponent';
 import ShowImage from './showImage';
-import {update} from '../mainFunctions';
+import {update, moneyFormat, deleteFromInventory} from '../mainFunctions';
 import LoadingScreen from '../loadingScreen';
-import {moneyFormat} from '../mainFunctions';
 import {useForm} from 'react-hook-form';
+import {Button} from '../auxComponents';
 
 const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
   const {register, getValues, setValue} = useForm();
@@ -22,6 +22,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
     register('descripcion');
     register('marca');
     register('precioVenta');
+    register('precioMayoreo');
     register('precioCosto');
   });
 
@@ -64,7 +65,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             <TextInput
               defaultValue={data.nombre}
               onChangeText={(text) => setValue('nombre', text)}
-              onEndEditing={() => handleUpdate('nombre', nombre)}
+              onEndEditing={() => handleUpdate('nombre', getValues('nombre'))}
               style={{...styles.txtInput, ...styles.nombre}}
             />
           ) : (
@@ -141,7 +142,9 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
         <Text>Precio de costo por unidad</Text>
         <View style={styles.priceContainer}>
           <TextInput
-            onEndEditing={() => handleUpdate('precioCosto', precioCosto)}
+            onEndEditing={() =>
+              handleUpdate('precioCosto', getValues('precioCosto'))
+            }
             onChangeText={(text) =>
               setValue('precioCosto', Number.parseInt(text, 10))
             }
@@ -152,6 +155,20 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
         <Text style={{fontSize: 24}}>
           Ganancia: {moneyFormat(data.precioVenta - data.precioCosto)}
         </Text>
+        <Button
+          text="Eliminar del inventario"
+          styles={{
+            backgroundColor: '#ff4444',
+          }}
+          action={() => {
+            deleteFromInventory('productos', data.id)
+              .then(() => console.log('registro eliminado con exito'))
+              .catch((err) => {
+                console.warn(err);
+              });
+            navigation.goBack();
+          }}
+        />
       </View>
     </ScrollView>
   );

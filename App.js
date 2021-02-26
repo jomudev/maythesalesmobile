@@ -1,12 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
 import React, {useState, useEffect} from 'react';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
@@ -18,14 +9,22 @@ import DrawerNavigator from './src/components/drawer';
 import {StatusBar} from 'react-native';
 const Stack = createStackNavigator();
 import LoadingScreen from './src/components/loadingScreen';
+import {initializeAppData} from './src/components/mainFunctions';
 
 const App = () => {
   const [user, setUser] = useState(undefined);
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
-      setUser(authUser);
+    const authUnsubscribe = auth().onAuthStateChanged(async (authUser) => {
+      if (authUser) {
+        await initializeAppData().catch((err) => {
+          console.warn('error trying to initialize app data', err);
+        });
+        setUser(authUser);
+      } else {
+        setUser(authUser);
+      }
       setInitializing(false);
     });
     return () => {
@@ -39,8 +38,8 @@ const App = () => {
 
   if (user) {
     return (
-      <NavigationContainer >
-        <Stack.Navigator headerMode="none" >
+      <NavigationContainer>
+        <Stack.Navigator headerMode="none">
           <Stack.Screen name="drawerNavigator" component={DrawerNavigator} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -52,7 +51,7 @@ const App = () => {
       <StatusBar
         barStyle="dark-content"
         translucent={true}
-        backgroundColor="#ffffffff"
+        backgroundColor="#0000"
       />
       <Stack.Navigator headerMode={'none'}>
         <Stack.Screen name="login" component={Login} />

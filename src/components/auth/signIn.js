@@ -56,7 +56,10 @@ const SignIn = ({navigation}) => {
             await db()
               .doc(res.user.uid)
               .set({
-                email: data.email,
+                defaultCurrencyFormat: {
+                  label: 'HNL   Lempira hondureño',
+                  value: 'HNL',
+                }
               })
               .catch((err) => console.log(err.code));
           })

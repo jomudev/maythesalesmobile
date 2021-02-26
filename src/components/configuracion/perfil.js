@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text} from 'react-native';
 import styles from './styles';
-import {useForm} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
 import {TextBox} from '../auxComponents';
 import {db} from '../mainFunctions';
@@ -16,8 +15,6 @@ const Perfil = () => {
       switch (type) {
         case 'negocio':
           return userData.negocio ? userData.negocio : '';
-        case 'email':
-          return userData.email ? userData.email : '';
         case 'telefono':
           return userData.telefono ? userData.telefono : '';
         default:
@@ -74,17 +71,6 @@ const Perfil = () => {
         placeholder={userData ? 'No asignado' : 'Cargando...'}
         onEndEditing={() => updateUserData()}
         onChangeText={(text) => setValue('negocio', text.trim())}
-      />
-      <Text style={styles.label}>Email:</Text>
-      <TextBox
-        style={styles.text}
-        defaultValue={getUserData('email')}
-        onEndEditing={() => updateUserData()}
-        placeholder={userData ? 'No asignado' : 'Cargando...'}
-        keyboardType="email-address"
-        onChangeText={(text) => {
-          setValue('email', text.trim());
-        }}
       />
       <Text style={styles.label}>Teléfono:</Text>
       <TextBox

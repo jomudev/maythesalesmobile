@@ -50,9 +50,6 @@ export default function CamScanner({navigation, route}) {
   return (
     <View style={{backgroundColor: 'black', flex: 1}}>
       <StatusBar translucent backgroundColor="transparent" barStyle="default" />
-      <Text style={{fontSize: 24, textShadowRadius: 30, color: 'white'}}>
-        Escanear código de barras
-      </Text>
       <RNCamera
         style={{
           flex: 1,

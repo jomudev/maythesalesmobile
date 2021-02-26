@@ -45,7 +45,6 @@ const AddProveedor = () => {
   return (
     <View style={styles.form}>
       {isLoading ? <LoadingScreen /> : null}
-      <Text style={styles.formTitle}>Agregar proveedor</Text>
       <ScrollView>
         <TextBox
           placeholder="Nombre*"
@@ -74,8 +73,8 @@ const AddProveedor = () => {
           style={styles.txtInput}
           onChangeText={(text) => setValue('descripcion', text)}
         />
+        <Button action={handleSubmit(onSubmit)} />
       </ScrollView>
-      <Button action={handleSubmit(onSubmit)} />
       <Snackbar
         visible={snackIsActive}
         textMessage={snackMessage}

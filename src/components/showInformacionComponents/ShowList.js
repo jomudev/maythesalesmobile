@@ -99,7 +99,9 @@ function ShowClientes({navigation, route}) {
             );
           })
         ) : (
-          <Text style={styles.emptyList}>No se han registrado clientes...</Text>
+          <Text style={styles.emptyList}>
+            Agrega clientes para visualizarlos aquí...
+          </Text>
         )}
       </ScrollView>
       <TouchableOpacity
@@ -168,7 +170,7 @@ function ShowProductos({navigation, route}) {
           })
         ) : (
           <Text style={styles.emptyList}>
-            No se han registrado productos...
+            Agrega productos para visualizarlos aquí...
           </Text>
         )}
       </ScrollView>
@@ -237,7 +239,7 @@ function ShowServicios({navigation, route}) {
           })
         ) : (
           <Text style={styles.emptyList}>
-            No se han registrado servicios adicionales...
+            Agrega servicios adicionales para visualizarlos aquí...
           </Text>
         )}
       </ScrollView>
@@ -306,7 +308,7 @@ function ShowProveedores({navigation, route}) {
           })
         ) : (
           <Text style={styles.emptyList}>
-            No se han registrado proveedores...
+            Agrega proveedores para visualizarlos aquí...
           </Text>
         )}
       </ScrollView>
@@ -376,7 +378,7 @@ const ShowWholesalers = ({navigation, route}) => {
           })
         ) : (
           <Text style={styles.emptyList}>
-            No se han registrado Mayoristas...
+            Agrega vendedores mayoristas para visualizarlos aquí...
           </Text>
         )}
       </ScrollView>

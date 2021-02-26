@@ -17,11 +17,14 @@ const DrawerNavigator = () => {
       <StatusBar
         barStyle="dark-content"
         translucent={true}
-        backgroundColor="#000000ff"
+        backgroundColor="#0000"
       />
       <DrawerApp.Navigator
         edgeWidth={50}
         initialRouteName="Inicio"
+        screenOptions={{
+          unmountOnBlur: true,
+        }}
         drawerContent={({navigation}) => (
           <DrawerContent user={user} navigation={navigation} />
         )}

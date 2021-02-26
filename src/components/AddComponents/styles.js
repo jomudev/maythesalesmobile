@@ -30,8 +30,8 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '80%',
-    borderRadius: 8,
+    width: '110%',
+    alignSelf: 'center',
   },
   txtMuted: {
     color: '#555',
@@ -42,9 +42,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f1f2f3',
-    marginHorizontal: 8,
-    borderRadius: 16,
-    height: 150,
+    height: 200,
   },
   setImageButton: {
     alignContent: 'center',

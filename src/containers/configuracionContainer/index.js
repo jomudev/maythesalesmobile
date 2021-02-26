@@ -2,7 +2,7 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import ConfigOpciones from '../../components/configuracion';
 import Perfil from '../../components/configuracion/perfil';
-import AgregarUsuario from '../../components/configuracion/agregarUsuario';
+import DefaultValues from '../../components/configuracion/defaultValues';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {StyleSheet} from 'react-native';
 
@@ -45,7 +45,11 @@ const Configuracion = ({navigation}) => {
         }}
         component={Perfil}
       />
-      <Stack.Screen name="addData" component={AgregarUsuario} />
+      <Stack.Screen name="defaultValues"
+        options={{
+          title: 'Valores Predeterminado',
+        }}
+        component={DefaultValues} />
     </Stack.Navigator>
   );
 };

@@ -43,7 +43,6 @@ const AddCliente = () => {
   return (
     <View style={styles.form}>
       {isLoading ? <LoadingScreen /> : null}
-      <Text style={styles.formTitle}>Agregar cliente</Text>
       <ScrollView>
         <TextBox
           placeholder="Nombres*"

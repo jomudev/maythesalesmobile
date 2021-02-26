@@ -1,19 +1,16 @@
-const opciones = [
+const options = [
   {
     name: 'Información personal',
     icon: 'account-circle',
     description: 'Visualiza y actualiza tus datos personales.',
     screen: 'personalData',
   },
-  /**
-   * {
-    name: 'Agregar usuario',
-    icon: 'home',
-    description:
-      'Añade los usuarios que tendrán autorización para realizar ventas',
-    screen: 'addUser',
-  },
-   */
+  {
+    name: 'Valores Predeterminados',
+    icon: 'alpha-d-circle',
+    description: 'Selecciona los valores predeterminados de la app.',
+    screen: 'defaultValues',
+  }
 ];
 
-export default opciones;
+export default options;

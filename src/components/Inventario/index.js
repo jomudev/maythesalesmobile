@@ -27,7 +27,7 @@ const ItemList = ({navigation, item}) => {
   return (
     <View style={styles.menuListItem}>
       <View style={styles.menuListHeader}>
-        <Icon name={item.icon} size={24} style={styles.menuListIcon} />
+        <Icon name={item.icon} size={16} style={styles.menuListIcon} />
         <Text style={styles.menuListTitle}>{item.type}</Text>
       </View>
       <View style={styles.menuListBody}>
@@ -68,20 +68,86 @@ const OptionsScreen = ({navigation}) => {
 };
 
 const Inventario = (props) => {
+  const MenuIcon = ({navigation}) => (
+    <Icon
+      style={styles.icon}
+      name="menu"
+      size={28}
+      color="#101e5a"
+      onPress={() => navigation.toggleDrawer()}
+    />
+  );
+
   return (
-    <Stack.Navigator headerMode="none">
-      <Stack.Screen name="Main" component={OptionsScreen} {...props} />
-      <Stack.Screen name="Clientes" component={AddCliente} />
-      <Stack.Screen name="ShowClientes" component={ShowClientes} />
-      <Stack.Screen name="Productos" component={AddProducto} />
-      <Stack.Screen name="ShowProductos" component={ShowProductos} />
-      <Stack.Screen name="Servicios" component={AddServicio} />
-      <Stack.Screen name="ShowServicios" component={ShowServicios} />
-      <Stack.Screen name="Proveedores" component={AddProveedor} />
-      <Stack.Screen name="ShowProveedores" component={ShowProveedores} />
-      <Stack.Screen name="Mayoristas" component={AddWholesaler} />
-      <Stack.Screen name="ShowMayoristas" component={ShowWholesalers} />
-      <Stack.Screen name="ShowItem" component={ShowItem} />
+    <Stack.Navigator
+      screenOptions={{
+        headerTintColor: '#103e5a',
+        headerStyle: styles.header,
+        headerLeft: () => <MenuIcon {...props} />,
+      }}>
+      <Stack.Screen
+        name="Main"
+        options={{title: 'Inventario'}}
+        component={OptionsScreen}
+        {...props}
+      />
+      <Stack.Screen
+        name="Clientes"
+        options={{title: 'Añadir nuevo cliente'}}
+        component={AddCliente}
+      />
+      <Stack.Screen
+        name="ShowClientes"
+        options={{title: 'Clientes'}}
+        component={ShowClientes}
+      />
+      <Stack.Screen
+        name="Productos"
+        options={{title: 'Añadir nuevo producto'}}
+        component={AddProducto}
+      />
+      <Stack.Screen
+        name="ShowProductos"
+        options={{title: 'Productos'}}
+        component={ShowProductos}
+      />
+      <Stack.Screen
+        name="Servicios"
+        options={{title: 'Añadir nuevo servicio adicional'}}
+        component={AddServicio}
+      />
+      <Stack.Screen
+        name="ShowServicios"
+        options={{title: 'Servicios adicionales'}}
+        component={ShowServicios}
+      />
+      <Stack.Screen
+        name="Proveedores"
+        options={{title: 'Añadir nuevo proveedor'}}
+        component={AddProveedor}
+      />
+      <Stack.Screen
+        name="ShowProveedores"
+        options={{title: 'Proveedores'}}
+        component={ShowProveedores}
+      />
+      <Stack.Screen
+        name="Mayoristas"
+        options={{title: 'Añadir nuevo comprador mayorista'}}
+        component={AddWholesaler}
+      />
+      <Stack.Screen
+        name="ShowMayoristas"
+        options={{title: 'Compradores mayoristas'}}
+        component={ShowWholesalers}
+      />
+      <Stack.Screen
+        name="ShowItem"
+        options={({route}) => ({
+          title: route.params.data.nombre,
+        })}
+        component={ShowItem}
+      />
       <Stack.Screen name="CamScanner" component={CamScanner} />
     </Stack.Navigator>
   );

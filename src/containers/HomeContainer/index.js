@@ -5,18 +5,10 @@ import Inventario from '../../components/Inventario';
 import NuevaVenta from '../../components/Inventario/nuevaVenta';
 import Ventas from '../../components/Inventario/ventas';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
-import Header from '../../components/header';
-import {StatusBar} from 'react-native';
 
 const HomeContainer = ({navigation}) => {
   return (
     <>
-      <StatusBar
-        barStyle="dark-content"
-        translucent={true}
-        backgroundColor="transparent"
-      />
-      <Header navigation={navigation} />
       <Tab.Navigator
         adaptive={true}
         barStyle={{
@@ -35,7 +27,7 @@ const HomeContainer = ({navigation}) => {
           }}
         />
         <Tab.Screen
-          name="Ventas"
+          name="Ventas del día"
           component={Ventas}
           options={{
             tabBarIcon: ({color, size}) => (

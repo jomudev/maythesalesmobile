@@ -96,7 +96,7 @@ const saveProduct = async (data, imageDownloadURL) => {
 const save = async (type, data) => {
   try {
     collectData();
-    if (data.nombre !== '' || data.cantidad ? !(data.cantidad < 0) : false) {
+    if (data.nombre !== '') {
       if (type === 'product') {
         var url = null;
         if (data.image) {

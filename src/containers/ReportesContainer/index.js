@@ -27,25 +27,20 @@ const MenuIcon = ({navigation}) => (
   />
 );
 
-const ReportesContainer = props => {
+const ReportesContainer = (props) => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerTintColor: '#103e5a',
+        headerStyle: styles.header,
+        headerLeft: () => <MenuIcon {...props} />,
+      }}>
+      <Stack.Screen name="Reportes" component={Index} />
       <Stack.Screen
-        options={{
-          headerTintColor: '#103e5a',
-          headerStyle: styles.header,
-          headerLeft: () => <MenuIcon {...props} />,
-        }}
-        name="Reportes"
-        component={Index}
-      />
-      <Stack.Screen
-        options={{
-          headerStyle: styles.header,
-          title: 'Reportes por mes',
-          headerLeft: () => <MenuIcon {...props}/>,
-        }}
         name="reporteMes"
+        options={({route}) => ({
+          title: `Reportes del mes de ${route.params.params.month}`,
+        })}
         component={ReporteMes}
       />
     </Stack.Navigator>

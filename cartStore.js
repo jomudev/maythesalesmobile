@@ -1,11 +1,13 @@
 import {createStore} from 'redux';
 import {getTotal} from './src/components/mainFunctions';
+import store from './store';
 
 const initialState = {
   products: [],
   services: [],
   client: null,
   wholesaler: null,
+  defaultSaleState: store.getState().defaultSaleState,
 };
 
 const reducers = (prevState, action) => {

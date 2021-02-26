@@ -21,33 +21,24 @@ const Dot = () => (
 
 const ItemImage = ({imageURL}) => {
   return imageURL ? (
-    <View style={styles.listItemImage}>
-      <Image
-        source={{uri: imageURL}}
-        progressiveRenderingEnabled={true}
-        style={{
-          height: '100%',
-        }}
-        resizeMode="cover"
-        resizeMethod="resize"
-      />
-    </View>
+    <Image
+      source={{uri: imageURL}}
+      progressiveRenderingEnabled={true}
+      style={styles.listItemImage}
+      resizeMode="cover"
+      resizeMethod="resize"
+    />
   ) : (
-    <View
+    <Image
+      source={require('../../assets/AdditionalMedia/productDefaultImage.png')}
       style={{
         ...styles.listItemImage,
         alignItems: 'center',
         justifyContent: 'center',
-      }}>
-      <Image
-        source={require('../../assets/AdditionalMedia/productDefaultImage.png')}
-        style={{
-          width: '100%',
-        }}
-        resizeMode="center"
-        resizeMethod="resize"
-      />
-    </View>
+      }}
+      resizeMode="center"
+      resizeMethod="resize"
+    />
   );
 };
 

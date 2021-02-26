@@ -24,7 +24,7 @@ const defaultValuesForm = {
 
 const AddProducto = ({navigation, route}) => {
   const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
-  const {register, handleSubmit, watch, errors, reset, setValue} = useForm({
+  const {register, handleSubmit, errors, watch, reset, setValue} = useForm({
     defaultValues: defaultValuesForm,
   });
   const [snackIsActive, setSnackIsActive] = useState(false);
@@ -103,26 +103,25 @@ const AddProducto = ({navigation, route}) => {
     <>
       {isLoading ? <LoadingScreen /> : null}
       <View style={styles.form}>
-        <View style={styles.imageContainer}>
-          <TouchableOpacity
-            style={styles.setImageButton}
-            onPress={handleSetImage}>
-            {image ? (
-              <TouchableOpacity
-                style={styles.imageRemoveButton}
-                onPress={removeImage}>
-                <Icon name="image-remove" style={styles.imageRemoveIcon} />
-              </TouchableOpacity>
-            ) : null}
-            {image ? (
-              <Image source={{uri: image}} style={styles.image} />
-            ) : (
-              <Icon name="image-plus" style={styles.imageIcon} />
-            )}
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.formTitle}>Agregar producto</Text>
         <ScrollView>
+          <View style={styles.imageContainer}>
+            <TouchableOpacity
+              style={styles.setImageButton}
+              onPress={handleSetImage}>
+              {image ? (
+                <TouchableOpacity
+                  style={styles.imageRemoveButton}
+                  onPress={removeImage}>
+                  <Icon name="image-remove" style={styles.imageRemoveIcon} />
+                </TouchableOpacity>
+              ) : null}
+              {image ? (
+                <Image source={{uri: image}} style={styles.image} />
+              ) : (
+                <Icon name="image-plus" style={styles.imageIcon} />
+              )}
+            </TouchableOpacity>
+          </View>
           <View style={{flexDirection: 'row'}}>
             <TextBox
               editable={false}
@@ -131,7 +130,7 @@ const AddProducto = ({navigation, route}) => {
               value={barcode}
             />
             <Icon
-              name="barcode"
+              name="barcode-scan"
               style={styles.Icon}
               onPress={() =>
                 navigation.navigate('CamScanner', {
@@ -141,7 +140,6 @@ const AddProducto = ({navigation, route}) => {
               }
             />
           </View>
-
           <TextBox
             placeholder="Nombre del producto*"
             style={styles.txtInput}
@@ -159,32 +157,31 @@ const AddProducto = ({navigation, route}) => {
           <TextBox
             placeholder="Cantidad"
             style={styles.txtInput}
-            keyboardType="number-pad"
-            value={`${watch('cantidad')}`}
             onChangeText={(text) => setValue('cantidad', text)}
+            value={watch('cantidad')}
           />
           <TextBox
             placeholder="Precio de costo"
             style={styles.txtInput}
             keyboardType="number-pad"
-            value={`${watch('precioCosto')}`}
             onChangeText={(text) => setValue('precioCosto', text)}
+            value={watch('precioCosto')}
           />
 
           <TextBox
             placeholder="Precio de venta"
             keyboardType="number-pad"
             style={styles.txtInput}
-            value={`${watch('precioVenta')}`}
             onChangeText={(text) => setValue('precioVenta', text)}
+            value={watch('precioVenta')}
           />
 
           <TextBox
             placeholder="Precio de para mayoristas"
             keyboardType="number-pad"
             style={styles.txtInput}
-            value={`${watch('precioMayoreo')}`}
             onChangeText={(text) => setValue('precioMayoreo', text)}
+            value={watch('mayorista')}
           />
 
           <TextBox
@@ -193,14 +190,11 @@ const AddProducto = ({navigation, route}) => {
             multiline={true}
             returnKeyType="none"
             style={[styles.txtInput, {textAlignVertical: 'top'}]}
-            value={`${watch('descripcion')}`}
             onChangeText={(text) => setValue('descripcion', text)}
+            value={watch('descripcion')}
           />
+          <Button action={handleSubmit(onSubmit)} />
         </ScrollView>
-        <Button
-          action={handleSubmit(onSubmit)}
-          aditionalStyles={{marginBottom: 15}}
-        />
         <Snackbar
           visible={snackIsActive}
           textMessage={snackMessage}

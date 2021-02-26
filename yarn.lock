@@ -1257,6 +1257,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-10.3.1.tgz#ea31cf8a26db413d09624100406ecd2ca4ea5762"
   integrity sha512-AsmayZr4FF34pq6nuydqME4C8sXAghR71otVfmQKfxmpKnXxK4p7tQuYBjXJ0aAJ5rXEkzt+Vs8H+U+RmdkHKg==
 
+"@react-native-picker/picker@^1.9.11":
+  version "1.9.11"
+  resolved "https://registry.yarnpkg.com/@react-native-picker/picker/-/picker-1.9.11.tgz#490c752417c17d687e2941659b3c0bff9cb79b83"
+  integrity sha512-E7whvvMIl9Ln1sxgug7OAEVWQ69n82iV0d2OWWp5VV52+RW3azKh1IFm4rxdW5/oByMfl7FFL0eHNelGgY4BMQ==
+
 "@react-navigation/bottom-tabs@^5.10.2":
   version "5.10.2"
   resolved "https://registry.yarnpkg.com/@react-navigation/bottom-tabs/-/bottom-tabs-5.10.2.tgz#f45bfe13d43153af804f80b087b3c7f5b4e7bb2d"

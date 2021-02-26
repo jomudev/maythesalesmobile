@@ -1,25 +1,23 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
-import {moneyFormat, getSales, db} from '../mainFunctions';
+import {moneyFormat, getSales, db, getPeriodsReports} from '../mainFunctions';
 import {BannerAdvert} from '../ads';
-import {format} from 'date-fns';
-import {es} from 'date-fns/locale';
 
 const Index = ({navigation}) => {
   const [salesList, setSalesList] = useState([]);
-  const [monthsList, setMonthsList] = useState([]);
+  const [periodsList, setPeriods] = useState([]);
 
   useEffect(() => {
     try {
-      const unsubscribe = db()
-        .collection('ventas')
-        .onSnapshot((snap) => {
-          getSales(snap, salesList, setSalesList, setMonthsList);
-        });
+      const unsubscribe = db('ventas').onSnapshot(async (snap) => {
+        const newSalesList = await getSales(snap, salesList);
+        setPeriods(getPeriodsReports(newSalesList));
+        setSalesList(newSalesList);
+      });
       return unsubscribe;
     } catch (err) {
-      console.warn('error al intentar obtener los reportes mensuales', err);
+      console.warn('error trying to get monthly report', err);
     }
   }, [salesList]);
 
@@ -53,12 +51,7 @@ const Index = ({navigation}) => {
         onPress={() =>
           navigation.navigate('reporteMes', {
             params: {
-              ventas: salesList.filter(
-                (venta) =>
-                  format(venta.timestamp.seconds * 1000, 'yyyy MMMM', {
-                    locale: es,
-                  }) === item.period,
-              ),
+              month: item.period.split(' ')[1],
             },
           })
         }>
@@ -79,7 +72,7 @@ const Index = ({navigation}) => {
     );
   };
 
-  if (monthsList.length < 1) {
+  if (periodsList.length < 1) {
     return (
       <View style={styles.container}>
         <Text
@@ -99,7 +92,7 @@ const Index = ({navigation}) => {
         style={styles.flatList}
         numColumns={2}
         contentContainerStyle={styles.listStyle}
-        data={monthsList}
+        data={periodsList}
         renderItem={ListItem}
         keyExtractor={(item) => item + Math.random()}
       />

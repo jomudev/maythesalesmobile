@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import store from '../../../store';
-import {View, ScrollView, Text, TextInput} from 'react-native';
+import {View, ScrollView, Text, TextInput, SafeAreaView} from 'react-native';
 import ShoppingCart from './shoppingCart';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -47,7 +47,7 @@ const handleGetList = (snap, list, setList) => {
       setList(newList);
     }
   } catch (err) {
-    console.log(err);
+    console.warn('error trying to get the inventory list ', err);
   }
 };
 
@@ -123,7 +123,7 @@ const Component = ({navigation}) => {
         unsubscribeWholesalers();
       };
     } catch (err) {
-      console.warn('error al intentar obtener los registros', err);
+      console.warn('error trying to get the inventory', err);
     }
   }, [clients, products, services, wholesalers]);
 
@@ -140,53 +140,82 @@ const Component = ({navigation}) => {
           />
         ));
       } else {
-        return list.map((product, index) => (
-          <ProductItem
-            data={product}
-            index={index}
-            key={JSON.stringify(product) + index}
-          />
-        ));
+        return list.length === 0 ? (
+          <Text style={styles.emptySearch}>
+            Agrega productos al inventario para poder verlos aquí.
+          </Text>
+        ) : (
+          list.map((product, index) => (
+            <ProductItem
+              data={product}
+              index={index}
+              key={JSON.stringify(product) + index}
+            />
+          ))
+        );
       }
     } else if (type === 'clients') {
       found = list.filter((item) => filterItems(item, foundClient));
-      return found.map((client, index) => (
-        <ClientItem
-          data={client}
-          index={index}
-          key={JSON.stringify(client) + index}
-        />
-      ));
+      return found.length === 0 ? (
+        <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
+      ) : (
+        found.map((client, index) => (
+          <ClientItem
+            data={client}
+            index={index}
+            key={JSON.stringify(client) + index}
+          />
+        ))
+      );
     } else if (type === 'services') {
       found = list.filter((item) => filterItems(item, foundService));
-      return found.map((service, index) => (
-        <ServiceItem
-          data={service}
-          index={index}
-          key={JSON.stringify(service) + index}
-        />
-      ));
+      return found.length === 0 ? (
+        <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
+      ) : (
+        found.map((service, index) => (
+          <ServiceItem
+            data={service}
+            index={index}
+            key={JSON.stringify(service) + index}
+          />
+        ))
+      );
     } else if (type === 'wholesalers') {
       found = list.filter((item) => filterItems(item, foundWholesaler));
-      return found.map((wholesaler, index) => (
-        <WholesalerItem
-          data={wholesaler}
-          index={index}
-          key={JSON.stringify(wholesaler) + index}
-        />
-      ));
+      return found.length === 0 ? (
+        <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
+      ) : (
+        found.map((wholesaler, index) => (
+          <WholesalerItem
+            data={wholesaler}
+            index={index}
+            key={JSON.stringify(wholesaler) + index}
+          />
+        ))
+      );
     }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <SafeAreaView>
         <View style={styles.form}>
-          <Text style={styles.screenTitle}>Realizar una venta</Text>
+          {products.length < 1 &&
+          services.length < 1 &&
+          clients.length < 1 &&
+          wholesalers.length < 1 ? (
+            <Text>
+              Agrega registros a tu inventario y realiza ventas añadiendolos al carrito.
+            </Text>
+          ) : (
+            <Text>
+              selecciona productos o servicios para añadirlos al carrito.
+            </Text>
+          )}
           <View style={styles.formGroup}>
             <View style={styles.textContainer}>
               <Icon
-                name="barcode"
+                name="barcode-scan"
                 style={styles.Icon}
                 onPress={() =>
                   navigation.navigate('CamScanner', {
@@ -198,13 +227,21 @@ const Component = ({navigation}) => {
                 style={styles.txtInput}
                 onChangeText={(text) => setFindProduct(text)}
                 value={foundProduct}
-                placeholder="Buscar producto"
+                placeholder="Busca o selecciona un producto"
               />
-              <Icon
-                name="plus"
-                style={styles.Icon}
-                onPress={() => navigation.navigate('Productos')}
-              />
+              {foundProduct ? (
+                <Icon
+                  name="close"
+                  style={styles.Icon}
+                  onPress={() => setFindProduct('')}
+                />
+              ) : (
+                <Icon
+                  name="plus"
+                  style={styles.Icon}
+                  onPress={() => navigation.navigate('Productos')}
+                />
+              )}
             </View>
             <ScrollView
               style={styles.findProductsList}
@@ -214,22 +251,25 @@ const Component = ({navigation}) => {
           </View>
           <View style={styles.formGroup}>
             <View style={styles.textContainer}>
-              <Icon
-                name="close"
-                style={styles.Icon}
-                onPress={() => setFindWholesaler('')}
-              />
               <TextInput
                 onChangeText={(text) => setFindWholesaler(text)}
                 style={styles.txtInput}
                 value={foundWholesaler}
-                placeholder="Buscar mayorista"
+                placeholder="Buscar un mayorista"
               />
-              <Icon
-                name="plus"
-                style={styles.Icon}
-                onPress={() => navigation.navigate('Mayoristas')}
-              />
+              {foundWholesaler ? (
+                <Icon
+                  name="close"
+                  style={styles.Icon}
+                  onPress={() => setFindWholesaler('')}
+                />
+              ) : (
+                <Icon
+                  name="plus"
+                  style={styles.Icon}
+                  onPress={() => navigation.navigate('Mayoristas')}
+                />
+              )}
             </View>
             <ScrollView
               style={styles.findProductsList}
@@ -241,22 +281,25 @@ const Component = ({navigation}) => {
           </View>
           <View style={styles.formGroup}>
             <View style={styles.textContainer}>
-              <Icon
-                name="close"
-                style={styles.Icon}
-                onPress={() => setFindClient('')}
-              />
               <TextInput
                 onChangeText={(text) => setFindClient(text)}
                 style={styles.txtInput}
                 value={foundClient}
-                placeholder="Buscar cliente"
+                placeholder="Buscar un cliente"
               />
-              <Icon
-                name="plus"
-                style={styles.Icon}
-                onPress={() => navigation.navigate('Clientes')}
-              />
+              {foundClient ? (
+                <Icon
+                  name="close"
+                  style={styles.Icon}
+                  onPress={() => setFindClient('')}
+                />
+              ) : (
+                <Icon
+                  name="plus"
+                  style={styles.Icon}
+                  onPress={() => navigation.navigate('Clientes')}
+                />
+              )}
             </View>
             <ScrollView
               style={styles.findProductsList}
@@ -266,22 +309,25 @@ const Component = ({navigation}) => {
           </View>
           <View style={styles.formGroup}>
             <View style={styles.textContainer}>
-              <Icon
-                name="close"
-                style={styles.Icon}
-                onPress={() => setFindService('')}
-              />
               <TextInput
                 style={styles.txtInput}
                 value={foundService}
                 onChangeText={(text) => setFindService(text)}
-                placeholder="Buscar Servicio Adicional"
+                placeholder="Buscar un Servicio Adicional"
               />
-              <Icon
-                name="plus"
-                style={styles.Icon}
-                onPress={() => navigation.navigate('Servicios')}
-              />
+              {foundService ? (
+                <Icon
+                  name="close"
+                  style={styles.Icon}
+                  onPress={() => setFindService('')}
+                />
+              ) : (
+                <Icon
+                  name="plus"
+                  style={styles.Icon}
+                  onPress={() => navigation.navigate('Servicios')}
+                />
+              )}
             </View>
             <ScrollView
               style={styles.findProductsList}
@@ -290,22 +336,63 @@ const Component = ({navigation}) => {
             </ScrollView>
           </View>
         </View>
-      </ScrollView>
-      <BannerAdvert />
+      </SafeAreaView>
       <ShoppingCart />
+      <View style={{position: 'absolute', bottom: 0}}>
+        <BannerAdvert />
+      </View>
     </View>
   );
 };
 
 const NuevaVenta = (props) => {
+  const MenuIcon = ({navigation}) => (
+    <Icon
+      style={styles.icon}
+      name="menu"
+      size={28}
+      color="#101e5a"
+      onPress={() => navigation.toggleDrawer()}
+    />
+  );
   return (
-    <Stack.Navigator headerMode="none">
-      <Stack.Screen name="index" component={Component} {...props} />
-      <Stack.Screen name="Clientes" component={AddCliente} />
-      <Stack.Screen name="Productos" component={AddProducto} />
-      <Stack.Screen name="Servicios" component={AddServicio} />
-      <Stack.Screen name="Mayoristas" component={AddWholesaler} />
-      <Stack.Screen name="CamScanner" component={CamScanner} />
+    <Stack.Navigator
+      screenOptions={{
+        headerTintColor: '#103e5a',
+        headerStyle: styles.header,
+        headerLeft: () => <MenuIcon {...props} />,
+      }}>
+      <Stack.Screen
+        name="index"
+        options={{title: 'Realizar una venta'}}
+        component={Component}
+        {...props}
+      />
+      <Stack.Screen
+        name="Clientes"
+        options={{title: 'Añadir nuevo cliente'}}
+        component={AddCliente}
+      />
+      <Stack.Screen
+        name="Productos"
+        options={{title: 'Añadir nuevo producto'}}
+        component={AddProducto}
+      />
+      <Stack.Screen
+        name="Servicios"
+        options={{title: 'Añadir nuevo servicio adicional'}}
+        component={AddServicio}
+      />
+      <Stack.Screen
+        name="Mayoristas"
+        options={{title: 'Añadir nuevo comprador mayorista'}}
+        component={AddWholesaler}
+      />
+      <Stack.Screen
+        name="CamScanner"
+        options={{title: 'Escanear Codigo de barras'}}
+        component={CamScanner}
+      />
     </Stack.Navigator>
   );
 };

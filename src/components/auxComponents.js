@@ -12,6 +12,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import buttonStyles from './AddComponents/styles';
+import {Picker} from '@react-native-picker/picker';
 
 const PasswordInput = (props) => {
   const [icon, setIcon] = useState('eye');
@@ -54,15 +55,13 @@ const TextBox = (props) => {
   );
 };
 
-const Button = ({action, additionalStyles, text}) => {
+const Button = ({action, styles, text}) => {
   return (
-    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-      <TouchableOpacity
-        style={[buttonStyles.btn, additionalStyles ? additionalStyles : null]}
-        onPress={() => action()}>
-        <Text style={{color: 'white', fontSize: 24}}>{text || 'Agregar'}</Text>
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity
+      style={[buttonStyles.btn, styles]}
+      onPress={() => action()}>
+      <Text style={{color: 'white', fontSize: 24}}>{text || 'Agregar'}</Text>
+    </TouchableOpacity>
   );
 };
 
@@ -91,7 +90,31 @@ const RenderImage = (props) => {
   }
 };
 
-export {PasswordInput, TextBox, Button, RenderImage};
+const Select = ({items, onValueChange, selectedValue}) => {
+  const [PickerValue, setPickerValue] = useState(selectedValue);
+  return (
+    <Picker
+      selectedValue={PickerValue}
+      style={styles.picker}
+      itemStyle={styles.pickerItem}
+      onValueChange={(itemValue, index) => {
+        onValueChange(itemValue, index);
+        setPickerValue(itemValue);
+      }}>
+      {items.map(function (item) {
+        return (
+          <Picker.Item
+            key={`${Math.random()}`}
+            label={item.label}
+            value={item.value}
+          />
+        );
+      })}
+    </Picker>
+  );
+};
+
+export {PasswordInput, TextBox, Button, RenderImage, Select};
 
 const styles = StyleSheet.create({
   imageLoading: {

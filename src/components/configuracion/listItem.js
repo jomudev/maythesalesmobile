@@ -2,7 +2,7 @@
 import React from 'react';
 import {TouchableOpacity, Text, View} from 'react-native';
 import styles from './styles';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ListItem = ({item, navigation}) => {
   return (
@@ -10,13 +10,10 @@ const ListItem = ({item, navigation}) => {
       style={styles.ListItem}
       onPress={() => navigation.navigate(item.screen)}>
       <View style={styles.listIcon}>
-        <Icon name={item.icon} size={36} color="#101e5a" />
+        <Icon name={item.icon} size={24} color="#101e5a" />
       </View>
       <View style={styles.listInfo}>
-        <Text style={{fontSize: 18}}>{item.name}</Text>
-        <Text style={{fontSize: 12, color: '#000000aa'}}>
-          {item.description}
-        </Text>
+        <Text style={{fontSize: 16}}>{item.name}</Text>
       </View>
     </TouchableOpacity>
   );

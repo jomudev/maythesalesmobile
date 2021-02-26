@@ -50,9 +50,7 @@ const DrawerContent = (props) => {
                     </Caption>
                   ) : null}
                   {userData ? (
-                    <Caption style={{fontWeight: 'bold'}}>
-                      {userData.email}
-                    </Caption>
+                    <Caption style={{fontWeight: 'bold'}}>{user.email}</Caption>
                   ) : null}
                 </View>
               </View>

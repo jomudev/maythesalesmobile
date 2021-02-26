@@ -9,6 +9,7 @@ import {format} from 'date-fns';
 import {es} from 'date-fns/locale';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
+import store from '../../store';
 
 const db = (collection) => {
   const authId = auth().currentUser.uid;
@@ -16,16 +17,62 @@ const db = (collection) => {
   return collection ? ref.doc(authId).collection(collection) : ref.doc(authId);
 };
 
+async function initializeAppData() {
+  try {
+    const getData = (item) => item.doc.data();
+
+    if (getUserData().currentUser) {
+      db().onSnapshot(async (snapshot) => {
+        try {
+          if (!snapshot) {
+            return;
+          }
+          const data = await snapshot.data();
+          await store.dispatch({
+            type: 'INITIALIZE_APP_DATA',
+            data,
+          });
+        } catch (err) {
+          console.warn('error trying to initialize app data ', err);
+        }
+      });
+
+      const data = {
+        ...(await db().get()).data(),
+        clients: (await db().collection('clientes').get())
+          .docChanges()
+          .map(getData),
+        products: (await db().collection('productos').get())
+          .docChanges()
+          .map(getData),
+        services: (await db().collection('servicios').get())
+          .docChanges()
+          .map(getData),
+        wholesalers: (await db().collection('mayoristas').get())
+          .docChanges()
+          .map(getData),
+      };
+
+      await store.dispatch({
+        type: 'INITIALIZE_APP_DATA',
+        data,
+      });
+    }
+  } catch (err) {
+    console.warn('error trying to get inventory data', err);
+  }
+}
+
 const getUserData = async () => {
   try {
     const currentUser = auth().currentUser;
-    const userData = await db().get();
+    const userData = currentUser ? await db().get() : null;
     return {
       currentUser,
       userData: userData.data(),
     };
   } catch (err) {
-    console.warn('error al intentar obtener los datos del usuario: ', err);
+    console.warn('error trying to get user data: ', err);
   }
 };
 
@@ -34,39 +81,43 @@ const fileStorage = (path) => {
   return storage().ref(`negocios/${authId}/${path}`);
 };
 
-function handleGetList(snap, list, setList) {
-  if (!snap) {
-    return;
-  }
-  let newList = list;
-  snap.docChanges().forEach((change) => {
-    const data = change.doc.data();
-    switch (change.type) {
-      case 'added':
-        const isInList = list.filter((item) => item.id === data.id)[0];
-        if (!isInList) {
-          newList = newList.concat(data);
-        }
-        break;
-      case 'modified':
-        newList = list.map((item) => (item.id === data.id ? data : item));
-        break;
-      case 'removed':
-        newList = list.filter((item) => item.id !== data.id);
-        break;
-      default:
-        break;
+const handleGetList = (snap, list, setList) => {
+  try {
+    if (!snap) {
+      return;
     }
-  });
-  if (JSON.stringify(list) !== JSON.stringify(newList)) {
-    setList(newList);
+    let newList = list;
+    snap.docChanges().forEach((change) => {
+      const data = change.doc.data();
+      switch (change.type) {
+        case 'added':
+          const isInList = list.filter((item) => item.id === data.id)[0];
+          if (!isInList) {
+            newList = newList.concat(data);
+          }
+          break;
+        case 'modified':
+          newList = list.map((item) => (item.id === data.id ? data : item));
+          break;
+        case 'removed':
+          newList = list.filter((item) => item.id !== data.id);
+          break;
+        default:
+          break;
+      }
+    });
+    if (JSON.stringify(list) !== JSON.stringify(newList)) {
+      setList(newList);
+    }
+  } catch (err) {
+    console.warn('error trying to get data list: ', err);
   }
-}
+};
 
 function moneyFormat(number) {
   return new Intl.NumberFormat('es-ES', {
     style: 'currency',
-    currency: 'HNL',
+    currency: store.getState().defaultCurrencyFormat || 'HNL',
   }).format(Number(number));
 }
 
@@ -74,11 +125,27 @@ async function update(collectionToUpdate, data) {
   try {
     return db().collection(collectionToUpdate).doc(data.id).update(data);
   } catch (err) {
-    console.log(err);
+    console.warn(
+      'error trying to update the collection {',
+      collectionToUpdate,
+      ' ',
+      err,
+    );
   }
 }
 
-function getMonthsReport(list) {
+async function deleteFromInventory(collectionToDelete, docToDeleteKey) {
+  try {
+    return await db()
+      .collection(collectionToDelete)
+      .doc(docToDeleteKey)
+      .delete();
+  } catch (err) {
+    console.warn('error trying to delete from inventory ', err);
+  }
+}
+
+function getPeriodsReports(list) {
   let newList = list.map((item) => {
     return format(new Date(item.timestamp.seconds * 1000), 'yyyy MMMM', {
       locale: es,
@@ -97,7 +164,7 @@ function getMonthsReport(list) {
         },
       );
       if (item === date) {
-        total += venta.total;
+        total += venta.estado ? venta.total : 0;
       }
     });
     return {
@@ -109,42 +176,44 @@ function getMonthsReport(list) {
   return newList;
 }
 
-function getSales(snap, list, setList, setMonths) {
+async function getSales(snap, prevList) {
+  if (!snap) {
+    return;
+  }
+  var newList = prevList;
   try {
-    if (!snap) {
-      return;
-    }
-    var newList = list;
-    snap.docChanges().forEach((change) => {
+    const changes = snap.docChanges();
+    for (let i = 0; i < changes.length; i++) {
+      const change = changes[i];
       const data = change.doc.data();
       if (change.type === 'added') {
-        const filter = list.filter((item) => item.id === data.id);
-        const isInList = filter.length > 0;
+        const search = prevList.filter((item) => item.id === data.id);
+        const isInList = search.length > 0;
         if (!isInList) {
           newList = newList.concat(data);
         }
       } else if (change.type === 'modified') {
-        newList = list.map((item) => (item.id === data.id ? data : item));
+        newList = prevList.map((item) =>
+          JSON.stringify(item) === JSON.stringify(data) ? data : item,
+        );
       } else if (change.type === 'removed') {
-        newList = list.filter((item) => item.id !== data.id);
+        newList = prevList.filter(
+          (item) => JSON.stringify(item) !== JSON.stringify(data),
+        );
       }
-    });
-    if (JSON.stringify(newList) !== JSON.stringify(list)) {
-      setList(newList);
-      const months = getMonthsReport(newList);
-      setMonths(months);
     }
+    return newList;
   } catch (err) {
     console.warn('error intentando obtener los registros de ventas ', err);
   }
 }
 
+//function that send a message and a true value to a snackbar hook
 function handleSetSnackMessage(message, activeSnackbarHook, setMessageHook) {
   setMessageHook(message);
   activeSnackbarHook(true);
 }
 
-//function that gives the total sum of the products or services list.
 function getTotal(lists, isWholesaler) {
   let total = 0;
   lists.forEach((list) => {
@@ -207,29 +276,29 @@ function filterItems(item, search) {
   );
 }
 
-function verifyChanges(list) {
+const verifyChanges = (list) => {
   list.forEach((state) => {
     if (JSON.stringify(state.preValue) !== JSON.stringify(state.newValue)) {
       state.updateFunction(state.newValue);
     }
   });
-}
+};
 
-async function postSale({
+const postSale = async ({
   productsCart,
   servicesCart,
   total,
   client,
   wholesaler,
-}) {
+  saleState,
+}) => {
   try {
     if (productsCart.length < 1 && servicesCart.length < 1) {
       return;
     }
-    const db = firestore();
 
     productsCart.forEach((item) => {
-      db.runTransaction(async (t) => {
+      firestore().runTransaction(async (t) => {
         const productRef = db
           .collection('negocios')
           .doc(auth().currentUser.uid)
@@ -249,33 +318,38 @@ async function postSale({
       });
     });
     const timestamp = Date.now();
-    return await db
-      .collection('negocios')
+    return await db('negocios')
       .doc(auth().currentUser.uid)
       .collection('ventas')
       .doc(`${timestamp}`)
       .set({
+        id: timestamp,
+        estado: saleState,
         timestamp: new Date(),
         productos: productsCart,
         servicios: servicesCart,
         total,
-        cliente: client,
-        mayorista: wholesaler,
+        cliente: client ? {nombre: client.nombre, id: client.id} : null,
+        mayorista: wholesaler
+          ? {nombre: wholesaler.nombre, id: wholesaler.id}
+          : null,
       });
   } catch (err) {
-    console.log('error al intentar postear la venta ', err);
+    console.warn('error al intentar postear la venta ', err);
   }
-}
+};
 
 export {
+  initializeAppData,
   db,
   getUserData,
+  deleteFromInventory,
   fileStorage,
   phoneFormat,
   filterItems,
   moneyFormat,
   update,
-  getMonthsReport,
+  getPeriodsReports,
   getSales,
   handleSetSnackMessage,
   getTotal,
