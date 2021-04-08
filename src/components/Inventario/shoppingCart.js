@@ -23,6 +23,13 @@ import {
   clearStoreCart,
 } from './functions';
 import {ContextMenu} from '../auxComponents';
+import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
+import {InterstitialUnitId} from '../ads';
+
+const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['business', 'marketing', 'market', 'delivery'],
+})
 
 function ShoppingCart() {
   // saleState describe if the sale is sold out or not; true: sold out, false: pending;
@@ -39,6 +46,7 @@ function ShoppingCart() {
   const cartPosition = useRef(new Animated.Value(+500)).current;
   const [isOpen, setIsOpen] = useState(false);
   const [toggleIcon, setToggleIcon] = useState('keyboard-arrow-down');
+  const [isAdLoaded, setIsAdLoaded] = useState(false);
   let contextMenuRef = React.createRef();
 
   const showCart = () => {
@@ -99,6 +107,12 @@ function ShoppingCart() {
   };
 
   useEffect(() => {
+    const AdEventListener = interstitial.onAdEvent((type) => {
+      if (type === AdEventType.LOADED) {
+        setIsAdLoaded(true);
+      }
+    });
+    interstitial.load();
     const unsubscribe = store.subscribe(() => {
       const state = store.getState();
       verifyChanges([
@@ -135,6 +149,7 @@ function ShoppingCart() {
       verifyCart(state);
     });
     return () => {
+      AdEventListener();
       unsubscribe();
     };
   }, []);
@@ -230,6 +245,9 @@ function ShoppingCart() {
             servicesCart,
             saleState,
           });
+          if (isAdLoaded) {
+            interstitial.show();
+          }
           clearCart();
         }}>
         <Text style={{color: '#f7f8f9', textTransform: 'uppercase'}}>
@@ -324,7 +342,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   toggle: {
-    flex: 1,
+    flex: 0.5,
     borderRadius: 10,
     textAlign: 'left',
     padding: 10,

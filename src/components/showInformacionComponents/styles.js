@@ -255,16 +255,18 @@ const styles = StyleSheet.create({
     elevation: 30,
   },
   emptyListContainer: {
+    alignSelf: 'center',
+    width: '90%',
+    height: '90%',
     alignItems: 'center',
     justifyContent: 'center',
-    ...StyleSheet.absoluteFillObject,
   },
-  emptyList: {
-    color: '#00000055',
+  emptyListText: {
     textAlign: 'center',
-    textAlignVertical: 'center',
-    fontSize: 16,
-  }
+    fontSize: 20, 
+    color: 'gray', 
+    position: 'absolute',
+  },
 });
 
 export default styles;

@@ -72,7 +72,7 @@ const fileStorage = (path) => {
   return storage().ref(`negocios/${authId}/${path}`);
 };
 
-const handleGetList = (snap, list, setList) => {
+const handleGetList = async (snap, list, setList) => {
   try {
     if (!snap) {
       return;

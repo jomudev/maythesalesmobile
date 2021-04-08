@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect, useRef} from 'react';
-import {Text, TouchableOpacity, ScrollView, Animated} from 'react-native';
+import {Text, TouchableOpacity, ScrollView, View, Animated} from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ListItem from './listItem';
@@ -13,6 +13,8 @@ import {
   db,
 } from '../mainFunctions';
 import store from '../../../store';
+import EmptyListImages from '../emptyListImage';
+import LoadingScreen from '../loadingScreen';
 
 const renderItem = (list, search) => {
   if (search.trim() !== '') {
@@ -49,13 +51,20 @@ function ShowClientes({navigation, route}) {
   let [clientsList, setClients] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('clientes')
-        .onSnapshot((snap) => handleGetList(snap, clientsList, setClients));
+        .onSnapshot((snap) =>
+          handleGetList(snap, clientsList, setClients).then(() => {
+            if (loading) {
+              setLoading(false);
+            }
+          }),
+        );
 
       const searchSubscriber = store.subscribe(() => {
         const stateSearch = store.getState().search;
@@ -70,8 +79,10 @@ function ShowClientes({navigation, route}) {
     } catch (err) {
       console.warn('error al intentar obtener los clientes ', err);
     }
-  }, [clientsList, search]);
-
+  }, [clientsList, loading, search]);
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <>
       <ScrollView
@@ -105,9 +116,12 @@ function ShowClientes({navigation, route}) {
             );
           })
         ) : (
-          <Text style={styles.emptyList}>
-            Agrega clientes para visualizarlos aquí...
-          </Text>
+          <View style={styles.emptyListContainer}>
+            {EmptyListImages.default()}
+            <Text style={styles.emptyListText}>
+              Agrega clientes para visualizarlos aquí...
+            </Text>
+          </View>
         )}
       </ScrollView>
       <TouchableOpacity
@@ -124,12 +138,19 @@ function ShowProductos({navigation, route}) {
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('productos')
-        .onSnapshot((snap) => handleGetList(snap, productsList, setProducts));
+        .onSnapshot((snap) =>
+          handleGetList(snap, productsList, setProducts).then(() => {
+            if (loading) {
+              setLoading(false);
+            }
+          }),
+        );
 
       const searchSubscriber = store.subscribe(() => {
         const stateSearch = store.getState().search;
@@ -144,8 +165,11 @@ function ShowProductos({navigation, route}) {
     } catch (err) {
       console.warn('error al intentar obtener los datos de productos ', err);
     }
-  }, [productsList, search]);
+  }, [loading, productsList, search]);
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <>
       <ScrollView
@@ -180,12 +204,12 @@ function ShowProductos({navigation, route}) {
             );
           })
         ) : (
-          <>
+          <View style={styles.emptyListContainer}>
             {EmptyListImage.default()}
-            <Text style={styles.emptyList}>
+            <Text style={styles.emptyListText}>
               Agrega productos para visualizarlos aquí...
             </Text>
-          </>
+          </View>
         )}
       </ScrollView>
       <TouchableOpacity
@@ -202,12 +226,19 @@ function ShowServicios({navigation, route}) {
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('servicios')
-        .onSnapshot((snap) => handleGetList(snap, servicesList, setServices));
+        .onSnapshot((snap) =>
+          handleGetList(snap, servicesList, setServices).then(() => {
+            if (loading) {
+              setLoading(false);
+            }
+          }),
+        );
 
       const searchSubscriber = store.subscribe(() => {
         const stateSearch = store.getState().search;
@@ -225,8 +256,11 @@ function ShowServicios({navigation, route}) {
         err,
       );
     }
-  }, [search, servicesList]);
+  }, [loading, search, servicesList]);
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <>
       <ScrollView
@@ -257,12 +291,12 @@ function ShowServicios({navigation, route}) {
             );
           })
         ) : (
-          <>
+          <View style={styles.emptyListContainer}>
             {EmptyListImage.default()}
-            <Text style={styles.emptyList}>
+            <Text style={styles.emptyListText}>
               Agrega servicios adicionales para visualizarlos aquí...
             </Text>
-          </>
+          </View>
         )}
       </ScrollView>
       <TouchableOpacity
@@ -278,13 +312,20 @@ function ShowProveedores({navigation, route}) {
   let [providersList, setProviders] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('proveedores')
-        .onSnapshot((snap) => handleGetList(snap, providersList, setProviders));
+        .onSnapshot((snap) =>
+          handleGetList(snap, providersList, setProviders).then(() => {
+            if (loading) {
+              setLoading(false);
+            }
+          }),
+        );
       const searchSubscriber = store.subscribe(() => {
         const stateSearch = store.getState().search;
         if (search !== stateSearch) {
@@ -298,8 +339,11 @@ function ShowProveedores({navigation, route}) {
     } catch (err) {
       console.warn('error al intentar obtener los datos de proveedores ', err);
     }
-  }, [providersList, search]);
+  }, [loading, providersList, search]);
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <>
       <ScrollView
@@ -333,12 +377,12 @@ function ShowProveedores({navigation, route}) {
             );
           })
         ) : (
-          <>
-            {EmptyListImage.default()}  
-            <Text style={styles.emptyList}>
+          <View style={styles.emptyListContainer}>
+            {EmptyListImage.default()}
+            <Text style={styles.emptyListText}>
               Agrega proveedores para visualizarlos aquí...
             </Text>
-          </>
+          </View>
         )}
       </ScrollView>
       <TouchableOpacity
@@ -354,6 +398,7 @@ const ShowWholesalers = ({navigation, route}) => {
   let [wholesalersList, setWholesaler] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -361,7 +406,11 @@ const ShowWholesalers = ({navigation, route}) => {
       const unsubscribe = db()
         .collection('mayoristas')
         .onSnapshot((snap) =>
-          handleGetList(snap, wholesalersList, setWholesaler),
+          handleGetList(snap, wholesalersList, setWholesaler).then(() => {
+            if (loading) {
+              setLoading(false);
+            }
+          }),
         );
       const searchSubscriber = store.subscribe(() => {
         const stateSearch = store.getState().search;
@@ -377,6 +426,10 @@ const ShowWholesalers = ({navigation, route}) => {
       console.warn('error al intentar los registros de mayoristas', err);
     }
   }, [search, wholesalersList]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <>
       <ScrollView
@@ -410,12 +463,12 @@ const ShowWholesalers = ({navigation, route}) => {
             );
           })
         ) : (
-          <>
+          <View style={styles.emptyListContainer}>
             {EmptyListImage.default()}
-            <Text style={styles.emptyList}>
+            <Text style={styles.emptyListText}>
               Agrega compradores mayoristas para visualizarlos aquí...
             </Text>
-          </>
+          </View>
         )}
       </ScrollView>
       <TouchableOpacity

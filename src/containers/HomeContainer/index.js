@@ -19,6 +19,7 @@ const HomeContainer = () => {
           renderIndicator: (props) => <ScreenIndicator {...props} />,
           labelStyle: {
             fontWeight: 'bold',
+            fontSize: 12,
           },
           activeTintColor: '#000031',
           inactiveTintColor: '#b4b6be',

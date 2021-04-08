@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, Text, TouchableWithoutFeedback} from 'react-native';
+import {View, Text, TouchableWithoutFeedback, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './listStyles';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
@@ -163,7 +163,7 @@ const printPDF = async (sale) => {
   }
 };
 
-const handleDeleteSale = async (data) => {
+const deleteSale = async () => {
   try {
     await db('ventas')
       .where('timestamp', '==', data.timestamp)
@@ -180,6 +180,23 @@ const handleDeleteSale = async (data) => {
   } catch (err) {
     console.warn('error trying to delete the sale ', err);
   }
+};
+
+const handleDeleteSale = (data) => {
+  Alert.alert(
+    'Eliminar reporte de venta',
+    '¿Estás seguro? Esta acción es irreversible',
+    [
+      {
+        text: 'No, cancelar',
+        onPress: () => {},
+      },
+      {
+        text: 'Sí, estoy seguro',
+        onPress: deleteSale,
+      },
+    ],
+  );
 };
 
 export default RenderVentasCollection;

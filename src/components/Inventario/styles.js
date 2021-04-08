@@ -82,15 +82,13 @@ const styles = StyleSheet.create({
   },
   menuTitle: {
     flex: 1,
-    paddingHorizontal: 8,
     width: '100%',
-    paddingVertical: 16,
   },
   menuOptionTitle: {
     fontWeight: 'bold',
     textAlign: 'center',
     textAlignVertical: 'center',
-    fontSize: 32,
+    fontSize: 24,
     textShadowOffset: {
       width: 0,
       height: 4,
@@ -111,7 +109,7 @@ const styles = StyleSheet.create({
     },
     textShadowColor: '#0006',
     textShadowRadius: 8,
-    fontSize: 48,
+    fontSize: 38,
   },
 });
 export default styles;

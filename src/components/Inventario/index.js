@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
-import FastImage from 'react-native-fast-image'
+import FastImage from 'react-native-fast-image';
 import FormOptions from './data';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './styles';
@@ -14,9 +14,7 @@ import providersOptionsImage from '../../assets/AdditionalMedia/providers-option
 // Foto de Oleg Magni en Pexels
 import wholesalersOptionsImage from '../../assets/AdditionalMedia/wholesalers-option-image.jpg';
 // Foto de Tiger Lily en Pexels
-
-
-//import {MenuListBannerAdvert} from '../ads';
+import {MenuListBannerAdvert} from '../ads';
 
 const ItemList = ({navigation, item}) => {
   let optionImageURI = Image.resolveAssetSource(productOptionsImage).uri;
@@ -36,13 +34,14 @@ const ItemList = ({navigation, item}) => {
       onPress={() =>
         navigation.navigate(`Show${item.type}`, {type: item.type})
       }>
-      <FastImage 
+      <FastImage
         source={{
           uri: optionImageURI,
           priority: FastImage.priority.high,
           cache: FastImage.cacheControl.immutable,
         }}
-        style={styles.optionBackground} />
+        style={styles.optionBackground}
+      />
       <View style={styles.menuTitle}>
         <Icon name={item.icon} style={styles.menuOptionIcon} />
         <Text style={styles.menuOptionTitle}>{item.type}</Text>
@@ -59,6 +58,7 @@ const Inventory = ({navigation}) => {
         {FormOptions.map((item) => (
           <ItemList navigation={navigation} item={item} key={item.name} />
         ))}
+        <MenuListBannerAdvert />
       </View>
     </View>
   );

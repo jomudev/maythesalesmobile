@@ -3,11 +3,13 @@ import React, {useState, useEffect} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {moneyFormat, db, getPeriodsReports} from '../mainFunctions';
 import EmptyListImages from '../emptyListImage';
+import LoadingScreen from '../loadingScreen';
 import {BannerAdvert} from '../ads';
 
 const Index = ({navigation}) => {
   const [salesList, setSalesList] = useState([]);
   const [periodsList, setPeriods] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = db('ventas').onSnapshot(async (snap) => {
@@ -15,10 +17,15 @@ const Index = ({navigation}) => {
       newSalesList = newSalesList
         .docChanges()
         .map((change) => change.doc.data());
-      setPeriods(getPeriodsReports(newSalesList));
-      setSalesList(newSalesList);
+      if (JSON.stringify(newSalesList) !== JSON.stringify(salesList)) {
+        setPeriods(getPeriodsReports(newSalesList));
+        setSalesList(newSalesList);
+      }
+      setLoading(false);
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, [salesList]);
 
   const ListItem = ({item}) => {
@@ -72,42 +79,50 @@ const Index = ({navigation}) => {
     );
   };
 
-  if (periodsList.length < 1) {
-    return (
-      <View style={styles.container}>
-        {EmptyListImages.default()}
-        <Text style={{fontSize: 20, color: '#777', textAlign: 'center'}}>
-          Todavía no hay ventas registradas.
-        </Text>
-        {/**
-        <View style={styles.emptyListBannerAd}>
-          <BannerAdvert />
-        </View> */}
-      </View>
-    );
+  if (loading) {
+    return <LoadingScreen />;
   }
 
   return (
     <View style={styles.container}>
+      <BannerAdvert />
       <FlatList
         data={periodsList}
         renderItem={ListItem}
         keyExtractor={(item) => item + Math.random()}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyListContainer}>
+            {EmptyListImages.default()}
+            <Text style={styles.emptyListText}>
+              Todavía no hay ventas registradas.
+            </Text>
+            <View style={styles.emptyListBannerAd}>
+              <BannerAdvert />
+            </View>
+          </View>
+        )}
       />
-      {/**
-      <BannerAdvert /> */}
     </View>
   );
 };
 export default Index;
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'white',
-  },
   emptyListBannerAd: {
     position: 'absolute',
     bottom: 0,
+  },
+  emptyListContainer: {
+    alignSelf: 'center',
+    width: '90%',
+    height: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyListText: {
+    textAlign: 'center',
+    fontSize: 20,
+    color: 'gray',
+    position: 'absolute',
   },
 });

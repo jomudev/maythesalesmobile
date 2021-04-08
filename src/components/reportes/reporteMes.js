@@ -5,12 +5,15 @@ import {db, moneyFormat} from '../mainFunctions';
 import {format} from 'date-fns';
 import {es} from 'date-fns/locale';
 import styles from '../listItem/listStyles';
+import LoadingScreen from '../loadingScreen';
+import {BannerAdvert} from '../ads';
 
 const ReporteMes = ({route}) => {
   const [sales, setSales] = useState([]);
   const month = route.params.params.month;
   const [totalSoldOut, setTotalSoldOut] = useState(0);
   const [totalProfits, setTotalProfits] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
@@ -65,11 +68,14 @@ const ReporteMes = ({route}) => {
         setTotalSoldOut(calculateTotalSoldOut(collection.filter(filterBySold)));
         setTotalProfits(calculateTotalProfits(collection.filter(filterBySold)));
       }
+      setLoading(false);
     });
 
     return subscriber;
   }, [month, sales]);
-
+  if (loading) {
+    return <LoadingScreen />
+  }
   return (
     <ScrollView style={styles.listVentas}>
       <View style={styles.totalContainer}>
@@ -80,6 +86,7 @@ const ReporteMes = ({route}) => {
           Ganancias del mes: {moneyFormat(totalProfits)}
         </Text>
       </View>
+      <BannerAdvert />
       {sales
         .map((item) => (
           <RenderVentasCollection sale={item} key={Math.random()} />

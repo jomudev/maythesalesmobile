@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import 'react-native-gesture-handler';
+import {Text, TextInput} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import auth from '@react-native-firebase/auth';
@@ -32,6 +33,12 @@ import {
   ShowWholesalers,
 } from './src/components/showInformacionComponents/ShowList';
 import store from './store';
+
+Text.defaultProps = {};
+Text.defaultProps.maxFontSizeMultiplier = 1.3;
+
+TextInput.defaultProps = {};
+TextInput.defaultProps.maxFontSizeMultiplier = 1.3;
 
 const Stack = createStackNavigator();
 

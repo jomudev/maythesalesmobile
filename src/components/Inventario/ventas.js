@@ -5,6 +5,7 @@ import RenderVentasCollection from '../listItem';
 import {isToday} from 'date-fns';
 import {db, moneyFormat} from '../mainFunctions';
 import EmptyListImages from '../emptyListImage';
+import {BannerAdvert} from '../ads';
 
 const Ventas = () => {
   const [salesList, setSalesList] = useState([]);
@@ -32,17 +33,15 @@ const Ventas = () => {
       const costs = list
         .map((item) => {
           let saleProfits = 0;
-          if (item.servicios.length) {
+          if (item.productos.length) {
             saleProfits = item.productos
               .map((producto) => producto.precioCosto * producto.cantidad)
               .reduce((productCost, currentCost) => productCost + currentCost);
           }
           if (item.servicios.length) {
             saleProfits += item.servicios
-              .map((services) => services.precioCosto * services.cantidad)
-              .reduce(
-                (servicesCost, currentCost) => servicesCost + currentCost,
-              );
+              .map((service) => service.precioCosto * service.cantidad)
+              .reduce((serviceCost, currentCost) => serviceCost + currentCost);
           }
           return saleProfits;
         })
@@ -79,10 +78,12 @@ const Ventas = () => {
           alignItems: 'center',
           backgroundColor: '#e6e8f1',
         }}>
-        {EmptyListImages.default()}
-        <Text style={{fontSize: 20, color: '#00000055'}}>
-          No hay registros de ventas este día...
-        </Text>
+        <View style={styles.emptyListContainer}>
+          {EmptyListImages.default()}
+          <Text style={styles.emptyListText}>
+            No hay registros de ventas este día...
+          </Text>
+        </View>
       </View>
     );
   }
@@ -97,6 +98,7 @@ const Ventas = () => {
           Ganancias del día: {moneyFormat(totalProfits)}
         </Text>
       </View>
+      <BannerAdvert />
       <ScrollView style={styles.salesContainer}>
         {salesList.map((venta) => (
           <RenderVentasCollection
@@ -143,5 +145,16 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: 16,
+  },
+  emptyListContainer: {
+    width: '90%',
+    height: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyListText: {
+    fontSize: 20, 
+    color: 'gray', 
+    position: 'absolute',
   },
 });
