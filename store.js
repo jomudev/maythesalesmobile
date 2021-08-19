@@ -1,5 +1,4 @@
 import {createStore} from 'redux';
-import {getTotal} from './src/components/mainFunctions';
 
 const initialState = {
   // Usual
@@ -20,10 +19,26 @@ const initialState = {
   email: null,
   negocio: null,
   telefono: null,
+  isNewUser: null,
+  secludedSales: [],
 };
 
 const reducers = (prevState, action) => {
   let newState = prevState;
+
+  if (action.type === 'SET_ASIDE_SALE') {
+    newState = {
+      ...prevState,
+      secludedSales: prevState.secludedSales.concat(action.data),
+    };
+  }
+
+  if (action.type === 'SET_IS_NEW_USER') {
+    newState = {
+      ...prevState,
+      isNewUser: action.data,
+    };
+  }
 
   if (action.type === 'SET_SEARCH') {
     newState = {

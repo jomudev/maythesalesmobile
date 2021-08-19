@@ -1,14 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
-import {Text, View, ScrollView} from 'react-native';
+import {Text, View, ToastAndroid, ScrollView} from 'react-native';
 import {TextBox, Button} from '../auxComponents';
 import {save} from './functions';
 import styles from './styles';
 import {useForm} from 'react-hook-form';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LoadingScreen from '../loadingScreen';
-import Snackbar from 'react-native-snackbar-component';
-import {handleSetSnackMessage} from '../mainFunctions';
 
 const initialFormValues = {
   nombre: '',
@@ -25,8 +23,6 @@ const AddServicio = ({navigation, route}) => {
   const {reset, register, handleSubmit, setValue, errors} = useForm({
     defaultValues: initialFormValues,
   });
-  const [snackMessage, setSnackMessage] = useState('Algo no anda bien.');
-  const [snackIsActive, setSnackIsActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [barcode, setBarcode] = useState();
   if (paramsBarcode && barcode !== paramsBarcode) {
@@ -41,26 +37,24 @@ const AddServicio = ({navigation, route}) => {
     register('precioCosto');
     register('precioVenta');
     register('precioMayoreo');
-  }, [register]);
+  }, []);
 
   const onSubmit = (data) => {
     setIsLoading(true);
     save('service', data)
       .then(() => {
-        handleSetSnackMessage(
+        ToastAndroid.show(
           'El registro se ha guardado con exito.',
-          setSnackIsActive,
-          setSnackMessage,
+          ToastAndroid.SHORT,
         );
         setIsLoading(false);
         reset();
       })
       .catch((err) => {
         setIsLoading(false);
-        handleSetSnackMessage(
+        ToastAndroid.show(
           '¡Ups! Ha ocurrido un problema al intentar guardar el registro',
-          setSnackIsActive,
-          setSnackMessage,
+          ToastAndroid.SHORT,
         );
         console.log('error trying save service ' + JSON.stringify(err));
       });
@@ -69,7 +63,9 @@ const AddServicio = ({navigation, route}) => {
   return (
     <View style={styles.form}>
       {isLoading ? <LoadingScreen /> : null}
-      <ScrollView>
+      <ScrollView
+        style={{width: '100%'}}
+        contentContainerStyle={{alignItems: 'center'}}>
         <View style={{flexDirection: 'row'}}>
           <TextBox
             editable={false}
@@ -133,18 +129,12 @@ const AddServicio = ({navigation, route}) => {
         />
         <TextBox
           placeholder="Descripción"
+          isTextArea={true}
           style={styles.txtInput}
           onChangeText={(text) => setValue('descripcion', text)}
         />
-      <Button action={handleSubmit(onSubmit)} />
+        <Button action={handleSubmit(onSubmit)} />
       </ScrollView>
-      <Snackbar
-        visible={snackIsActive}
-        textMessage={snackMessage}
-        actionText="OK"
-        actionHandler={() => setSnackIsActive(false)}
-        position="bottom"
-      />
     </View>
   );
 };

@@ -72,7 +72,7 @@ const fileStorage = (path) => {
   return storage().ref(`negocios/${authId}/${path}`);
 };
 
-const handleGetList = async (snap, list, setList) => {
+const handleGetList = async (snap, list) => {
   try {
     if (!snap) {
       return;
@@ -97,9 +97,10 @@ const handleGetList = async (snap, list, setList) => {
           break;
       }
     });
-    if (JSON.stringify(list) !== JSON.stringify(newList)) {
-      setList(newList);
-    }
+    return {
+      newList,
+      isItIdentical: JSON.stringify(list) === JSON.stringify(newList),
+    };
   } catch (err) {
     console.warn('error trying to get data list: ', err);
   }
@@ -122,7 +123,6 @@ async function update(collectionToUpdate, data) {
       ' ',
       err,
     );
-
   }
 }
 
@@ -168,23 +168,20 @@ function getPeriodsReports(list) {
   return newList;
 }
 
-
-//function that send a message and a true value to a snackbar hook
-function handleSetSnackMessage(message, activeSnackbarHook, setMessageHook) {
-  setMessageHook(message);
-  activeSnackbarHook(true);
-}
-
-function getTotal(lists, isWholesaler) {
-  let total = 0;
-  lists.forEach((list) => {
-    list.forEach((element) => {
-      total += isWholesaler
-        ? element.precioMayoreo * element.cantidad
-        : element.precioVenta * element.cantidad;
+function getTotal(collection, isWholesaler) {
+  try {
+    let total = 0;
+    collection.forEach((list) => {
+      list.forEach((listElement) => {
+        total += isWholesaler
+          ? listElement.precioMayoreo * listElement.cantidad
+          : listElement.precioVenta * listElement.cantidad;
+      });
     });
-  });
-  return total;
+    return total;
+  } catch (er) {
+    console.log(er);
+  }
 }
 
 async function shareImage(url, options) {
@@ -246,19 +243,19 @@ const verifyChanges = (list) => {
 };
 
 const postSale = async ({
-  productsCart,
-  servicesCart,
+  products,
+  services,
   total,
   client,
   wholesaler,
   saleState,
 }) => {
   try {
-    if (productsCart.length < 1 && servicesCart.length < 1) {
+    if (products.length < 1 && services.length < 1) {
       return;
     }
 
-    productsCart.forEach((item) => {
+    products.forEach((item) => {
       firestore().runTransaction(async (t) => {
         const productRef = db('productos').doc(item.id);
         return await t.get(productRef).then((doc) => {
@@ -281,8 +278,8 @@ const postSale = async ({
         id: timestamp,
         estado: saleState,
         timestamp: new Date(),
-        productos: productsCart,
-        servicios: servicesCart,
+        productos: products,
+        servicios: services,
         total,
         cliente: client ? {nombre: client.nombre, id: client.id} : null,
         mayorista: wholesaler
@@ -305,7 +302,6 @@ export {
   moneyFormat,
   update,
   getPeriodsReports,
-  handleSetSnackMessage,
   getTotal,
   shareImage,
   handleGetList,

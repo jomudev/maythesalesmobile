@@ -17,7 +17,7 @@ const ShowProveedorItem = ({data, closeIcon, editIcon, navigation}) => {
     register('telefono');
     register('email');
     register('descripcion');
-  });
+  }, []);
 
   const toggleEdit = () => {
     setEdit(!edit);

@@ -130,10 +130,10 @@ const saveWholesaler = (data) => {
 };
 
 const save = async (type, data) => {
-  const uid = (await getUserData()).currentUser.uid;
-  let productRef = storage().ref(`negocios/${uid}`).child('productos');
   try {
-    if (data.nombre !== '') {
+    const uid = (await getUserData()).currentUser.uid;
+    let productRef = storage().ref(`negocios/${uid}`).child('productos');
+    if (data.nombre !== '' && data.nombre !== null) {
       if (type === 'product') {
         if (data.image) {
           const imageDownloadURL = await saveProductImage(productRef, data);
@@ -142,7 +142,7 @@ const save = async (type, data) => {
         return await saveProduct(data);
       }
       if (type === 'client') {
-        return await saveClient(data);
+        return saveClient(data);
       }
       if (type === 'service') {
         return await saveService(data);

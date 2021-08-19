@@ -40,6 +40,7 @@ const PasswordInput = (props) => {
         <Icon
           name={icon}
           size={24}
+          color="#101e5a"
           style={authStyles.showPasswordIcon}
           onPress={toggleShowPassword}
         />
@@ -49,13 +50,21 @@ const PasswordInput = (props) => {
 };
 
 const TextBox = (props) => {
+  const {style, Ref, isTextArea} = props;
   return (
     <TextInput
-      maxFontSizeMultiplier={1.5}
-      allowFontScaling={false}
+      underlineColorAndroid="transparent"
       {...props}
-      underlineColorAndroid={'#c0c6dd'}
-      ref={props.Ref}
+      style={{
+        ...style,
+        backgroundColor: style ? style.backgroundColor || '#e6e8f1' : '#e6e8f1',
+        marginVertical: 4,
+        marginHorizontal: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        textAlignVertical: isTextArea ? 'top' : 'auto',
+      }}
+      ref={Ref}
     />
   );
 };
@@ -72,8 +81,9 @@ const Button = ({action, styles, text}) => {
 
 const RenderImage = (props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const {source, priority} = props;
 
-  if (props.source) {
+  if (source) {
     return (
       <>
         {isLoading ? (
@@ -86,8 +96,8 @@ const RenderImage = (props) => {
         <FastImage
           {...props}
           source={{
-            ...props.source,
-            priority: FastImage.priority.normal,
+            ...source,
+            priority: priority ? priority : FastImage.priority.normal,
             cache: FastImage.cacheControl.immutable,
           }}
           onLoadStart={() => setIsLoading(true)}
@@ -100,7 +110,7 @@ const RenderImage = (props) => {
   }
 };
 
-class Group extends React.Component{
+class Group extends React.Component {
   render() {
     return (
       <View
@@ -113,7 +123,7 @@ class Group extends React.Component{
       </View>
     );
   }
-};
+}
 
 const Select = ({items, onValueChange, selectedValue}) => {
   const [PickerValue, setPickerValue] = useState(selectedValue);
@@ -143,6 +153,12 @@ class ContextMenu extends React.Component {
     super();
     this.state = {
       show: false,
+      position: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      },
     };
   }
 
@@ -152,8 +168,9 @@ class ContextMenu extends React.Component {
     });
   };
 
-  show = () => {
+  show = (position) => {
     this.setState({
+      position: position || this.state.position,
       show: true,
     });
   };
@@ -174,12 +191,12 @@ class ContextMenu extends React.Component {
   };
 
   render() {
-    const {show} = this.state;
+    const {show, position} = this.state;
     const {onTouchOutside, optionsList} = this.props;
     return (
       <Modal
         visible={show}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={this.close}>
         <View
@@ -192,7 +209,8 @@ class ContextMenu extends React.Component {
           <View
             style={{
               ...styles.contextMenuOptions,
-              maxHeight: deviceHeight * 0.4,
+              top: position.y + position.height - 30,
+              right: 20,
             }}>
             {optionsList.map(({iconName, text, onPress}) => (
               <TouchableOpacity
@@ -215,6 +233,99 @@ class ContextMenu extends React.Component {
   }
 }
 
+const CarouselItem = ({data, selectedHelpMessage}) => (
+  <View
+    style={
+      selectedHelpMessage === data.id
+        ? styles.selectedCarouseItem
+        : styles.nonSelectedCarouselItem
+    }>
+    <View style={styles.helpMessageIconContainer}>
+      <Icon name={data.icon} size={24} style={styles.helpMessageIcon} />
+    </View>
+    <View style={styles.helpMessageTitleContainer}>
+      <Text style={styles.helpMessageTitleText}>{data.title}</Text>
+    </View>
+    <View style={styles.helpMessageBodyContainer}>
+      <Text style={styles.helpMessageBodyText}>{data.body}</Text>
+    </View>
+  </View>
+);
+
+const HelpMessage = ({helpMessages, closeHelpMassage}) => {
+  const [selectedHelpMessage, setSelectedHelpMessage] = useState(0);
+
+  const changeCarouselItem = (type, prevValue, setNewValue) => {
+    let newValue = 0;
+    if (type === 'next') {
+      newValue = prevValue + 1;
+    } else {
+      newValue = prevValue - 1;
+    }
+    setNewValue(newValue);
+  };
+
+  return (
+    <View style={styles.helpMessageContainer}>
+      <TouchableOpacity
+        style={styles.helpMessageCloseButton}
+        onPress={closeHelpMassage}>
+        <Icon name="close" size={24} color="red" />
+      </TouchableOpacity>
+      <Text style={{textAlign: 'center', top: 10, fontSize: 18}}>Tutorial</Text>
+      <View style={styles.helpMessageCarousel}>
+        {helpMessages.map((data) => (
+          <CarouselItem
+            selectedHelpMessage={selectedHelpMessage}
+            key={data.id}
+            data={data}
+          />
+        ))}
+        {selectedHelpMessage > 0 ? (
+          <TouchableOpacity
+            onPress={() =>
+              changeCarouselItem(
+                'prev',
+                selectedHelpMessage,
+                setSelectedHelpMessage,
+              )
+            }
+            style={{...styles.helpMessageCarouselArrow, left: 5}}>
+            <Icon name="chevron-left" size={48} color="#e6e8f1" />
+          </TouchableOpacity>
+        ) : null}
+        {selectedHelpMessage < helpMessages.length - 1 ? (
+          <TouchableOpacity
+            onPress={() =>
+              changeCarouselItem(
+                'next',
+                selectedHelpMessage,
+                setSelectedHelpMessage,
+              )
+            }
+            style={{...styles.helpMessageCarouselArrow, right: 5}}>
+            <Icon name="chevron-right" size={48} color="#e6e8f1" />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      <View style={styles.carouselIndicatorContainer}>
+        {helpMessages.map((data) => (
+          <Icon
+            key={data.id * -1}
+            name={
+              selectedHelpMessage === data.id
+                ? 'checkbox-blank-circle'
+                : 'checkbox-blank-circle-outline'
+            }
+            color="#101e5a"
+            size={16}
+          />
+        ))}
+      </View>
+    </View>
+  );
+};
+
 export {
   PasswordInput,
   TextBox,
@@ -223,12 +334,83 @@ export {
   Select,
   ContextMenu,
   Group,
+  HelpMessage,
 };
+
 const styles = StyleSheet.create({
   imageLoading: {
     alignSelf: 'center',
     position: 'absolute',
     top: '45%',
+  },
+  helpMessageContainer: {
+    zIndex: 1000,
+    elevation: 15,
+    position: 'absolute',
+    left: '50%',
+    bottom: '10%',
+    transform: [{translateX: -200}],
+    backgroundColor: 'white',
+    width: 400,
+    height: 400,
+    overflow: 'scroll',
+    borderRadius: 8,
+    flexDirection: 'column',
+  },
+  helpMessageTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  helpMessageCloseButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+  },
+  helpMessageTitleText: {
+    fontSize: 28,
+    textAlignVertical: 'bottom',
+    bottom: 0,
+  },
+  helpMessageBodyContainer: {
+    flex: 3,
+    paddingHorizontal: 56,
+  },
+  helpMessageBodyText: {
+    fontSize: 24,
+    textAlign: 'justify',
+  },
+  helpMessageIconContainer: {
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: '#e6e8f1',
+    padding: 16,
+    alignSelf: 'center',
+    marginTop: 16,
+  },
+  helpMessageIcon: {
+    fontSize: 100,
+    color: '#101e5a',
+  },
+  selectedCarouseItem: {
+    flex: 1,
+  },
+  carouselIndicatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    position: 'absolute',
+    bottom: 10,
+  },
+  nonSelectedCarouselItem: {
+    display: 'none',
+  },
+  helpMessageCarousel: {
+    position: 'relative',
+  },
+  helpMessageCarouselArrow: {
+    position: 'absolute',
+    top: '50%',
   },
   contextMenu: {
     paddingVertical: 8,
@@ -236,17 +418,19 @@ const styles = StyleSheet.create({
   },
   contextMenuOption: {
     padding: 8,
-    backgroundColor: '#e6e8f1',
+    backgroundColor: '#ffff',
     alignItems: 'center',
     flexDirection: 'row',
-    width: '90%',
+    width: '100%',
   },
   contextMenuOptions: {
     flexDirection: 'column',
-    backgroundColor: '#e6e8f1',
-    width: '100%',
+    backgroundColor: '#ffff',
+    width: '50%',
+    borderRadius: 2,
     paddingVertical: 8,
     elevation: 30,
+    position: 'absolute',
   },
   contextMenuIcons: {
     alignItems: 'center',

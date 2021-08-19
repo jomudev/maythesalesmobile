@@ -4,7 +4,6 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'white',
-    padding: 8,
   },
   label: {
     fontSize: 14,
@@ -13,7 +12,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   ListItem: {
-    alignItems: 'center',
     justifyContent: 'center',
     borderColor: '#ddd',
     paddingVertical: 4,
@@ -21,7 +19,9 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     position: 'absolute',
+    alignSelf: 'center',
     bottom: 0,
+    backgroundColor: '#e6e8f1',
   },
   listIcon: {
     flex: 1,

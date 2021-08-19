@@ -4,13 +4,12 @@ import {createMaterialBottomTabNavigator} from '@react-navigation/material-botto
 import HomeContainer from '../../containers/HomeContainer';
 import ReportesContainer from '../../containers/ReportesContainer';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {StatusBar, StyleSheet, View} from 'react-native';
-
+import {StatusBar} from 'react-native';
 const Tab = createMaterialBottomTabNavigator();
 
 const MainNavigator = () => {
   return (
-    <View style={{...StyleSheet.absoluteFillObject}}>
+    <>
       <StatusBar
         barStyle="dark-content"
         translucent={true}
@@ -28,18 +27,18 @@ const MainNavigator = () => {
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color}) => {
             let iconName;
-            if (route.name === "Inicio") {
+            if (route.name === 'Inicio') {
               iconName = focused ? 'home' : 'home-outline';
             } else if (route.name === 'Reportes') {
               iconName = focused ? 'clipboard-file' : 'clipboard-file-outline';
-            } 
-            return <Icon size={24} name={iconName} color={color} />
+            }
+            return <Icon size={24} name={iconName} color={color} />;
           },
         })}>
         <Tab.Screen name="Inicio" component={HomeContainer} />
         <Tab.Screen name="Reportes" component={ReportesContainer} />
       </Tab.Navigator>
-    </View>
+    </>
   );
 };
 

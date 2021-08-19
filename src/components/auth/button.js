@@ -15,13 +15,13 @@ export default Button;
 
 const styles = StyleSheet.create({
   button: {
-    width: 56,
-    height: 56,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 100,
+    borderRadius: 8,
     backgroundColor: '#101e5a',
     margin: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
 })

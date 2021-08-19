@@ -25,7 +25,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
     register('precioCosto');
     register('precioVenta');
     register('precioMayoreo');
-  });
+  }, []);
 
   const toggleEdit = () => {
     setEdit(!edit);

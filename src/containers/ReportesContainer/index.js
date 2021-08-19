@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import Index from '../../components/reportes';
-import ReporteMes from '../../components/reportes/reporteMes';
+import Index from '../../components/reports';
+import ReporteMes from '../../components/reports/reporteMes';
 
 const Stack = createStackNavigator();
 

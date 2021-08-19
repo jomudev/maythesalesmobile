@@ -19,9 +19,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   txtInput: {
-    width: '100%',
-    backgroundColor: 'white',
-    padding: 16,
+    width: '90%',
   },
   btn: {
     backgroundColor: '#101e5a',
@@ -42,6 +40,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#e6e8f1',
     height: 200,
+    width: '100%',
   },
   setImageButton: {
     alignContent: 'center',

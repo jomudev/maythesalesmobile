@@ -17,7 +17,7 @@ const ShowClienteItem = ({data, editIcon, closeIcon, navigation}) => {
     register('telefono');
     register('email');
     register('descripcion');
-  }, [register]);
+  }, []);
 
   const toggleEdit = () => {
     setEdit(!edit);

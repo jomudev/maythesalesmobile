@@ -1,14 +1,19 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
-import {View, Text, ScrollView, TouchableOpacity, Image} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  ToastAndroid,
+} from 'react-native';
 import {TextBox, Button} from '../auxComponents';
 import {save} from './functions';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useForm} from 'react-hook-form';
-import Snackbar from 'react-native-snackbar-component';
 import ImagePicker from 'react-native-image-crop-picker';
-import {handleSetSnackMessage} from '../mainFunctions';
 import LoadingScreen from '../loadingScreen';
 
 const defaultValuesForm = {
@@ -27,8 +32,6 @@ const AddProducto = ({navigation, route}) => {
   const {register, handleSubmit, errors, watch, reset, setValue} = useForm({
     defaultValues: defaultValuesForm,
   });
-  const [snackIsActive, setSnackIsActive] = useState(false);
-  const [snackMessage, setSnackMessage] = useState('Algo no anda bien.');
   const [image, setImage] = useState(null);
   const [barcode, setBarcode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +47,7 @@ const AddProducto = ({navigation, route}) => {
     register('precioVenta');
     register('precioMayoreo');
     register('descripcion');
-  }, [register, route.params]);
+  }, []);
 
   if (paramsBarcode && barcode !== paramsBarcode) {
     setBarcode(paramsBarcode);
@@ -64,18 +67,16 @@ const AddProducto = ({navigation, route}) => {
       barcode: barcode,
     })
       .then(() => {
-        handleSetSnackMessage(
+        ToastAndroid.show(
           'El registro se ha guardado con exito.',
-          setSnackIsActive,
-          setSnackMessage,
+          ToastAndroid.SHORT,
         );
         setIsLoading(false);
       })
       .catch(() => {
-        handleSetSnackMessage(
+        ToastAndroid.show(
           '¡Ups! Ha ocurrido un problema al intentar guardar el registro',
-          setSnackIsActive,
-          setSnackMessage,
+          ToastAndroid.SHORT,
         );
         setIsLoading(false);
       });
@@ -104,7 +105,9 @@ const AddProducto = ({navigation, route}) => {
     <>
       {isLoading ? <LoadingScreen /> : null}
       <View style={styles.form}>
-        <ScrollView>
+        <ScrollView
+          style={{width: '100%'}}
+          contentContainerStyle={{alignItems: 'center'}}>
           <View style={styles.imageContainer}>
             <TouchableOpacity
               style={styles.setImageButton}
@@ -123,6 +126,9 @@ const AddProducto = ({navigation, route}) => {
               )}
             </TouchableOpacity>
           </View>
+          <Text style={styles.screenDescription}>
+            Agrega tus productos para poder realizar tus ventas
+          </Text>
           <View style={{flexDirection: 'row', padding: 8}}>
             <TextBox
               editable={false}
@@ -196,19 +202,13 @@ const AddProducto = ({navigation, route}) => {
             numberOfLines={4}
             multiline={true}
             returnKeyType="none"
-            style={[styles.txtInput, {textAlignVertical: 'top'}]}
+            style={styles.txtInput}
+            isTextArea={true}
             onChangeText={(text) => setValue('descripcion', text)}
             value={watch('descripcion')}
           />
           <Button action={handleSubmit(onSubmit)} />
         </ScrollView>
-        <Snackbar
-          visible={snackIsActive}
-          textMessage={snackMessage}
-          actionText="OK"
-          actionHandler={() => setSnackIsActive(false)}
-          position="bottom"
-        />
       </View>
     </>
   );

@@ -1,17 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 
-import React, {useEffect, useState, useRef} from 'react';
-import {View, StatusBar, TouchableOpacity, Text} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {TouchableOpacity, ToastAndroid, Text, View} from 'react-native';
 import Button from './button';
 import auth from '@react-native-firebase/auth';
 import styles from './authStyles';
 import {useForm} from 'react-hook-form';
-import Snackbar from 'react-native-snackbar-component';
-import Wave from '../../assets/AdditionalMedia/wave.svg';
-import Logo from '../../assets/AdditionalMedia/Logo.svg';
 import {PasswordInput, TextBox} from '../auxComponents';
-import LoadingScreen from '../loadingScreen';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ErrorMessage = ({text}) => {
   return (
@@ -21,23 +16,18 @@ const ErrorMessage = ({text}) => {
   );
 };
 
-const Login = ({navigation}) => {
+const Login = ({setInitializing, changeScreen}) => {
   const {handleSubmit, register, setValue, watch, errors} = useForm();
-  const [initializing, setInitializing] = useState(false);
-  const [snackIsVisible, setSnackIsVisible] = useState(false);
-  const [snackMessage, setSnackMessage] = useState(null);
   const passwordRef = useRef();
 
   useEffect(() => {
     register('email', {required: true});
     register('password', {required: true});
-  }, [register]);
+  }, []);
 
   const onSubmit = async (data) => {
     setInitializing(true);
     if (!data.email || !data.password) {
-      setSnackMessage('Debes rellenar ambos campos para poder proseguir');
-      setSnackIsVisible(true);
       setInitializing(false);
     } else {
       const containArroba = data.email.match(/[@]/g);
@@ -49,8 +39,7 @@ const Login = ({navigation}) => {
         containDot.length > 0;
 
       if (!isValidEmail) {
-        setSnackMessage('Correo Electrónico invalido');
-        setSnackIsVisible(true);
+        ToastAndroid.show('Correo Electrónico invalido', ToastAndroid.LONG);
         setInitializing(false);
       } else {
         await auth()
@@ -70,30 +59,17 @@ const Login = ({navigation}) => {
                   '¡Ups! Ha ocurrido algo inesperado, verifica tu conexión a internet e intenta de nuevo, ¡Los extraterrestres están haciendo de las suyas otra vez!';
                 break;
             }
-            setSnackMessage(msg);
-            setSnackIsVisible(true);
+            ToastAndroid.show(msg, ToastAndroid.LONG);
             setInitializing(false);
           });
       }
     }
   };
   return (
-    <View style={styles.mainContainer}>
-      {initializing ? (
-        <LoadingScreen text="Cargando datos del usuario" />
-      ) : null}
-      <StatusBar
-        barStyle="light-content"
-        translucent={true}
-        backgroundColor="rgba(0,0,0,0)"
-      />
-      <Wave style={styles.wave} />
-      <View style={styles.logoContainer}>
-        <Logo style={styles.logo} />
-      </View>
+    <React.Fragment>
       <Text style={styles.welcomeTitle}>Inicia sesión</Text>
       <View style={styles.textInputContainer}>
-        <Text style={styles.label}>Mi correo:</Text>
+        <Text style={styles.label}>Correo Electrónico:</Text>
         <TextBox
           style={styles.textInput}
           onChangeText={(text) => setValue('email', text)}
@@ -108,7 +84,7 @@ const Login = ({navigation}) => {
         {errors.email && (
           <ErrorMessage text="Debes proporcionar el correo de inicio de sesion" />
         )}
-        <Text style={styles.label}>Mi contraseña:</Text>
+        <Text style={styles.label}>Contraseña:</Text>
         <PasswordInput
           style={styles.passwordInput}
           placeholder="contraseña"
@@ -116,34 +92,23 @@ const Login = ({navigation}) => {
           value={watch('password')}
           onChangeText={(text) => setValue('password', text)}
           passRef={passwordRef}
+          onSubmitEditing={handleSubmit(onSubmit)}
         />
         {errors.password && (
-          <ErrorMessage text="debes proporcionar la contraseña" />
+          <ErrorMessage text="Debes proporcionar la contraseña" />
         )}
-        <Button onPress={handleSubmit(onSubmit)}>
-          <Icon
-            name="account-key-outline"
-            size={36}
-            maxFontSizeMultiplier={1.5}
-            color="white"
-          />
-        </Button>
-        <TouchableOpacity onPress={() => navigation.navigate('signIn')}>
-          <Text style={styles.changeScreen}>
+        <TouchableOpacity
+          style={styles.changeScreen}
+          onPress={() => changeScreen('toSignIn')}>
+          <Text style={styles.changeScreenText}>
             ¿No tienes cuenta? Registrarse
           </Text>
         </TouchableOpacity>
+        <Button onPress={handleSubmit(onSubmit)}>
+          <Text style={{color: 'white', fontSize: 18}}>Iniciar sesión</Text>
+        </Button>
       </View>
-      <Snackbar
-        visible={snackIsVisible}
-        textMessage={snackMessage}
-        actionHandler={() => {
-          setSnackIsVisible(false);
-        }}
-        actionText="Ok"
-        duration={Snackbar.LENGTH_SHORT}
-      />
-    </View>
+    </React.Fragment>
   );
 };
 

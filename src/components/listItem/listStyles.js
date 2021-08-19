@@ -7,20 +7,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomColor: '#b4b6be',
   },
-  contextMenuBtn: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-  },
   contextMenuIcon: {
+    flex: 1,
     textAlign: 'center',
-    padding: 8,
     textAlignVertical: 'center',
-    alignSelf: 'flex-end',
+    alignSelf: 'center',
   },
   venta: {
     marginTop: 8,
-    padding: 8,
+    paddingHorizontal: 8,
     backgroundColor: '#fff',
   },
   totalContainer: {
@@ -49,12 +44,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   ventaHeader: {
-    borderBottomColor: '#b4b6be',
-    paddingVertical: 8,
+    flexDirection: 'row',
+    padding: 16,
+  },
+  saleStateView: {
+    height: 4,
   },
   saleState: {
     width: 100,
-    borderRadius: 100,
+    flex: 10,
     padding: 8,
     alignItems: 'center',
   },

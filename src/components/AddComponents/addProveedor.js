@@ -1,36 +1,29 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
-import {View, Text, ScrollView} from 'react-native';
+import {View, Text, ScrollView, ToastAndroid} from 'react-native';
 import {TextBox, Button} from '../auxComponents';
 import styles from './styles';
 import {save} from './functions';
 import {useForm} from 'react-hook-form';
-import {handleSetSnackMessage} from '../mainFunctions';
-import Snackbar from 'react-native-snackbar-component';
 import LoadingScreen from '../loadingScreen';
 
 const AddProveedor = () => {
   const {register, handleSubmit, errors, setValue, watch, reset} = useForm();
-  const [snackIsActive, setSnackIsActive] = useState(false);
-  const [snackMessage, setSnackMessage] = useState('Algo no anda bien.');
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = (data) => {
     setIsLoading(true);
     save('provider', data)
       .then(() => {
-        handleSetSnackMessage(
-          'El registro se ha guardado con exito',
-          setSnackIsActive,
-          setSnackMessage,
+        ToastAndroid.show(
+          'El registro se ha guardado con exito', ToastAndroid.SHORT
         );
         setIsLoading(false);
       })
       .catch(() => {
-        handleSetSnackMessage(
+        ToastAndroid.show(
           '¡Ups! Ha ocurrido un error al intentar guardar el registro.',
-          setSnackIsActive,
-          setSnackMessage,
+          ToastAndroid.SHORT,
         );
         setIsLoading(false);
       });
@@ -42,12 +35,14 @@ const AddProveedor = () => {
     register('telefono');
     register('email');
     register('descripcion');
-  }, [register]);
+  }, []);
 
   return (
     <View style={styles.form}>
       {isLoading ? <LoadingScreen /> : null}
-      <ScrollView>
+      <ScrollView
+        style={{width: '100%'}}
+        contentContainerStyle={{alignItems: 'center'}}>
         <TextBox
           placeholder="Nombre*"
           autoCapitalize="words"
@@ -74,18 +69,14 @@ const AddProveedor = () => {
         <TextBox
           placeholder="Descripción"
           value={watch('descripcion')}
+          isTextArea={true}
+          numberOfLines={4}
+          multiline={true}
           style={styles.txtInput}
           onChangeText={(text) => setValue('descripcion', text)}
         />
         <Button action={handleSubmit(onSubmit)} />
       </ScrollView>
-      <Snackbar
-        visible={snackIsActive}
-        textMessage={snackMessage}
-        actionText="OK"
-        actionHandler={() => setSnackIsActive(false)}
-        position="bottom"
-      />
     </View>
   );
 };

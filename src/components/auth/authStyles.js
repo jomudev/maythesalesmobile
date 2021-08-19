@@ -1,38 +1,42 @@
 import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
-  mainContainer: {
+  lightMainContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#e6e8f1',
+    flexDirection: 'column',
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  darkMainContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'black',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  wave: {
+  coverPhoto: {
+    width: '100%',
+    height: '100%',
     flex: 1,
-    position: 'absolute',
-    transform: [{scaleY: 2}],
-    top: '-40%',
+    top: 0,
+  },
+  form: {
+    width: '100%',
+    alignItems: 'center',
   },
   welcomeTitle: {
-    position: 'relative',
     fontSize: 32,
     fontWeight: 'bold',
     color: 'black',
-    top: '-8%',
-  },
-  logoContainer: {
-    top: '-8%',
-    width: '50%',
-    height: '20%'
   },
   logo: {
-    height: '100%',
+    height: '80%',
+    marginTop: 30,
     width: '100%',
     resizeMode: 'center',
   },
   textInputContainer: {
-    top: '-8%',
     width: '80%',
     height: '30%',
   },
@@ -44,9 +48,13 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 7,
   },
-  changeScreen: {
+  changeScreenText: {
     textAlign: 'center',
-  }
+  },
+  changeScreen: {
+    height: 50,
+    justifyContent: 'center',
+  },
 });
 
 export default styles;

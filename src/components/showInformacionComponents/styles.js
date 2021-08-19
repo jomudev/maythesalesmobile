@@ -263,9 +263,14 @@ const styles = StyleSheet.create({
   },
   emptyListText: {
     textAlign: 'center',
-    fontSize: 20, 
-    color: 'gray', 
+    fontSize: 20,
+    color: 'gray',
     position: 'absolute',
+  },
+  listLetter: {
+    margin: 8,
+    color: 'gray',
+    fontWeight: 'bold',
   },
 });
 

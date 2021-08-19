@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
 import {update, moneyFormat} from '../mainFunctions';
 import {useForm} from 'react-hook-form';
-import {TextBox, Button} from '../auxComponents';
+import {TextBox} from '../auxComponents';
 
 const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
   const [edit, setEdit] = useState(false);
@@ -21,7 +21,7 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
     register('precioCosto');
     register('precioVenta');
     register('precioMayoreo');
-  });
+  }, []);
 
   const toggleEdit = () => {
     setEdit(!edit);

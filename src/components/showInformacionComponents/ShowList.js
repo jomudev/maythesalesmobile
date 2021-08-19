@@ -5,24 +5,10 @@ import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ListItem from './listItem';
 import EmptyListImage from '../emptyListImage';
-import {
-  moneyFormat,
-  phoneFormat,
-  handleGetList,
-  filterItems,
-  db,
-} from '../mainFunctions';
+import {moneyFormat, phoneFormat, handleGetList, db} from '../mainFunctions';
 import store from '../../../store';
 import EmptyListImages from '../emptyListImage';
 import LoadingScreen from '../loadingScreen';
-
-const renderItem = (list, search) => {
-  if (search.trim() !== '') {
-    return list.filter((item) => filterItems(item, search));
-  } else {
-    return list;
-  }
-};
 
 const scrollEvent = (
   scrollPosition,
@@ -47,19 +33,57 @@ const scrollEvent = (
   }
 };
 
+const sortAndSetList = async (list, search) => {
+  try {
+    let newList = list;
+    if (search && search.trim() !== '') {
+      newList = newList.filter((item) =>
+        item.nombre.toUpperCase().includes(search.toUpperCase()),
+      );
+    }
+    newList = list.sort((p, n) => {
+      // p = prevLetter, n = nextLetter
+      p = p.nombre.split('')[0];
+      n = n.nombre.split('')[0];
+      if (p > n) {
+        return 1;
+      } else if (p < n) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
+    return {
+      alphabet: [...new Set(newList.map((item) => item.nombre.split('')[0]))],
+      collection: newList,
+    };
+  } catch (err) {
+    console.log('Error al ordenar la colección de datos', err);
+  }
+};
+
 function ShowClientes({navigation, route}) {
   let [clientsList, setClients] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [alphabet, setAlphabet] = useState([]);
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('clientes')
         .onSnapshot((snap) =>
-          handleGetList(snap, clientsList, setClients).then(() => {
+          handleGetList(snap, clientsList).then((res) => {
+            if (!res.isItIdentical) {
+              sortAndSetList(res.newList, store.getState().search).then(
+                (sorted) => {
+                  setClients(sorted.collection);
+                  setAlphabet(sorted.alphabet);
+                },
+              );
+            }
             if (loading) {
               setLoading(false);
             }
@@ -67,11 +91,12 @@ function ShowClientes({navigation, route}) {
         );
 
       const searchSubscriber = store.subscribe(() => {
-        const stateSearch = store.getState().search;
-        if (search !== stateSearch) {
-          setSearch(stateSearch);
-        }
+        sortAndSetList(clientsList, store.getState().search).then((sorted) => {
+          setClients(sorted.collection);
+          setAlphabet(sorted.alphabet);
+        });
       });
+
       return () => {
         unsubscribe();
         searchSubscriber();
@@ -79,7 +104,7 @@ function ShowClientes({navigation, route}) {
     } catch (err) {
       console.warn('error al intentar obtener los clientes ', err);
     }
-  }, [clientsList, loading, search]);
+  }, []);
   if (loading) {
     return <LoadingScreen />;
   }
@@ -96,23 +121,33 @@ function ShowClientes({navigation, route}) {
           )
         }>
         {clientsList.length > 0 ? (
-          renderItem(clientsList, search).map((item) => {
-            const subtitles = [];
-            if (item.email) {
-              subtitles.push(`email: ${item.email}`);
-            }
-            if (item.telefono) {
-              subtitles.push(`cel: ${item.telefono}`);
-            }
+          alphabet.map((letter) => {
+            const clients = clientsList.filter(
+              (item) => item.nombre.split('')[0].toUpperCase() === letter,
+            );
             return (
-              <ListItem
-                key={Math.random()}
-                data={item}
-                title={`${item.nombre}`}
-                subtitle={subtitles}
-                navigation={navigation}
-                route={route}
-              />
+              <View key={letter}>
+                <Text style={styles.listLetter}>{letter}</Text>
+                {clients.map((item) => {
+                  const subtitles = [];
+                  if (item.email) {
+                    subtitles.push(`email: ${item.email}`);
+                  }
+                  if (item.telefono) {
+                    subtitles.push(`cel: ${item.telefono}`);
+                  }
+                  return (
+                    <ListItem
+                      key={Math.random()}
+                      data={item}
+                      title={`${item.nombre}`}
+                      subtitle={subtitles}
+                      navigation={navigation}
+                      route={route}
+                    />
+                  );
+                })}
+              </View>
             );
           })
         ) : (
@@ -134,18 +169,28 @@ function ShowClientes({navigation, route}) {
 }
 
 function ShowProductos({navigation, route}) {
+  const [allProducts, setAllProducts] = useState([]);
   const [productsList, setProducts] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
-  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [alphabet, setAlphabet] = useState([]);
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('productos')
         .onSnapshot((snap) =>
-          handleGetList(snap, productsList, setProducts).then(() => {
+          handleGetList(snap, productsList).then((res) => {
+            if (!res.isItIdentical) {
+              sortAndSetList(res.newList, store.getState().search).then(
+                (sorted) => {
+                  setAllProducts(res.newList);
+                  setProducts(sorted.collection);
+                  setAlphabet(sorted.alphabet);
+                },
+              );
+            }
             if (loading) {
               setLoading(false);
             }
@@ -153,10 +198,10 @@ function ShowProductos({navigation, route}) {
         );
 
       const searchSubscriber = store.subscribe(() => {
-        const stateSearch = store.getState().search;
-        if (search !== stateSearch) {
-          setSearch(stateSearch);
-        }
+        sortAndSetList(allProducts, store.getState().search).then((sorted) => {
+          setProducts(sorted.collection);
+          setAlphabet(sorted.alphabet);
+        });
       });
       return () => {
         unsubscribe();
@@ -165,7 +210,7 @@ function ShowProductos({navigation, route}) {
     } catch (err) {
       console.warn('error al intentar obtener los datos de productos ', err);
     }
-  }, [loading, productsList, search]);
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;
@@ -182,26 +227,38 @@ function ShowProductos({navigation, route}) {
             setScrollPosition,
           )
         }>
-        {productsList.length > 0 ? (
-          renderItem(productsList, search).map((item) => {
-            let subtitles = [`${moneyFormat(item.precioVenta)}`];
-            if (item.marca) {
-              subtitles.push(item.marca);
-            }
-            if (item.descripcion) {
-              subtitles.push(item.descripcion);
-            }
-            return (
-              <ListItem
-                key={Math.random()}
-                data={item}
-                type="productos"
-                title={`${item.nombre}`}
-                subtitle={subtitles}
-                navigation={navigation}
-                route={route}
-              />
+        {alphabet.length > 0 ? (
+          alphabet.map((letter) => {
+            const products = productsList.filter(
+              (product) =>
+                product.nombre.toUpperCase().split('')[0] ===
+                letter.toUpperCase(),
             );
+            return products.length > 0 ? (
+              <View key={letter}>
+                <Text style={styles.listLetter}>{letter}</Text>
+                {products.map((item) => {
+                  let subtitles = [`${moneyFormat(item.precioVenta)}`];
+                  if (item.marca) {
+                    subtitles.push(item.marca);
+                  }
+                  if (item.descripcion) {
+                    subtitles.push(item.descripcion);
+                  }
+                  return (
+                    <ListItem
+                      key={Math.random()}
+                      data={item}
+                      type="productos"
+                      title={`${item.nombre}`}
+                      subtitle={subtitles}
+                      navigation={navigation}
+                      route={route}
+                    />
+                  );
+                })}
+              </View>
+            ) : null;
           })
         ) : (
           <View style={styles.emptyListContainer}>
@@ -225,7 +282,7 @@ function ShowServicios({navigation, route}) {
   let [servicesList, setServices] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
-  const [search, setSearch] = useState('');
+  const [alphabet, setAlphabet] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -233,7 +290,15 @@ function ShowServicios({navigation, route}) {
       const unsubscribe = db()
         .collection('servicios')
         .onSnapshot((snap) =>
-          handleGetList(snap, servicesList, setServices).then(() => {
+          handleGetList(snap, servicesList, setServices).then((res) => {
+            if (!res.isItIdentical) {
+              sortAndSetList(
+                res.newList,
+                setServices,
+                store.getState().search,
+                setAlphabet,
+              );
+            }
             if (loading) {
               setLoading(false);
             }
@@ -241,10 +306,12 @@ function ShowServicios({navigation, route}) {
         );
 
       const searchSubscriber = store.subscribe(() => {
-        const stateSearch = store.getState().search;
-        if (search !== stateSearch) {
-          setSearch(stateSearch);
-        }
+        sortAndSetList(
+          servicesList,
+          setServices,
+          store.getState().search,
+          setAlphabet,
+        );
       });
       return () => {
         unsubscribe();
@@ -256,7 +323,7 @@ function ShowServicios({navigation, route}) {
         err,
       );
     }
-  }, [loading, search, servicesList]);
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;
@@ -274,20 +341,30 @@ function ShowServicios({navigation, route}) {
           )
         }>
         {servicesList.length > 0 ? (
-          renderItem(servicesList, search).map((item) => {
-            const subtitles = [];
-            if (item.descripcion) {
-              subtitles.push(item.descripcion);
-            }
+          alphabet.map((letter) => {
+            const services = servicesList.filter(
+              (item) => item.nombre.split('')[0].toUpperCase() === letter,
+            );
             return (
-              <ListItem
-                key={Math.random()}
-                data={item}
-                title={`${item.nombre} ${moneyFormat(item.precioVenta)}`}
-                subtitle={subtitles}
-                navigation={navigation}
-                route={route}
-              />
+              <View key={letter}>
+                <Text style={styles.listLetter}>{letter}</Text>
+                {services.map((item) => {
+                  const subtitles = [];
+                  if (item.descripcion) {
+                    subtitles.push(item.descripcion);
+                  }
+                  return (
+                    <ListItem
+                      key={Math.random()}
+                      data={item}
+                      title={`${item.nombre} ${moneyFormat(item.precioVenta)}`}
+                      subtitle={subtitles}
+                      navigation={navigation}
+                      route={route}
+                    />
+                  );
+                })}
+              </View>
             );
           })
         ) : (
@@ -313,24 +390,34 @@ function ShowProveedores({navigation, route}) {
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [alphabet, setAlphabet] = useState([]);
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('proveedores')
         .onSnapshot((snap) =>
-          handleGetList(snap, providersList, setProviders).then(() => {
+          handleGetList(snap, providersList, setProviders).then((res) => {
+            if (!res.isItIdentical) {
+              sortAndSetList(
+                res.newList,
+                setProviders,
+                store.getState().search,
+                setAlphabet,
+              );
+            }
             if (loading) {
               setLoading(false);
             }
           }),
         );
       const searchSubscriber = store.subscribe(() => {
-        const stateSearch = store.getState().search;
-        if (search !== stateSearch) {
-          setSearch(stateSearch);
-        }
+        sortAndSetList(
+          providersList,
+          setProviders,
+          store.getState().search,
+          setAlphabet,
+        );
       });
       return () => {
         unsubscribe();
@@ -339,7 +426,7 @@ function ShowProveedores({navigation, route}) {
     } catch (err) {
       console.warn('error al intentar obtener los datos de proveedores ', err);
     }
-  }, [loading, providersList, search]);
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;
@@ -357,23 +444,33 @@ function ShowProveedores({navigation, route}) {
           )
         }>
         {providersList.length > 0 ? (
-          renderItem(providersList, search).map((item) => {
-            let subtitles = [];
-            if (item.email) {
-              subtitles = subtitles.concat(item.email);
-            }
-            if (item.telefono) {
-              subtitles = subtitles.concat(phoneFormat(item.telefono));
-            }
+          alphabet.map((letter) => {
+            const providers = providersList.filter(
+              (item) => item.nombre.split('')[0].toUpperCase() === letter,
+            );
             return (
-              <ListItem
-                key={Math.random()}
-                data={item}
-                title={`${item.nombre}`}
-                subtitle={subtitles.map((subtitle) => `${subtitle}`)}
-                navigation={navigation}
-                route={route}
-              />
+              <View key={letter}>
+                <Text style={styles.listLetter}>{letter}</Text>
+                {providers.map((item) => {
+                  const subtitles = [];
+                  if (item.email) {
+                    subtitles.push(`email: ${item.email}`);
+                  }
+                  if (item.telefono) {
+                    subtitles.push(`cel: ${item.telefono}`);
+                  }
+                  return (
+                    <ListItem
+                      key={Math.random()}
+                      data={item}
+                      title={`${item.nombre}`}
+                      subtitle={subtitles}
+                      navigation={navigation}
+                      route={route}
+                    />
+                  );
+                })}
+              </View>
             );
           })
         ) : (
@@ -399,24 +496,34 @@ const ShowWholesalers = ({navigation, route}) => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [alphabet, setAlphabet] = useState([]);
 
   useEffect(() => {
     try {
       const unsubscribe = db()
         .collection('mayoristas')
         .onSnapshot((snap) =>
-          handleGetList(snap, wholesalersList, setWholesaler).then(() => {
+          handleGetList(snap, wholesalersList, setWholesaler).then((res) => {
+            if (!res.isItIdentical) {
+              sortAndSetList(
+                res.newList,
+                setWholesaler,
+                store.getState().search,
+                setAlphabet,
+              );
+            }
             if (loading) {
               setLoading(false);
             }
           }),
         );
       const searchSubscriber = store.subscribe(() => {
-        const stateSearch = store.getState().search;
-        if (search !== stateSearch) {
-          setSearch(stateSearch);
-        }
+        sortAndSetList(
+          wholesalersList,
+          setWholesaler,
+          store.getState().search,
+          setAlphabet,
+        );
       });
       return () => {
         unsubscribe();
@@ -425,7 +532,7 @@ const ShowWholesalers = ({navigation, route}) => {
     } catch (err) {
       console.warn('error al intentar los registros de mayoristas', err);
     }
-  }, [search, wholesalersList]);
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;
@@ -443,23 +550,33 @@ const ShowWholesalers = ({navigation, route}) => {
           )
         }>
         {wholesalersList.length > 0 ? (
-          renderItem(wholesalersList, search).map((item) => {
-            let subtitles = [];
-            if (item.email) {
-              subtitles = subtitles.concat(item.email);
-            }
-            if (item.telefono) {
-              subtitles = subtitles.concat(phoneFormat(item.telefono));
-            }
+          alphabet.map((letter) => {
+            const wholesalers = wholesalersList.filter(
+              (item) => item.nombre.toUpperCase().split('')[0] === letter,
+            );
             return (
-              <ListItem
-                key={Math.random()}
-                data={item}
-                title={`${item.nombre}`}
-                subtitle={subtitles.map((subtitle) => `${subtitle}`)}
-                navigation={navigation}
-                route={route}
-              />
+              <View key={letter}>
+                <Text style={styles.listLetter}>{letter}</Text>
+                {wholesalers.map((item) => {
+                  let subtitles = [];
+                  if (item.email) {
+                    subtitles = subtitles.concat(item.email);
+                  }
+                  if (item.telefono) {
+                    subtitles = subtitles.concat(phoneFormat(item.telefono));
+                  }
+                  return (
+                    <ListItem
+                      key={Math.random()}
+                      data={item}
+                      title={`${item.nombre}`}
+                      subtitle={subtitles.map((subtitle) => `${subtitle}`)}
+                      navigation={navigation}
+                      route={route}
+                    />
+                  );
+                })}
+              </View>
             );
           })
         ) : (

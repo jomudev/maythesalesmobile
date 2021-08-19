@@ -33,16 +33,14 @@ const addServiceToCart = (data) => {
 };
 
 const addClientToCart = (data) => {
-  if (data.id !== store.getState().cartClient) {
-    store.dispatch({
-      type: 'SET_CLIENT',
-      data,
-    });
-  }
+  store.dispatch({
+    type: 'SET_CLIENT',
+    data,
+  });
 };
 
 const addWholesalerToCart = (data) => {
-  if (data.id !== store.getState().cartClient) {
+  if (data.id !== store.getState().cartWholesaler) {
     store.dispatch({
       type: 'SET_WHOLESALER',
       data,

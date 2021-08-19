@@ -3,8 +3,11 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   form: {
     maxWidth: 700,
-    padding: 8,
+    paddingHorizontal: 16,
     backgroundColor: 'white',
+  },
+  formGroup: {
+    marginVertical: 8,
   },
   header: {
     elevation: 0,
@@ -20,11 +23,7 @@ const styles = StyleSheet.create({
   },
   findProductsList: {
     alignSelf: 'center',
-    width: '88%',
-    padding: 0,
-    backgroundColor: '#e6e8f1',
-    borderRadius: 4,
-    maxHeight: 120,
+    width: '100%',
   },
   emptySearch: {
     padding: 8,
@@ -38,25 +37,33 @@ const styles = StyleSheet.create({
   Icon: {
     textAlign: 'center',
     textAlignVertical: 'center',
-    flex: 1,
     fontSize: 32,
     color: '#101e5a',
   },
   itemList: {
     padding: 8,
-    flexDirection: 'row',
+    width: 80,
+    flexDirection: 'column',
+    alignItems: 'center',
     overflow: 'hidden',
+    borderRadius: 8,
+    margin: 4,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedItemList: {
+    borderColor: '#9CB1D3',
+    backgroundColor: '#EEF0FC',
   },
   itemImage: {
-    width: 32,
-    height: 32,
+    width: 48,
+    height: 48,
     resizeMode: 'cover',
     marginRight: 8,
-    borderRadius: 4,
+    borderRadius: 100,
   },
   txtInput: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
     margin: 8,
     flex: 9,
     fontSize: 12,

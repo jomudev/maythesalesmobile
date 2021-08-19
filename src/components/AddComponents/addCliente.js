@@ -1,39 +1,33 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
-import {ScrollView, View, Text} from 'react-native';
+import {ScrollView, View, Text, ToastAndroid} from 'react-native';
 import {TextBox, Button} from '../auxComponents';
 import {save} from './functions';
 import styles from './styles';
-import Snackbar from 'react-native-snackbar-component';
-import {handleSetSnackMessage} from '../mainFunctions';
 import {useForm} from 'react-hook-form';
 import LoadingScreen from '../loadingScreen';
 
 const AddCliente = () => {
   const {register, handleSubmit, errors, setValue, watch, reset} = useForm();
-  const [snackMessage, setSnackMessage] = useState('Algo no anda bien.');
-  const [snackIsActive, setSnackIsActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = (data) => {
     setIsLoading(true);
     save('client', data)
       .then(() => {
-        handleSetSnackMessage(
+        ToastAndroid.show(
           'El registro se ha guardado con exito.',
-          setSnackIsActive,
-          setSnackMessage,
+          ToastAndroid.SHORT,
         );
         setIsLoading(false);
         reset();
       })
       .catch((err) => {
         console.warn('err saving client ' + JSON.stringify(err));
-        handleSetSnackMessage(
+        ToastAndroid.show(
           'Error al intentar registrar el cliente, intentelo de nuevo.',
-          setSnackIsActive,
-          setSnackMessage,
-        )
+          ToastAndroid.SHORT,
+        );
         setIsLoading(false);
       });
   };
@@ -48,7 +42,13 @@ const AddCliente = () => {
   return (
     <View style={styles.form}>
       {isLoading ? <LoadingScreen /> : null}
-      <ScrollView>
+      <ScrollView
+        style={{width: '100%'}}
+        contentContainerStyle={{alignItems: 'center'}}>
+        <Text style={styles.screenDescription}>
+          Agrega tus clientes para poder tener un mejor control de a quién le
+          vendes
+        </Text>
         <TextBox
           placeholder="Nombres*"
           value={watch('nombre')}
@@ -74,20 +74,15 @@ const AddCliente = () => {
         />
         <TextBox
           placeholder="Descripción"
+          numberOfLines={4}
           multiline={true}
           value={watch('descripcion')}
+          isTextArea={true}
           style={styles.txtInput}
           onChangeText={(text) => setValue('descripcion', text)}
         />
       </ScrollView>
       <Button action={handleSubmit(onSubmit)} />
-      <Snackbar
-        visible={snackIsActive}
-        textMessage={snackMessage}
-        actionText="OK"
-        actionHandler={() => setSnackIsActive(false)}
-        position="bottom"
-      />
     </View>
   );
 };

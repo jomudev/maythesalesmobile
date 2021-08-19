@@ -1,13 +1,13 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import store from '../../../store';
-import {View, ScrollView, Text, SafeAreaView} from 'react-native';
-import ShoppingCart from './shoppingCart';
+import {View, ScrollView, RefreshControl, Text} from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProductItem, ServiceItem, ClientItem, WholesalerItem} from './items';
 import {filterItems, db} from '../mainFunctions';
-import {TextBox} from '../auxComponents';
-//import {BannerAdvert} from '../ads';
+import {TextBox, HelpMessage} from '../auxComponents';
+import {HomeBannerAd} from '../ads';
+import newSaleHelpMessages from '../helpMessages/newSale';
 
 const handleGetList = (snap, list, setList) => {
   try {
@@ -51,17 +51,28 @@ const NewSale = ({navigation}) => {
   const [wholesalers, setWholesalers] = useState(
     store.getState().wholesalers || [],
   );
+  const [refreshing, setRefreshing] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  const wait = (timeout) => {
+    return new Promise((resolve) => setTimeout(resolve, timeout));
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
 
   const handleSetProduct = (list) => {
-    setProducts(list);
     store.dispatch({
       type: 'SET_PRODUCTS',
       data: list,
     });
+    //setProducts(list);
   };
 
   const handleSetClients = (list) => {
-    setClients(list);
+    //setClients(list);
     store.dispatch({
       type: 'SET_CLIENTS',
       data: list,
@@ -69,7 +80,7 @@ const NewSale = ({navigation}) => {
   };
 
   const handleSetServices = (list) => {
-    setServices(list);
+    //setServices(list);
     store.dispatch({
       type: 'SET_SERVICES',
       data: list,
@@ -77,7 +88,7 @@ const NewSale = ({navigation}) => {
   };
 
   const handleSetWholesalers = (list) => {
-    setWholesalers(list);
+    //setWholesalers(list);
     store.dispatch({
       type: 'SET_WHOLESALERS',
       data: list,
@@ -86,6 +97,7 @@ const NewSale = ({navigation}) => {
 
   useEffect(() => {
     try {
+      console.log('refreshing');
       const unsubscribeProducts = db('productos').onSnapshot((snap) =>
         handleGetList(snap, products, handleSetProduct),
       );
@@ -102,16 +114,25 @@ const NewSale = ({navigation}) => {
         handleGetList(snap, wholesalers, handleSetWholesalers),
       );
 
+      const storeUnsubscribe = store.subscribe(() => {
+        const storeState = store.getState();
+        setProducts(storeState.products);
+        setClients(storeState.clients);
+        setServices(storeState.services);
+        setWholesalers(storeState.wholesalers);
+      });
+
       return () => {
         unsubscribeProducts();
         unsubscribeClients();
         unsubscribeServices();
         unsubscribeWholesalers();
+        storeUnsubscribe();
       };
     } catch (err) {
-      console.warn('error trying to get the inventory', err);
+      console.warn('error trying to get the inventory data', err);
     }
-  }, [clients, products, services, wholesalers]);
+  }, [refreshing]);
 
   const Search = ({list, type}) => {
     let found = [];
@@ -185,155 +206,135 @@ const NewSale = ({navigation}) => {
   return (
     <View style={styles.container}>
       <ScrollView
-        contentContainerStyle={styles.container}
-        style={styles.container}>
-        <SafeAreaView>
-          <View style={styles.form}>
-            {products.length < 1 &&
-            services.length < 1 &&
-            clients.length < 1 &&
-            wholesalers.length < 1 ? (
-              <Text>
-                Agrega registros a tu inventario y realiza ventas añadiendolos
-                al carrito.
-              </Text>
+        style={styles.form}
+        refreshControl={
+          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+        }>
+        <View style={styles.formGroup}>
+          <View style={styles.textContainer}>
+            <Icon
+              name="barcode-scan"
+              style={styles.Icon}
+              onPress={() =>
+                navigation.navigate('CamScanner', {
+                  type: 'getProduct',
+                })
+              }
+            />
+            <TextBox
+              style={styles.txtInput}
+              onChangeText={(text) => setFindProduct(text)}
+              value={foundProduct}
+              placeholder="Busca o selecciona un producto"
+            />
+            {foundProduct ? (
+              <Icon
+                name="close"
+                style={styles.Icon}
+                onPress={() => setFindProduct('')}
+              />
             ) : (
-              <Text>
-                selecciona productos o servicios para añadirlos al carrito.
-              </Text>
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Productos')}
+              />
             )}
-            <View style={styles.formGroup}>
-              <View style={styles.textContainer}>
-                <Icon
-                  name="barcode-scan"
-                  style={styles.Icon}
-                  onPress={() =>
-                    navigation.navigate('CamScanner', {
-                      type: 'getProduct',
-                    })
-                  }
-                />
-                <TextBox
-                  style={styles.txtInput}
-                  onChangeText={(text) => setFindProduct(text)}
-                  value={foundProduct}
-                  placeholder="Busca o selecciona un producto"
-                />
-                {foundProduct ? (
-                  <Icon
-                    name="close"
-                    style={styles.Icon}
-                    onPress={() => setFindProduct('')}
-                  />
-                ) : (
-                  <Icon
-                    name="plus"
-                    style={styles.Icon}
-                    onPress={() => navigation.navigate('Productos')}
-                  />
-                )}
-              </View>
-              <ScrollView
-                style={styles.findProductsList}
-                showsVerticalScrollIndicator={false}>
-                <Search list={products} type="products" />
-              </ScrollView>
-            </View>
-            <View style={styles.formGroup}>
-              <View style={styles.textContainer}>
-                <TextBox
-                  onChangeText={(text) => setFindClient(text)}
-                  style={styles.txtInput}
-                  value={foundClient}
-                  placeholder="Buscar un cliente"
-                />
-                {foundClient ? (
-                  <Icon
-                    name="close"
-                    style={styles.Icon}
-                    onPress={() => setFindClient('')}
-                  />
-                ) : (
-                  <Icon
-                    name="plus"
-                    style={styles.Icon}
-                    onPress={() => navigation.navigate('Clientes')}
-                  />
-                )}
-              </View>
-              <ScrollView
-                style={styles.findProductsList}
-                showsVerticalScrollIndicator={false}>
-                {foundClient ? <Search list={clients} type="clients" /> : null}
-              </ScrollView>
-            </View>
-            <View style={styles.formGroup}>
-              <View style={styles.textContainer}>
-                <TextBox
-                  style={styles.txtInput}
-                  value={foundService}
-                  onChangeText={(text) => setFindService(text)}
-                  placeholder="Buscar un Servicio Adicional"
-                />
-                {foundService ? (
-                  <Icon
-                    name="close"
-                    style={styles.Icon}
-                    onPress={() => setFindService('')}
-                  />
-                ) : (
-                  <Icon
-                    name="plus"
-                    style={styles.Icon}
-                    onPress={() => navigation.navigate('Servicios')}
-                  />
-                )}
-              </View>
-              <ScrollView
-                style={styles.findProductsList}
-                showsVerticalScrollIndicator={false}>
-                {foundService ? (
-                  <Search list={services} type="services" />
-                ) : null}
-              </ScrollView>
-            </View>
-            <View style={styles.formGroup}>
-              <View style={styles.textContainer}>
-                <TextBox
-                  onChangeText={(text) => setFindWholesaler(text)}
-                  style={styles.txtInput}
-                  value={foundWholesaler}
-                  placeholder="Buscar un mayorista"
-                />
-                {foundWholesaler ? (
-                  <Icon
-                    name="close"
-                    style={styles.Icon}
-                    onPress={() => setFindWholesaler('')}
-                  />
-                ) : (
-                  <Icon
-                    name="plus"
-                    style={styles.Icon}
-                    onPress={() => navigation.navigate('Mayoristas')}
-                  />
-                )}
-              </View>
-              <ScrollView
-                style={styles.findProductsList}
-                showsVerticalScrollIndicator={false}>
-                {foundWholesaler ? (
-                  <Search list={wholesalers} type="wholesalers" />
-                ) : null}
-              </ScrollView>
-            </View>
           </View>
-        </SafeAreaView>
-        <ShoppingCart />
-        {/**
-      <View style={{position: 'absolute', bottom: 0}}>
-        <BannerAdvert />
-      </View> */}
+          <ScrollView
+            horizontal={true}
+            style={styles.findProductsList}
+            showsHorizontalScrollIndicator={false}>
+            <Search list={products} type="products" />
+          </ScrollView>
+        </View>
+        <View style={styles.formGroup}>
+          <View style={styles.textContainer}>
+            <TextBox
+              onChangeText={(text) => setFindClient(text)}
+              style={styles.txtInput}
+              value={foundClient}
+              placeholder="Buscar un cliente"
+            />
+            {foundClient ? (
+              <Icon
+                name="close"
+                style={styles.Icon}
+                onPress={() => setFindClient('')}
+              />
+            ) : (
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Clientes')}
+              />
+            )}
+          </View>
+          <ScrollView
+            style={styles.findProductsList}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}>
+            {foundClient ? <Search list={clients} type="clients" /> : null}
+          </ScrollView>
+        </View>
+        <View style={styles.formGroup}>
+          <View style={styles.textContainer}>
+            <TextBox
+              style={styles.txtInput}
+              value={foundService}
+              onChangeText={(text) => setFindService(text)}
+              placeholder="Buscar un Servicio Adicional"
+            />
+            {foundService ? (
+              <Icon
+                name="close"
+                style={styles.Icon}
+                onPress={() => setFindService('')}
+              />
+            ) : (
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Servicios')}
+              />
+            )}
+          </View>
+          <ScrollView
+            style={styles.findProductsList}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}>
+            {foundService ? <Search list={services} type="services" /> : null}
+          </ScrollView>
+        </View>
+        <View style={styles.formGroup}>
+          <View style={styles.textContainer}>
+            <TextBox
+              onChangeText={(text) => setFindWholesaler(text)}
+              style={styles.txtInput}
+              value={foundWholesaler}
+              placeholder="Buscar un mayorista"
+            />
+            {foundWholesaler ? (
+              <Icon
+                name="close"
+                style={styles.Icon}
+                onPress={() => setFindWholesaler('')}
+              />
+            ) : (
+              <Icon
+                name="plus"
+                style={styles.Icon}
+                onPress={() => navigation.navigate('Mayoristas')}
+              />
+            )}
+          </View>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+            {foundWholesaler ? (
+              <Search list={wholesalers} type="wholesalers" />
+            ) : null}
+          </ScrollView>
+        </View>
+        <HomeBannerAd />
       </ScrollView>
     </View>
   );

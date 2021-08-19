@@ -1,12 +1,19 @@
 import React from 'react';
-import {View, Modal, StyleSheet, ActivityIndicator} from 'react-native';
+import {
+  View,
+  Modal,
+  StyleSheet,
+  ActivityIndicator,
+  StatusBar,
+} from 'react-native';
 import Logo from '../assets/AdditionalMedia/Logo.svg';
 
 const LoadingScreen = () => {
   return (
-    <Modal visible={true} animationType="fade">
+    <Modal visible={true} animationType="fade" statusBarTranslucent={true}>
+      <StatusBar barStyle="dark-content" />
       <View style={styles.container}>
-        <Logo style={styles.logo} width={100} height={100} />
+        <Logo style={styles.logo} width={200} height={200} />
         <ActivityIndicator color="#334790" size="large" />
       </View>
     </Modal>

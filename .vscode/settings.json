@@ -6,5 +6,8 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
-  "cSpell.language": "es,en-US,en,en-GB"
+  "cSpell.language": "es,en-US,en,en-GB",
+  "cSpell.words": [
+    "firestore"
+  ]
 }

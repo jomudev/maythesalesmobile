@@ -1,16 +1,23 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableWithoutFeedback, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './listStyles';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNPrint from 'react-native-print';
 import {moneyFormat, db} from '../mainFunctions';
-import {ContextMenu} from '../auxComponents';
 import {format, formatDistanceToNow} from 'date-fns';
 import {es} from 'date-fns/locale';
 import {useNavigation} from '@react-navigation/native';
 import htmlData from './htmlData';
+import {InterstitialUnitId} from '../ads';
+import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
+import PopupMenu from '../PopupMenu';
+
+const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['business', 'marketing', 'market', 'delivery'],
+});
 
 const ganancias = (lista, isWholesaler) => {
   let sum = 0;
@@ -27,79 +34,105 @@ const ganancias = (lista, isWholesaler) => {
   return sum;
 };
 
-const RenderVentasCollection = ({sale}) => {
-  const {
-    productos,
-    servicios,
-    mayorista,
-    cliente,
-    total,
-    timestamp,
-    estado,
-  } = sale;
+const RenderVentasCollection = ({sale, type}) => {
+  const {productos, servicios, mayorista, cliente, total, timestamp} = sale;
+  let {estado} = sale;
+  estado = estado ? 'Vendido' : 'Pendiente';
+
   const navigation = useNavigation();
-  let contextMenuRef = React.createRef();
-  const saleDate = new Date(timestamp.seconds * 1000);
+  if (!timestamp) {
+    return null;
+  }
+  const saleDate =
+    type === 'secluded'
+      ? new Date(timestamp)
+      : new Date(timestamp.seconds * 1000);
+  const [isAdLoaded, setAdLoaded] = useState(false);
+  const legibleDate = format(saleDate, 'PPpp', {locale: es});
+  let popupRef = React.createRef();
+
+  const contextMenuFunction = (index) => {
+    if (index !== undefined) {
+      switch (index) {
+        case 0:
+          navigate('saleReport', {
+            data: sale,
+          });
+          break;
+        case 1:
+          if (isAdLoaded) {
+            interstitial.show();
+          } else {
+            printPDF(sale);
+          }
+          break;
+        case 2:
+          handleDeleteSale(sale);
+          break;
+      }
+    }
+  };
+
+  const navigate = (screen, params) => navigation.navigate(screen, params);
+
+  const optionsList = ['Ver Reporte', 'Reporte en PDF', 'Eliminar reporte'];
+
+  useEffect(() => {
+    const adUnsubscribe = interstitial.onAdEvent((type) => {
+      if (type === AdEventType.LOADED) {
+        setAdLoaded(true);
+      }
+      if (type === AdEventType.CLOSED) {
+        printPDF(sale);
+      }
+    });
+
+    return () => {
+      adUnsubscribe();
+    };
+  }, []);
+
   return (
     <View style={styles.venta}>
+      <View
+        style={{
+          ...styles.saleStateView,
+          backgroundColor: estado === 'Vendido' ? '#101e5a' : '#ffff',
+        }}
+      />
       <View style={styles.ventaHeader}>
-        <View style={styles.contextMenuBtn}>
-          <TouchableWithoutFeedback onPress={() => contextMenuRef.show()}>
-            <Icon
-              name="dots-vertical"
-              size={28}
-              style={styles.contextMenuIcon}
-            />
-          </TouchableWithoutFeedback>
-        </View>
-        <View
-          style={{
-            ...styles.saleState,
-            backgroundColor: estado ? 'green' : '#e6e8f1',
-          }}>
+        <View style={styles.saleState}>
           <Text
             style={{
-              color: estado ? 'white' : 'gray',
+              color: estado === 'Vendido' ? '#101e5a' : 'gray',
               fontWeight: 'bold',
             }}>
-            {estado ? 'Vendido' : 'Pendiente'}
+            {estado}
           </Text>
         </View>
-        <Text style={styles.ventaTitleText}>
-          {formatDistanceToNow(saleDate, {locale: es, addSuffix: true})}
-          {'  |  '}
-          {format(saleDate, 'PPpp', {locale: es})}
-        </Text>
-        <ContextMenu
-          ref={(target) => (contextMenuRef = target)}
-          optionsList={[
-            {
-              iconName: 'file-document-outline',
-              text: 'Ver Reporte',
-              onPress: () => {
-                navigation.navigate('saleReport', {
-                  data: sale,
-                });
-              },
-            },
-            {
-              iconName: 'file-pdf-outline',
-              text: 'Generar reporte en PDF',
-              onPress: () => printPDF(sale),
-            },
-            {
-              iconName: 'delete-outline',
-              text: 'Eliminar reporte',
-              onPress: () => handleDeleteSale(sale),
-            },
-          ]}
-          onTouchOutside={() => contextMenuRef.close()}
+        <TouchableWithoutFeedback
+          onPress={() => {
+            popupRef.show();
+          }}>
+          <Icon name="dots-vertical" size={28} />
+        </TouchableWithoutFeedback>
+        <PopupMenu
+          title="Opciones de reporte"
+          ref={(target) => (popupRef = target)}
+          options={optionsList}
+          function={contextMenuFunction}
+          onTouchOutside={() => popupRef.close()}
         />
-
-        {mayorista && <Text>Comprador Mayorista: {mayorista.nombre}</Text>}
-        {cliente && <Text>Cliente: {cliente.nombre}</Text>}
       </View>
 
+      <Text style={styles.ventaTitleText}>
+        {formatDistanceToNow(saleDate, {locale: es, addSuffix: true})}
+        {'  |  '}
+        {legibleDate}
+      </Text>
+
+      {mayorista && <Text>Comprador Mayorista: {mayorista.nombre}</Text>}
+      {cliente && <Text>Cliente: {cliente.nombre}</Text>}
       <View>
         {countElements({
           list: productos,
@@ -163,7 +196,7 @@ const printPDF = async (sale) => {
   }
 };
 
-const deleteSale = async () => {
+const deleteSale = async (data) => {
   try {
     await db('ventas')
       .where('timestamp', '==', data.timestamp)
@@ -193,7 +226,7 @@ const handleDeleteSale = (data) => {
       },
       {
         text: 'Sí, estoy seguro',
-        onPress: deleteSale,
+        onPress: () => deleteSale(data),
       },
     ],
   );
