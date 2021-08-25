@@ -54,7 +54,6 @@ const Inventory = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.inventoryOptionsContainer}>
-        <MenuListBannerAdvert />
         {FormOptions.map((item) => (
           <ItemList navigation={navigation} item={item} key={item.name} />
         ))}

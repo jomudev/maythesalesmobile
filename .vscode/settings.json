@@ -6,8 +6,14 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
-  "cSpell.language": "es,en-US,en,en-GB",
+  "cSpell.language": "es,en",
   "cSpell.words": [
     "firestore"
-  ]
+  ],
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": false,
+    "plaintext": false,
+    "markdown": false
+  }
 }

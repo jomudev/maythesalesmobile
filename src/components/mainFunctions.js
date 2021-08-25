@@ -98,7 +98,7 @@ const handleGetList = async (snap, list) => {
       }
     });
     return {
-      newList,
+      collection: newList,
       isItIdentical: JSON.stringify(list) === JSON.stringify(newList),
     };
   } catch (err) {
@@ -214,24 +214,35 @@ function phoneFormat(phoneNumber) {
 }
 
 function filterItems(item, search) {
-  search = search.toLowerCase();
-  return (
-    // if one of this fields concord with the search, then return true
-    (item.nombre ? item.nombre.toLowerCase().includes(search) : false) ||
-    (item.descripcion
-      ? item.descripcion.toLowerCase().includes(search)
-      : false) ||
-    (item.email ? item.email.toLowerCase().includes(search) : false) ||
-    (item.marca ? item.marca.toLowerCase().includes(search) : false) ||
-    (item.telefono ? item.telefono.includes(search) : false) ||
-    (item.precioVenta ? item.precioVenta.toString().includes(search) : false) ||
-    (item.precioMayoreo
-      ? item.precioMayoreo.toString().includes(search)
-      : false) ||
-    (item.precioCosto ? item.precioCosto.toString().includes(search) : false) ||
-    (item.barcode ? item.barcode.includes(search) : false) ||
-    (item.cantidad ? item.cantidad.toString().includes(search) : false)
-  );
+  try {
+    if (!search) {
+      throw 'La busqueda no puede ser null o undefined';
+    }
+    search = search.toLowerCase().trim();
+    return (
+      // if one of this fields concord with the search, then return true
+      (item.nombre ? item.nombre.toLowerCase().includes(search) : false) ||
+      (item.descripcion
+        ? item.descripcion.toLowerCase().includes(search)
+        : false) ||
+      (item.email ? item.email.toLowerCase().includes(search) : false) ||
+      (item.marca ? item.marca.toLowerCase().includes(search) : false) ||
+      (item.telefono ? item.telefono.includes(search) : false) ||
+      (item.precioVenta
+        ? item.precioVenta.toString().includes(search)
+        : false) ||
+      (item.precioMayoreo
+        ? item.precioMayoreo.toString().includes(search)
+        : false) ||
+      (item.precioCosto
+        ? item.precioCosto.toString().includes(search)
+        : false) ||
+      (item.barcode ? item.barcode.includes(search) : false) ||
+      (item.cantidad ? item.cantidad.toString().includes(search) : false)
+    );
+  } catch (err) {
+    console.warn('error al intentar filtrar la coleccion de datos: ', err);
+  }
 }
 
 const verifyChanges = (list) => {
