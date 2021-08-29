@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
+  SafeAreaView,
   Text,
   FlatList,
   RefreshControl,
@@ -17,7 +18,7 @@ const ListItemStyles = StyleSheet.create({
     width: '100%',
   },
   content: {
-    backgroundColor: '#e6e8f1',
+    backgroundColor: '#FFF',
     borderTopWidth: 1,
     borderColor: '#ddd',
     overflow: 'hidden',
@@ -102,10 +103,11 @@ const Index = ({navigation}) => {
   }
 
   return (
-    <View style={styles.container}>
-      <ReportsBannerAd />
+    <SafeAreaView style={styles.container}>
       <FlatList
         data={periodsList}
+        ListHeaderComponent={
+      <ReportsBannerAd />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -123,7 +125,7 @@ const Index = ({navigation}) => {
           </View>
         )}
       />
-    </View>
+    </SafeAreaView >
   );
 };
 export default Index;

@@ -210,8 +210,8 @@ const NewSale = ({navigation}) => {
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }>
-        <View style={styles.formGroup}>
-          <View style={styles.textContainer}>
+        <View style={{...styles.formGroup, paddingHorizontal: 0}}>
+          <View style={{...styles.textContainer, paddingHorizontal: 16}}>
             <Icon
               name="barcode-scan"
               style={styles.Icon}

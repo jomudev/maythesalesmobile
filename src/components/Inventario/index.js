@@ -14,7 +14,6 @@ import providersOptionsImage from '../../assets/AdditionalMedia/providers-option
 // Foto de Oleg Magni en Pexels
 import wholesalersOptionsImage from '../../assets/AdditionalMedia/wholesalers-option-image.jpg';
 // Foto de Tiger Lily en Pexels
-import {MenuListBannerAdvert} from '../ads';
 
 const ItemList = ({navigation, item}) => {
   let optionImageURI = Image.resolveAssetSource(productOptionsImage).uri;

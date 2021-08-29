@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignSelf: 'center',
     bottom: 0,
-    backgroundColor: '#e6e8f1',
+    backgroundColor: '#fff',
   },
   listIcon: {
     flex: 1,

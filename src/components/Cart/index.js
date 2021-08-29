@@ -127,10 +127,9 @@ const Cart = () => {
             </Text>
           ) : null}
           <View style={styles.bottomViewContentRow}>
-            <Text style={styles.total}>{moneyFormat(total)}</Text>
             <View style={styles.saleStateContainer}>
               <Text style={styles.saleStateText}>
-                {state.saleState ? 'Vendida' : 'Pendiente'}
+                {saleState ? 'Vendida' : 'Pendiente'}
               </Text>
               <Switch
                 style={styles.switchSaleState}
@@ -165,7 +164,10 @@ const Cart = () => {
             clearStoreCart();
           }}
           style={styles.soldButton}>
-          <Text style={styles.soldButtonText}>Realizar venta</Text>
+          <Text style={styles.soldButtonText}>realizar venta</Text>
+          <Text style={{...styles.soldButtonText, fontSize: 14, textAlign: 'right'}}>
+            {moneyFormat(total)}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

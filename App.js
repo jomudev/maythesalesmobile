@@ -178,7 +178,7 @@ const App = () => {
             options={({navigation}) => ({
               title: "Maythe's Sales",
               headerTitleStyle: {
-                fontSize: 32,
+                fontSize: 28,
                 fontWeight: 'bold',
               },
             })}

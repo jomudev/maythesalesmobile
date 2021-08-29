@@ -20,7 +20,7 @@ const MainNavigator = () => {
         initialRouteName="Inicio"
         inactiveColor="#b4b6be"
         barStyle={{
-          backgroundColor: '#e6e8f1',
+          backgroundColor: '#fff',
         }}
         activeColor="#101e5a"
         shifting

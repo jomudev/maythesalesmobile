@@ -47,11 +47,8 @@ const elementIsSelected = (storeCartElements, id) => {
 
 const removeFromCart = (type, id, setIsSelected) => {
   switch (type) {
-    case 'product':
+    case 'product' || 'service':
       removeProductFromCart(id);
-      break;
-    case 'service':
-      removeServiceFromCart(id);
       break;
     default:
       break;

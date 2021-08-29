@@ -412,22 +412,16 @@ function ShowProveedores({navigation, route}) {
 }
 
 const ShowWholesalers = ({navigation, route}) => {
-  let [wholesalersList, setWholesaler] = useState([]);
+  let [wholesalers, setWholesaler] = useState({
+    collection: [],
+    alphabet: [],
+  });
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
-  const [alphabet, setAlphabet] = useState([]);
+  const collectionKey = "mayoristas";
 
-  useEffect(
-    handleGetCollection(
-      'mayoristas',
-      wholesalersList,
-      setWholesaler,
-      setAlphabet,
-      setLoading,
-    ),
-    [],
-  );
+  subscribers(collectionKey, wholesalers.collection, setLoading, setWholesaler);
 
   if (loading) {
     return <LoadingScreen />;
@@ -444,15 +438,15 @@ const ShowWholesalers = ({navigation, route}) => {
             setScrollPosition,
           )
         }>
-        {wholesalersList.length > 0 ? (
-          alphabet.map((letter) => {
-            const wholesalers = wholesalersList.filter(
+        {wholesalers.collection.length > 0 ? (
+          wholesalers.alphabet.map((letter) => {
+            const filteredCollection = wholesalers.collection.filter(
               (item) => item.nombre.toUpperCase().split('')[0] === letter,
             );
             return (
               <View key={letter}>
                 <Text style={styles.listLetter}>{letter}</Text>
-                {wholesalers.map((item) => {
+                {filteredCollection.map((item) => {
                   let subtitles = [];
                   if (item.email) {
                     subtitles = subtitles.concat(item.email);

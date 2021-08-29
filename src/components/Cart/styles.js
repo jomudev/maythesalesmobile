@@ -32,13 +32,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
   },
   saleStateText: {
     fontSize: 16,
+    flex: 1,
     fontWeight: 'bold',
+    alignText: 'left',
   },
   switchSaleState: {
+    flex: 1,
     alignSelf: 'flex-end',
     height: 60,
   },
@@ -52,13 +54,18 @@ const styles = StyleSheet.create({
   },
   soldButton: {
     paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    alignContent: 'center',
     backgroundColor: '#101e5a',
   },
   soldButtonText: {
+    flex: 1,
     color: 'white',
+    textAlignVertical: 'center',
     fontWeight: 'bold',
+    paddingHorizontal: 8,
     fontSize: 24,
   }
 });

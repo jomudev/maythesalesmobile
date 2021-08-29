@@ -3,11 +3,11 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   form: {
     maxWidth: 700,
-    paddingHorizontal: 16,
     backgroundColor: 'white',
   },
   formGroup: {
     marginVertical: 8,
+    paddingHorizontal: 16,
   },
   header: {
     elevation: 0,
