@@ -51,8 +51,7 @@ const NewSale = ({navigation}) => {
   const [wholesalers, setWholesalers] = useState(
     store.getState().wholesalers || [],
   );
-  const [refreshing, setRefreshing] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
 
   const wait = (timeout) => {
     return new Promise((resolve) => setTimeout(resolve, timeout));
@@ -60,7 +59,13 @@ const NewSale = ({navigation}) => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    wait(2000).then(() => setRefreshing(false));
+    (async () => {
+      const returnedCollection = await db('productos').get().then((snap) => {
+        return  snap.docChanges().map((change) => change.doc.data());
+      });
+      handleSetProduct(returnedCollection);
+      wait(2000).then(() => setRefreshing(false));
+    })()
   }, []);
 
   const handleSetProduct = (list) => {
@@ -68,11 +73,9 @@ const NewSale = ({navigation}) => {
       type: 'SET_PRODUCTS',
       data: list,
     });
-    //setProducts(list);
   };
 
   const handleSetClients = (list) => {
-    //setClients(list);
     store.dispatch({
       type: 'SET_CLIENTS',
       data: list,
@@ -80,7 +83,6 @@ const NewSale = ({navigation}) => {
   };
 
   const handleSetServices = (list) => {
-    //setServices(list);
     store.dispatch({
       type: 'SET_SERVICES',
       data: list,
@@ -88,7 +90,6 @@ const NewSale = ({navigation}) => {
   };
 
   const handleSetWholesalers = (list) => {
-    //setWholesalers(list);
     store.dispatch({
       type: 'SET_WHOLESALERS',
       data: list,
@@ -96,8 +97,17 @@ const NewSale = ({navigation}) => {
   };
 
   useEffect(() => {
+    (async () => {
+      const returnedCollection = await db('productos').get().then((snap) => {
+        return  snap.docChanges().map((change) => change.doc.data());
+      });
+      handleSetProduct(returnedCollection);
+      setRefreshing(false);
+    })()
+  }, []);
+
+  useEffect(() => {
     try {
-      console.log('refreshing');
       const unsubscribeProducts = db('productos').onSnapshot((snap) =>
         handleGetList(snap, products, handleSetProduct),
       );

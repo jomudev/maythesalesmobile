@@ -14,9 +14,6 @@ admob()
     maxAdContentRating: MaxAdContentRating.PG,
     tagForDirectedTreatment: false,
     tagForUnderAgeOfConsent: false,
-  })
-  .then(() => {
-    console.log('admob request configuration successfully');
   });
 
 AppRegistry.registerComponent(appName, () => App);

@@ -8,7 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {db, orderReportsBy} from '../mainFunctions';
+import {moneyFormat, db, orderReportsBy} from '../mainFunctions';
 import EmptyListImages from '../emptyListImage';
 import LoadingScreen from '../loadingScreen';
 import {ReportsBannerAd} from '../ads';
@@ -17,7 +17,7 @@ const ListItemStyles = StyleSheet.create({
   container: {
     width: '100%',
     backgroundColor: 'white',
-    paddingVertical: 16,
+    paddingVertical: 32,
     fontWeight: 'bold',
     fontFamily: 'VarelaRound-Regular',
   },
@@ -34,18 +34,35 @@ const ListItemStyles = StyleSheet.create({
     paddingHorizontal: 16,
     width: '100%',
   },
-  year: {fontSize: 48, textAlign: 'center'},
+  month: {fontSize: 36, textAlign: 'center', marginBottom: 16},
+  amounts: {
+    flexDirection: 'row',
+  },
+  amount: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  amountTitle: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  amountValue: {
+    fontWeight: 'bold',
+    fontFamily: 'VarelaRound-Regular',
+  }
 });
 
-const getSalesCollection = async () => {
+const getSalesCollection = async (actualYear) => {
   let salesCollection = (await db('ventas').get())
     .docChanges()
     .map((change) => change.doc.data());
-    return orderReportsBy('yyyy', salesCollection);
+    return orderReportsBy('MMMM', salesCollection).reverse();
 };
 
-const Index = ({navigation}) => {
+const YearReports = ({navigation, route}) => {
   const [collection, setCollection] = useState([]);
+  const year = route.params.year;
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -55,7 +72,7 @@ const Index = ({navigation}) => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    getSalesCollection().then((response) => {
+    getSalesCollection(year).then((response) => {
       setCollection(response);
     });
     wait(2000).then(() => {
@@ -76,14 +93,24 @@ const Index = ({navigation}) => {
     };
   }, []);
 
-  const YearReportItem = ({item}) => {
+  const MonthReportItem = ({item}) => {
     return (
       <TouchableOpacity
         style={ListItemStyles.container}
         onPress={() =>
-          navigation.navigate('yearReports', {year: item})
+          navigation.navigate('monthReports', {month: item.month})
         }>
-        <Text style={ListItemStyles.year}>{item}</Text>
+        <Text style={ListItemStyles.month}>{item.month.toUpperCase()}</Text>
+        <View style={ListItemStyles.amounts}>
+        <View style={ListItemStyles.amount}>
+          <Text style={ListItemStyles.amountValue}>{moneyFormat(item.totalSold)}</Text>
+          <Text style={ListItemStyles.amountTitle}>Total vendido</Text>
+        </View>
+        <View style={ListItemStyles.amount}>
+        <Text style={ListItemStyles.amountValue}>{moneyFormat(item.totalProfits)}</Text>
+        <Text style={ListItemStyles.amountTitle}>Ganancias</Text>
+        </View>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -96,11 +123,12 @@ const Index = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <FlatList
         data={collection}
-        ListHeaderComponent={<ReportsBannerAd />}
+        ListHeaderComponent={
+      <ReportsBannerAd />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        renderItem={YearReportItem}
+        renderItem={MonthReportItem}
         keyExtractor={(item) => item + Math.random()}
         ListEmptyComponent={() => (
           <View style={styles.emptyListContainer}>
@@ -117,7 +145,7 @@ const Index = ({navigation}) => {
     </SafeAreaView >
   );
 };
-export default Index;
+export default YearReports;
 
 const styles = StyleSheet.create({
   emptyListBannerAd: {

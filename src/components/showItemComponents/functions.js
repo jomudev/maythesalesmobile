@@ -1,20 +1,38 @@
 import ImagePicker from 'react-native-image-crop-picker';
 import {db, fileStorage} from '../mainFunctions';
+import {ToastAndroid} from 'react-native';
 
-async function updateImage(data, type, callback) {
+const cropOptions = {
+  cropping: true, 
+  freeStyleCropEnabled: true,
+  compressImageQuality: 0.7,
+};
+
+async function updateImage(data, collectionKey, typeOfImageToObtain, callback) {
   try {
-    const pickerRes = type
-      ? await ImagePicker.openCamera({cropping: true})
-      : await ImagePicker.openPicker({cropping: true});
-    const imageRef = `productos/${data.nombre}/${data.nombre}Image`;
-    await fileStorage(imageRef).putFile(pickerRes.path);
+    const pickerResponse = await (typeOfImageToObtain
+    ? ImagePicker.openCamera(cropOptions)
+    : ImagePicker.openPicker(cropOptions));
+    const imageRef = `${collectionKey}/${data.nombre}/productImage`;
+    await fileStorage(imageRef).putFile(pickerResponse.path)
+    .then(() => {
+      ToastAndroid.show(`actualizando base de datos...`, ToastAndroid.LONG);
+    })
+    .catch((err) => {
+      ToastAndroid.show(`error: ${err}`, ToastAndroid.LONG);
+    });
     const imageURL = await fileStorage(imageRef).getDownloadURL();
-    await db('productos').doc(data.id).update({
-      imageURL,
+    await db(collectionKey).doc(data.id).update({imageURL})
+    .then(() => {
+      ToastAndroid.show('actualización exitosa', ToastAndroid.LONG);
+    })
+    .catch((err) => {
+      ToastAndroid.show(`error: ${err}`, ToastAndroid.LONG);
     });
     callback(imageURL);
+    ImagePicker.clean();
   } catch (err) {
-    console.warn('image picker alert: ', err);
+    console.warn('error trying to update the product image: ', err);
   }
 }
 

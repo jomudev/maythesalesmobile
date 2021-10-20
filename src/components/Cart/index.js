@@ -1,24 +1,23 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   ScrollView,
   Switch,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
   ToastAndroid,
   View,
 } from 'react-native';
 import store from '../../../store';
 import {getTotal, moneyFormat, postSale} from '../mainFunctions';
-import {interstitial} from '../ads';
-import {AdEventType} from '@react-native-firebase/admob';
+import {interstitialAdConfig, InterstitialUnitId} from '../ads';
+import {AdEventType, InterstitialAd} from '@react-native-firebase/admob';
 import {clearStoreCart} from '../cartComponents/functions';
 import ProductsList from '../cartComponents/productsList';
 import ServicesList from '../cartComponents/servicesList';
 import styles from './styles';
 import EmptyListImage from '../emptyListImage';
-
-interstitial.load();
 
 const Cart = () => {
   const storeState = store.getState();
@@ -28,35 +27,28 @@ const Cart = () => {
     client: storeState.cartClient || null,
     wholesaler: storeState.cartWholesaler || null,
   });
-  const [isAdLoad, setAdLoaded] = useState(false);
   const [saleState, setSaleState] = useState(store.getState().defaultSaleState);
-
+  
   const stateChange = (prevState, newState) => {
-    prevState = {
-      products: prevState.products,
-      services: prevState.services,
-      client: prevState.client,
-      wholesaler: prevState.wholesaler,
-    };
     newState = {
       products: newState.cartProducts,
       services: newState.cartServices,
       client: newState.cartClient,
       wholesaler: newState.cartWholesaler,
     };
-
-    const prevStatePlain = JSON.stringify(prevState);
-    const newStatePlain = JSON.stringify(newState);
-
-    return prevStatePlain !== newStatePlain ? true : false;
+    
+    const prevPlainState = JSON.stringify(prevState);
+    const newPlainState = JSON.stringify(newState);
+    
+    return prevPlainState !== newPlainState ? true : false;
   };
-
+  
   useEffect(() => {
-    console.log('loading ad...');
-    const adEventListener = interstitial.onAdEvent((type) => {
-      if (type === AdEventType.LOADED) {
-        setAdLoaded(true);
-        ToastAndroid.show('cart ad loaded', ToastAndroid.SHORT);
+    const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, interstitialAdConfig);
+    interstitial.load();
+    const adEventListener = interstitial.onAdEvent((eventType) => {
+      if (eventType === AdEventType.LOADED) {
+        interstitial.show();
       }
     });
     const unsubscribe = store.subscribe(() => {
@@ -83,18 +75,8 @@ const Cart = () => {
 
   return state.products.length === 0 && state.services.length === 0 ? (
     <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-      {EmptyListImage.default()}
-      <Text
-        style={{
-          textAlign: 'center',
-          position: 'absolute',
-          fontSize: 28,
-          color: 'grey',
-        }}>
-        Selecciona productos en la sección{' '}
-        <Text style={{fontWeight: 'bold'}}>Nueva Venta</Text> para que aparezcan
-        en esta sección.
-      </Text>
+      {EmptyListImage.default}
+      <Text style={{textAlign: 'center', color: 'gray'}}>Seleccione productos en la sección "Nueva Venta" para visualizarlos aquí</Text>
     </View>
   ) : (
     <View style={styles.container}>
@@ -133,8 +115,8 @@ const Cart = () => {
               </Text>
               <Switch
                 style={styles.switchSaleState}
-                trackColor={{false: '#e6e8f1', true: '#e6e8f1'}}
-                thumbColor={saleState ? '#434588' : '#b4b6be'}
+                trackColor={{false: '#101e5a', true: '#101e5a'}}
+                thumbColor={saleState ? '#434588' : '#434588'}
                 onValueChange={() => {
                   setSaleState(!saleState);
                 }}
@@ -153,21 +135,18 @@ const Cart = () => {
               ),
               saleState,
             }).then(() => {
-              if (isAdLoad) {
-                interstitial.show();
-              }
+              clearStoreCart();
               ToastAndroid.show(
                 'La venta se realizó correctamente',
                 ToastAndroid.SHORT,
               );
             });
-            clearStoreCart();
           }}
           style={styles.soldButton}>
-          <Text style={styles.soldButtonText}>realizar venta</Text>
-          <Text style={{...styles.soldButtonText, fontSize: 14, textAlign: 'right'}}>
-            {moneyFormat(total)}
-          </Text>
+            <Text style={styles.soldButtonText}>Realizar venta</Text>
+            <Text style={{...styles.soldButtonText, textAlign: 'right'}}>
+              {moneyFormat(total)}
+            </Text>
         </TouchableOpacity>
       </View>
     </View>

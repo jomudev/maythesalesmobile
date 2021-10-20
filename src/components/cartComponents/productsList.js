@@ -16,7 +16,7 @@ const ProductsList = ({products, wholesaler}) => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.cartList}>
         {products.map((product) => (
-          <Product key={product.id} data={product} wholesaler={wholesaler} />
+          <Product key={product.id + product.nombre} data={product} wholesaler={wholesaler} />
         ))}
       </ScrollView>
     </View>

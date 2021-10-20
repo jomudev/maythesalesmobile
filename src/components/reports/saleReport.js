@@ -1,11 +1,13 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, Switch, ScrollView, ActivityIndicator} from 'react-native';
 import {formatDistanceToNow} from 'date-fns';
 import {es} from 'date-fns/locale';
 import styles from './styles';
 import {Group} from '../auxComponents';
 import {getTotal, moneyFormat, db} from '../mainFunctions';
+import {InterstitialUnitId, interstitialAdConfig} from '../ads';
+import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
 
 const SaleReport = ({route}) => {
   const {data} = route.params;
@@ -13,6 +15,20 @@ const SaleReport = ({route}) => {
   const date = new Date(data.timestamp.seconds * 1000);
   const [saleState, setSaleState] = useState(data.estado);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, interstitialAdConfig);
+    interstitial.load();
+    const AdEventListener = interstitial.onAdEvent((eventType) => {
+      if (eventType === AdEventType.LOADED) {
+        interstitial.show();
+      }
+    });
+
+    return () => {
+      AdEventListener();
+    };
+  }, [])
 
   const changeSaleStateValue = async (newValue) => {
     setIsLoading(true);

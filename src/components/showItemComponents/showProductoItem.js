@@ -16,6 +16,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
   const [icon, setIcon] = useState(editIcon);
   const [isLoading, setIsLoading] = useState(false);
   const [showImage, setShowImage] = useState(false);
+  const collectionKey = type;
 
   useEffect(() => {
     register('nombre');
@@ -40,7 +41,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
       value,
       writable: true,
     });
-    await update('productos', data).catch((err) =>
+    console.log(data);
+    await update(collectionKey, data).catch((err) =>
       console.log('async err: ' + err),
     );
   };
@@ -57,7 +59,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
         data={data}
         setShowImage={setShowImage}
         navigation={navigation}
-        type={type}
+        collectionKey={collectionKey}
         setIsLoading={setIsLoading}
       />
       <View style={styles.form}>

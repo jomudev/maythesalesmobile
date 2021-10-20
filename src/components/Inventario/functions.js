@@ -33,6 +33,18 @@ const addServiceToCart = (data) => {
 };
 
 const addClientToCart = (data) => {
+  const cartClient = store.getState().cartClient;
+  if (cartClient) {
+    if (data) {
+      if (data.id !== cartClient.id) {
+        store.dispatch({
+          type: 'SET_CLIENT',
+          data,
+        });
+        return;
+      }
+    }
+  }
   store.dispatch({
     type: 'SET_CLIENT',
     data,
@@ -40,12 +52,22 @@ const addClientToCart = (data) => {
 };
 
 const addWholesalerToCart = (data) => {
-  if (data.id !== store.getState().cartWholesaler) {
+  const cartWholesaler = store.getState().cartWholesaler;
+  if (cartWholesaler) {
+    if (data) {
+      if (data.id !== cartWholesaler.id) {
+        store.dispatch({
+          type: 'SET_WHOLESALER',
+          data,
+        });
+        return;
+      }
+    }
+  }
     store.dispatch({
       type: 'SET_WHOLESALER',
       data,
     });
-  }
 };
 
 const removeProductFromCart = (id) => {

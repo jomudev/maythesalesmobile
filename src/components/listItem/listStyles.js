@@ -23,6 +23,13 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     alignContent: 'center',
   },
+  reportButton: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+  },
   totalSoldOut: {
     flex: 1,
     textAlign: 'center',

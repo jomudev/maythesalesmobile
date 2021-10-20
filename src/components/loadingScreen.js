@@ -23,7 +23,7 @@ const LoadingScreen = () => {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#f1f2f3',
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
   },

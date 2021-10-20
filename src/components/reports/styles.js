@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 8,
     borderTopWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#e6e8f1',
   },
   totalText: {
     fontSize: 16,

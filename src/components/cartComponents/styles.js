@@ -3,13 +3,6 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   productContainer: {
     paddingVertical: 16,
-    shadowOffset:  {
-      width: 0,
-      height: 4,
-    },
-    elevation: 8,
-    shadowRadius: 13.97,
-    shadowOpacity: 0.53,
     margin: 8,
     width: 200,
     borderRadius: 8,
@@ -70,7 +63,7 @@ const styles = StyleSheet.create({
   cartTitle: {
     paddingHorizontal: 8,
     fontSize: 24,
-    textAlign: 'center',
+    textAlign: 'left',
     fontWeight: 'bold',
   },
 });

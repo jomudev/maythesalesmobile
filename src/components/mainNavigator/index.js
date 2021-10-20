@@ -24,6 +24,7 @@ const MainNavigator = () => {
         }}
         activeColor="#101e5a"
         shifting
+        sceneAnimationEnabled
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color}) => {
             let iconName;

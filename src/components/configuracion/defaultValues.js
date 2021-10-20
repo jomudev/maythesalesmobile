@@ -32,13 +32,13 @@ const DefaultValues = () => {
   ];
 
   const currencyFormatItems = [
-    {label: 'HNL    Lempira hondureño', value: 'HNL'},
-    {label: '$    Dolar', value: 'USD'},
-    {label: '€    Euro', value: 'EUR'},
+    {label: 'Lempira hondureño - HNL', value: 'HNL'},
+    {label: 'Dolar - $', value: 'USD'},
+    {label: 'Euro - €', value: 'EUR'},
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={{...styles.container, padding: 16}}>
       <Text style={styles.label}>Estado de la venta</Text>
       <Select
         selectedValue={store.getState().defaultSaleState}

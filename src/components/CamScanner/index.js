@@ -56,10 +56,7 @@ export default function CamScanner({navigation, route}) {
       <RNCamera
         style={{
           flex: 1,
-          position: 'absolute',
-          height: '100%',
           backgroundColor: 'black',
-          width: '100%',
         }}
         type={RNCamera.Constants.Type.back}
         autoFocus={RNCamera.Constants.AutoFocus.on}

@@ -36,7 +36,7 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
       value,
       writable: true,
     });
-    update('servicios', data).catch((err) => console('async err: ' + err));
+    update('servicios', data).catch((err) => console('update property err: ' + err));
   };
 
   return (

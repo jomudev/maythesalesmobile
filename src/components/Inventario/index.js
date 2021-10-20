@@ -31,7 +31,7 @@ const ItemList = ({navigation, item}) => {
     <TouchableOpacity
       style={styles.menuOptionItem}
       onPress={() =>
-        navigation.navigate(`Show${item.type}`, {type: item.type})
+        navigation.navigate(`ShowInventory`, {collectionKey: item.type.toLowerCase()})
       }>
       <FastImage
         source={{

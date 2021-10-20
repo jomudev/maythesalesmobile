@@ -1,32 +1,26 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useState} from 'react';
 import {View} from 'react-native';
 import {
   BannerAd,
   TestIds,
   BannerAdSize,
-  InterstitialAd,
 } from '@react-native-firebase/admob';
 import menuListStyles from './Inventario/styles';
 
-const BannerUnitId = __DEV__
-  ? TestIds.BANNER
-  : 'ca-app-pub-8903466117529509/6769370981';
+const BannerUnitId = 'ca-app-pub-8903466117529509/6769370981';
 
-const ReportBannerUnitId = __DEV__
-  ? TestIds.BANNER
-  : 'ca-app-pub-8903466117529509/6662646854';
+const ReportBannerUnitId = 'ca-app-pub-8903466117529509/6662646854';
 
-const InterstitialUnitId = __DEV__
-  ? TestIds.INTERSTITIAL
-  : 'ca-app-pub-8903466117529509/1216057711';
+const InterstitialUnitId = 'ca-app-pub-8903466117529509/1216057711';
 
-const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, {
-  keywords: ['delivery', 'marketing', 'deal', 'business'],
+const interstitialAdConfig = {
   requestNonPersonalAdsOnly: true,
-});
+  keywords: ['delivery', 'marketing', 'deal', 'business', 'finances'],
+};
 
 function HomeBannerAd({height}) {
+  const [isHidden, hide] = useState(false);
   return (
     <View
       style={{
@@ -35,6 +29,7 @@ function HomeBannerAd({height}) {
         justifyContent: 'center',
       }}>
       <BannerAd
+        onAdFailedToLoad={() => hide(true)}
         unitId={BannerUnitId}
         size={height ? BannerAdSize.ADAPTIVE_BANNER : BannerAdSize.LARGE_BANNER}
       />
@@ -43,7 +38,9 @@ function HomeBannerAd({height}) {
 }
 
 function ReportsBannerAd({height}) {
-  return (
+  const [isHidden, hide] = useState(false);
+
+  return isHidden && (
     <View
       style={{
         height: height || 100,
@@ -51,6 +48,7 @@ function ReportsBannerAd({height}) {
         justifyContent: 'center',
       }}>
       <BannerAd
+        onAdFailedToLoad={() => hide(true)}
         unitId={ReportBannerUnitId}
         size={height ? BannerAdSize.ADAPTIVE_BANNER : BannerAdSize.LARGE_BANNER}
       />
@@ -58,22 +56,29 @@ function ReportsBannerAd({height}) {
   );
 }
 
-const MenuListBannerAdvert = () => (
-  <View
-    style={{
-      ...menuListStyles.menuListItem,
-      height: 100,
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-    <BannerAd unitId={BannerUnitId} size={BannerAdSize.LARGE_BANNER} />
-  </View>
-);
+function BannerAdvertiser({height}) {
+  const [isHidden, hide] = useState(false);
+
+  return isHidden && (
+    <View
+      style={{
+        height: height || 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <BannerAd
+        onAdFailedToLoad={() => hide(true)}
+        unitId={ReportBannerUnitId}
+        size={height ? BannerAdSize.ADAPTIVE_BANNER : BannerAdSize.LARGE_BANNER}
+      />
+    </View>
+  );
+}
 
 export {
   HomeBannerAd,
   ReportsBannerAd,
-  MenuListBannerAdvert,
+  BannerAdvertiser,
   InterstitialUnitId,
-  interstitial,
+  interstitialAdConfig,
 };

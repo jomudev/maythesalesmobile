@@ -97,13 +97,7 @@ const MainHeaderRightComponent = (props) => {
       storeUnsubscribe();
     };
   }, []);
-  if (
-    routeName === 'ShowClientes' ||
-    routeName === 'ShowProductos' ||
-    routeName === 'ShowProveedores' ||
-    routeName === 'ShowMayoristas' ||
-    routeName === 'showServicios'
-  ) {
+  if (routeName === 'ShowInventory') {
     return (
       <Icon
         name={searchIcon}

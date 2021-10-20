@@ -212,7 +212,7 @@ class ContextMenu extends React.Component {
               top: position.y + position.height - 30,
               right: 20,
             }}>
-            {optionsList.map(({iconName, text, onPress}) => (
+            {optionsList.map(({text, onPress}) => (
               <TouchableOpacity
                 key={iconName + text}
                 onPress={() => {

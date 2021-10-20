@@ -10,6 +10,7 @@ import {es} from 'date-fns/locale';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import store from '../../store';
+import { ToastAndroid } from 'react-native';
 
 const db = (collection) => {
   const authId = auth().currentUser.uid;
@@ -72,35 +73,12 @@ const fileStorage = (path) => {
   return storage().ref(`negocios/${authId}/${path}`);
 };
 
-const handleGetList = async (snap, list) => {
+const handleGetList = async (collectionKey) => {
   try {
-    if (!snap) {
-      return;
-    }
-    let newList = list;
-    snap.docChanges().forEach((change) => {
-      const data = change.doc.data();
-      switch (change.type) {
-        case 'added':
-          const isInList = list.filter((item) => item.id === data.id)[0];
-          if (!isInList) {
-            newList = newList.concat(data);
-          }
-          break;
-        case 'modified':
-          newList = list.map((item) => (item.id === data.id ? data : item));
-          break;
-        case 'removed':
-          newList = list.filter((item) => item.id !== data.id);
-          break;
-        default:
-          break;
-      }
+    const collection = await db(collectionKey).get().then((snapQuery) => {
+      return snapQuery.docChanges().map((change) => change.doc.data());
     });
-    return {
-      collection: newList,
-      isItIdentical: JSON.stringify(list) === JSON.stringify(newList),
-    };
+    return collection;
   } catch (err) {
     console.warn('error trying to get data list: ', err);
   }
@@ -113,59 +91,85 @@ function moneyFormat(number) {
   }).format(Number(number));
 }
 
-async function update(collectionToUpdate, data) {
+async function update(collectionKey, data) {
   try {
-    return db().collection(collectionToUpdate).doc(data.id).update(data);
+    return db(collectionKey).doc(data.id).update(data);
   } catch (err) {
     console.warn(
       'error trying to update the collection {',
-      collectionToUpdate,
+      collectionKey,
       ' ',
       err,
     );
   }
 }
 
-async function deleteFromInventory(collectionToDelete, docToDeleteKey) {
+async function deleteImage(imageType, docData) {
   try {
+    const imageRef = `${imageType}/${docData.nombre}/productImage`;
+    console.log(imageRef);
+    return fileStorage(imageRef).delete()
+  } catch (err) {
+    console.warn('file storage alert: ', err);
+  }
+}
+
+async function deleteFromInventory(collectionToDelete, docData) {
+  try {
+    if (collectionToDelete === 'productos' || collectionToDelete === 'services') {
+      await deleteImage(collectionToDelete, docData).catch((err) => {
+        ToastAndroid.show(err, ToastAndroid.SHORT);
+      });
+    }
     return await db()
       .collection(collectionToDelete)
-      .doc(docToDeleteKey)
+      .doc(docData.id)
       .delete();
   } catch (err) {
     console.warn('error trying to delete from inventory ', err);
   }
 }
 
-function getPeriodsReports(list) {
-  let newList = list.map((item) => {
-    return format(new Date(item.timestamp.seconds * 1000), 'yyyy MMMM', {
-      locale: es,
-    });
-  });
+const getSaleDate = (sale, type) => {
+  return format(new Date(sale.timestamp.seconds * 1000), type, {
+  locale: es,
+})}
 
-  newList = new Set(newList);
-  newList = [...newList].map((item) => {
-    let total = 0;
-    list.forEach((venta) => {
-      const date = format(
-        new Date(venta.timestamp.seconds * 1000),
-        'yyyy MMMM',
-        {
-          locale: es,
-        },
-      );
-      if (item === date) {
-        total += venta.estado ? venta.total : 0;
+function orderReportsBy(type, collection) {
+  let  newCollection = collection.map((item) => getSaleDate(item, type));
+  newCollection = Array.from(new Set(newCollection));
+
+  if (type === 'MMMM') {
+    newCollection = newCollection.map((month) => {
+      const filteredCollection = collection.filter((sale) => getSaleDate(sale, type) === month);
+      let totalSold = filteredCollection.map((sale) => Number.parseInt(sale.total, 10));
+      totalSold = totalSold.length > 0 ? totalSold.reduce((prevTotal, currentTotal) => prevTotal + currentTotal) : 0;
+
+      const totalPurchase = filteredCollection.map((sale) => {
+        let productsProfits = sale.productos.map((product) => 
+        Number.parseInt(product.precioCosto) * Number.parseInt(product.cantidad));
+
+        productsProfits = productsProfits.length > 0 ? productsProfits.reduce((prevProfits, currentProfits) => prevProfits + currentProfits) : 0;
+        let servicesProfits = sale.servicios.map((service) => 
+        Number.parseInt(service.precioCosto) * Number.parseInt(service.cantidad));
+        servicesProfits = servicesProfits.length > 0 ? servicesProfits.reduce((prevProfits, currentProfits) => prevProfits + currentProfits) : 0;
+        return productsProfits + servicesProfits;
+      }).reduce((prevProfits, currentProfits) => prevProfits + currentProfits);
+
+      const totalProfits = totalSold - totalPurchase;
+
+      return {
+        month,
+        totalSold,
+        totalProfits,
       }
     });
-    return {
-      period: item,
-      total,
-    };
-  });
-
-  return newList;
+  } else if (type === 'YYYY') {
+    newCollection = newCollection.map(year => {
+      const filteredCollection = collection.filter((sale) => getSaleDate(sale, type) === year);
+    })
+  }
+  return newCollection;
 }
 
 function getTotal(collection, isWholesaler) {
@@ -184,7 +188,12 @@ function getTotal(collection, isWholesaler) {
   }
 }
 
-async function shareImage(url, options) {
+async function share(content) {
+  console.log('sharing');
+  return await Share.open(content);
+}
+
+async function shareImage(url, content) {
   try {
     let imagePath = null;
     await RNFetchBlob.config({
@@ -197,7 +206,7 @@ async function shareImage(url, options) {
       })
       .then(async (base64Data) => {
         var base64Data = `data:image/jpeg;base64,${base64Data}`;
-        await Share.open({...options, url: base64Data});
+        await Share.open({...content, url: base64Data});
         RNFetchBlob.fs.unlink(imagePath);
       });
   } catch (err) {
@@ -219,27 +228,9 @@ function filterItems(item, search) {
       throw 'La busqueda no puede ser null o undefined';
     }
     search = search.toLowerCase().trim();
-    return (
-      // if one of this fields concord with the search, then return true
-      (item.nombre ? item.nombre.toLowerCase().includes(search) : false) ||
-      (item.descripcion
-        ? item.descripcion.toLowerCase().includes(search)
-        : false) ||
-      (item.email ? item.email.toLowerCase().includes(search) : false) ||
-      (item.marca ? item.marca.toLowerCase().includes(search) : false) ||
-      (item.telefono ? item.telefono.includes(search) : false) ||
-      (item.precioVenta
-        ? item.precioVenta.toString().includes(search)
-        : false) ||
-      (item.precioMayoreo
-        ? item.precioMayoreo.toString().includes(search)
-        : false) ||
-      (item.precioCosto
-        ? item.precioCosto.toString().includes(search)
-        : false) ||
-      (item.barcode ? item.barcode.includes(search) : false) ||
-      (item.cantidad ? item.cantidad.toString().includes(search) : false)
-    );
+    item = JSON.stringify(item).toLowerCase()
+    .replace(/(nombre)|(email)|(telefono)|(precioventa)|(descripcion)|(preciocosto)|(barcode)|(cantidad)| (id)|(imageURL)|(marca)|(preciomayoreo)/g, '');
+    return (item.includes(search));
   } catch (err) {
     console.warn('error al intentar filtrar la coleccion de datos: ', err);
   }
@@ -271,14 +262,15 @@ const postSale = async ({
         const productRef = db('productos').doc(item.id);
         return await t.get(productRef).then((doc) => {
           let cantidad = doc.data().cantidad;
+          let ventasPorProducto = doc.data().ventasPorProducto;
+          ventasPorProducto = !ventasPorProducto ? 1 : ventasPorProducto + 1;
+          cantidad -= item.cantidad;
           if (cantidad > 0) {
-            cantidad -= item.cantidad;
-            if (cantidad > 0) {
               return t.update(productRef, {
                 cantidad,
+                ventasPorProducto
               });
             }
-          }
         });
       });
     });
@@ -312,10 +304,13 @@ export {
   filterItems,
   moneyFormat,
   update,
-  getPeriodsReports,
+  orderReportsBy,
   getTotal,
   shareImage,
+  share,
   handleGetList,
   verifyChanges,
   postSale,
+  deleteImage,
+  getSaleDate,
 };

@@ -20,7 +20,7 @@ import {initializeAppData} from './src/components/mainFunctions';
 import ShowItem from './src/components/showInformacionComponents/ShowItem';
 import MainNavigator from './src/components/mainNavigator';
 import Configuracion from './src/containers/configurationContainer';
-import {deleteFromInventory} from './src/components/mainFunctions';
+import {deleteFromInventory, shareImage, share, moneyFormat} from './src/components/mainFunctions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddCliente from './src/components/AddComponents/addCliente';
 import AddProducto from './src/components/AddComponents/addProducto';
@@ -30,17 +30,11 @@ import AddWholesaler from './src/components/AddComponents/addWholesaler';
 import CamScanner from './src/components/CamScanner';
 import SaleReport from './src/components/reports/saleReport';
 //import SecludedSales from './src/components/secludedSales';
+import ShowInventory from './src/components/showInformacionComponents/ShowInventory';
 import {format} from 'date-fns';
 import {es} from 'date-fns/locale';
 import PopupMenu from './src/components/PopupMenu';
 import Cart from './src/components/Cart';
-import {
-  ShowClientes,
-  ShowProductos,
-  ShowProveedores,
-  ShowServicios,
-  ShowWholesalers,
-} from './src/components/showInformacionComponents/ShowList';
 import MainHeaderRightComponent from './src/components/HeaderComponents/MainHeaderRightComponent';
 import store from './store';
 
@@ -74,7 +68,7 @@ const App = () => {
           {
             text: 'Sí, estoy seguro',
             onPress: () =>
-              deleteFromInventory(type.toLowerCase(), data.id)
+              deleteFromInventory(type.toLowerCase(), data)
                 .then((res) => {
                   navigation.goBack();
                 })
@@ -118,6 +112,43 @@ const App = () => {
     );
   };
 
+  const getOptionsList = ({params}) => {
+    const {data, type} = params;
+    const shareOptions = {       
+      title: `${data.nombre} ${data.marca} - ${moneyFormat(data.precioVenta)} ${data.descripcion ? '| ' + data.descripcion : ''}`,
+    };
+    var optionsList = [{
+        text: 'Eliminar',
+        onPress: () => {
+          handleDelete(
+            route.params.type,
+            route.params.data,
+            navigation,
+          );
+        },
+      }]
+
+    if (type === 'productos') {
+      optionsList = [
+        ...optionsList,
+        {
+          text: 'Compartir',
+          onPress: () => {
+            shareImage(data.imageURL, shareOptions);
+          }
+        },
+        {
+          text: 'Compartir solo detalles',
+          onPress: () => {
+            share(shareOptions)
+          }
+        }
+      ]
+    }
+
+    return optionsList;
+  }
+
   useEffect(() => {
     const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
       if (authUser) {
@@ -155,6 +186,7 @@ const App = () => {
     return <LoadingScreen />;
   }
 
+
   if (user) {
     return (
       <NavigationContainer>
@@ -173,51 +205,34 @@ const App = () => {
               ),
             };
           }}>
-          <Stack.Screen
-            name="MainNavigator"
-            options={({navigation}) => ({
-              title: "Maythe's Sales",
-              headerTitleStyle: {
-                fontSize: 28,
-                fontWeight: 'bold',
-              },
-            })}
-            component={MainNavigator}
-          />
-          <Stack.Screen
-            name="Cart"
-            options={{
-              title: 'Carrito de ventas',
-            }}
-            component={Cart}
-          />
-          {/*<Stack.Screen
-            name="SecludedSales"
-            options={{
-              title: 'Ventas apartadas',
-            }}
-            component={SecludedSales}
-          />*/}
-          <Stack.Screen
+            <Stack.Screen
+              name="MainNavigator"
+              options={({navigation}) => ({
+                title: "Maythe's Sales",
+                headerTitleStyle: {
+                  fontSize: 28,
+                  fontFamily:  'VarelaRound-Regular',
+                  fontWeight: 'bold',
+                },
+              })}
+              component={MainNavigator}
+            />
+            <Stack.Screen
+              name="ShowInventory"
+              options={({route}) => ({
+                title: route.params.collectionKey[0].toUpperCase() + route.params.collectionKey.substring(1),
+              })}
+              component={ShowInventory}
+            />
+            <Stack.Screen
             name="ShowItem"
-            options={({route, navigation}) => ({
+            options={({route}) => ({
               title: route.params.data.nombre,
               headerRight: (props) => {
                 return (
                   <ContextMenu
                     {...props}
-                    optionsList={[
-                      {
-                        text: 'Eliminar',
-                        onPress: () => {
-                          handleDelete(
-                            route.params.type,
-                            route.params.data,
-                            navigation,
-                          );
-                        },
-                      },
-                    ]}
+                    optionsList={getOptionsList(route)}
                   />
                 );
               },
@@ -230,6 +245,13 @@ const App = () => {
             component={Configuracion}
           />
           <Stack.Screen
+            name="Cart"
+            options={{
+              title: 'Carrito de ventas',
+            }}
+            component={Cart}
+          />
+            <Stack.Screen
             name="saleReport"
             options={({route}) => ({
               title: `Venta del ${format(
@@ -241,16 +263,13 @@ const App = () => {
               )}`,
             })}
             component={SaleReport}
-          />
+            />
+            
+          <Stack.Screen name="CamScanner" component={CamScanner} />
           <Stack.Screen
             name="Clientes"
             options={{title: 'Añadir nuevo cliente'}}
             component={AddCliente}
-          />
-          <Stack.Screen
-            name="ShowClientes"
-            options={{title: 'Clientes'}}
-            component={ShowClientes}
           />
           <Stack.Screen
             name="Productos"
@@ -258,19 +277,9 @@ const App = () => {
             component={AddProducto}
           />
           <Stack.Screen
-            name="ShowProductos"
-            options={{title: 'Productos'}}
-            component={ShowProductos}
-          />
-          <Stack.Screen
             name="Servicios"
             options={{title: 'Añadir nuevo servicio adicional'}}
             component={AddServicio}
-          />
-          <Stack.Screen
-            name="ShowServicios"
-            options={{title: 'Servicios adicionales'}}
-            component={ShowServicios}
           />
           <Stack.Screen
             name="Proveedores"
@@ -278,21 +287,18 @@ const App = () => {
             component={AddProveedor}
           />
           <Stack.Screen
-            name="ShowProveedores"
-            options={{title: 'Proveedores'}}
-            component={ShowProveedores}
-          />
-          <Stack.Screen
             name="Mayoristas"
             options={{title: 'Añadir nuevo comprador mayorista'}}
             component={AddWholesaler}
           />
-          <Stack.Screen
-            name="ShowMayoristas"
-            options={{title: 'Compradores mayoristas'}}
-            component={ShowWholesalers}
-          />
-          <Stack.Screen name="CamScanner" component={CamScanner} />
+          
+          {/*<Stack.Screen
+            name="SecludedSales"
+            options={{
+              title: 'Ventas apartadas',
+            }}
+            component={SecludedSales}
+          />*/}
         </Stack.Navigator>
       </NavigationContainer>
     );

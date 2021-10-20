@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, ToastAndroid, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {moneyFormat} from '../mainFunctions';
 import {
@@ -47,8 +47,11 @@ const elementIsSelected = (storeCartElements, id) => {
 
 const removeFromCart = (type, id, setIsSelected) => {
   switch (type) {
-    case 'product' || 'service':
+    case 'product':
       removeProductFromCart(id);
+      break;
+    case 'service':
+      removeServiceFromCart(id);
       break;
     default:
       break;
@@ -89,7 +92,6 @@ const ProductItem = ({data}) => {
         source={{
           uri: data.imageURL ? data.imageURL : defaultImageURI,
           priority: FastImage.priority.high,
-          cache: FastImage.cacheControl.immutable,
         }}
       />
       <View>
@@ -135,6 +137,11 @@ const ClientItem = ({data}) => {
 
   const cartClient = (type) => {
     if (type === 'set') {
+    const cartWholesaler = store.getState().cartWholesaler;
+      if (cartWholesaler) {
+        ToastAndroid.show("ya existe un cliente mayorista en el carro de ventas.", ToastAndroid.LONG);
+        return;
+      }
       addClientToCart(data);
       setIsSelected(true);
     } else if (type === 'remove') {
@@ -175,10 +182,15 @@ const WholesalerItem = ({data}) => {
 
   const cartWholesaler = (type) => {
     if (type === 'set') {
-      addClientToCart(data);
+      const cartClient = store.getState().cartClient;
+    if (cartClient) {
+      ToastAndroid.show("ya existe un cliente común en el carro de ventas.", ToastAndroid.LONG);
+      return;
+    }
+      addWholesalerToCart(data);
       setIsSelected(true);
     } else if (type === 'remove') {
-      addClientToCart(null);
+      addWholesalerToCart(null);
       setIsSelected(false);
     }
   };

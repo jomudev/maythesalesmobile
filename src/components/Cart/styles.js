@@ -3,6 +3,7 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'white',
   },
   subtotal: {
     fontSize: 24,
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   saleStateContainer: {
-    flex: 2,
+    flex: 1,
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
@@ -37,12 +38,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     flex: 1,
     fontWeight: 'bold',
-    alignText: 'left',
+    textAlign: 'left',
   },
   switchSaleState: {
     flex: 1,
     alignSelf: 'flex-end',
-    height: 60,
+    height: 30,
   },
   total: {
     flex: 3,

@@ -1,6 +1,5 @@
 import React from 'react';
 import {Text, View} from 'react-native';
-import ShowServicioItem from '../showItemComponents/showServicioItem';
 import ShowClienteItem from '../showItemComponents/showClienteItem';
 import ShowProductoItem from '../showItemComponents/showProductoItem';
 import ShowProveedorItem from '../showItemComponents/showProveedorItem';
@@ -12,18 +11,7 @@ const closeIcon = 'close';
 const ShowItem = ({route, navigation}) => {
   const type = route.params.type;
   const data = route.params.data;
-  if (type === 'Servicios') {
-    return (
-      <ShowServicioItem
-        data={data}
-        closeIcon={closeIcon}
-        editIcon={editIcon}
-        type={type}
-        navigation={navigation}
-      />
-    );
-  }
-  if (type === 'Productos') {
+  if (type === 'servicios' || type === 'productos') {
     return (
       <ShowProductoItem
         data={data}
@@ -34,7 +22,7 @@ const ShowItem = ({route, navigation}) => {
       />
     );
   }
-  if (type === 'Clientes') {
+  if (type === 'clientes') {
     return (
       <ShowClienteItem
         data={data}
@@ -45,7 +33,7 @@ const ShowItem = ({route, navigation}) => {
       />
     );
   }
-  if (type === 'Proveedores') {
+  if (type === 'proveedores') {
     return (
       <ShowProveedorItem
         data={data}
@@ -56,7 +44,7 @@ const ShowItem = ({route, navigation}) => {
       />
     );
   }
-  if (type === 'Mayoristas') {
+  if (type === 'mayoristas') {
     return (
       <ShowWholesalerItem
         data={data}

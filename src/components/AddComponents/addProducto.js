@@ -16,7 +16,7 @@ import {useForm} from 'react-hook-form';
 import ImagePicker from 'react-native-image-crop-picker';
 import LoadingScreen from '../loadingScreen';
 
-const defaultValuesForm = {
+const initialFormValues = {
   nombre: '',
   marca: '',
   cantidad: '',
@@ -25,21 +25,23 @@ const defaultValuesForm = {
   precioCosto: '',
   precioVenta: '',
   precioMayoreo: '',
+  imageURL: '',
 };
 
 const AddProducto = ({navigation, route}) => {
   const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
   const {register, handleSubmit, errors, watch, reset, setValue} = useForm({
-    defaultValues: defaultValuesForm,
+    defaultValues: initialFormValues,
+    mode: 'onSubmit',
+    criteriaMode: 'firstError',
   });
-  const [image, setImage] = useState(null);
+  const [imageURL, setImageURL] = useState(null);
   const [barcode, setBarcode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    register('image');
+    register('imageURL');
     register('nombre', {required: true});
-    register('categoria');
     register('marca');
     register('cantidad');
     register('proveedor');
@@ -54,17 +56,27 @@ const AddProducto = ({navigation, route}) => {
   }
 
   const clean = () => {
-    reset();
+    reset({
+      nombre: '',
+      marca: '',
+      cantidad: '',
+      proveedor: '',
+      descripcion: '',
+      precioCosto: '',
+      precioVenta: '',
+      precioMayoreo: '',
+      imageURL: '',
+    });
     setBarcode('');
-    setImage(null);
-    setValue('image', null);
+    setImageURL(null);
+    setValue('imageURL', null);
   };
 
   const onSubmit = (data) => {
     setIsLoading(true);
     save('product', {
       ...data,
-      barcode: barcode,
+      barcode,
     })
       .then(() => {
         ToastAndroid.show(
@@ -72,24 +84,26 @@ const AddProducto = ({navigation, route}) => {
           ToastAndroid.SHORT,
         );
         setIsLoading(false);
+        clean();
       })
-      .catch(() => {
+      .catch((err) => {
+        setIsLoading(false);
         ToastAndroid.show(
           '¡Ups! Ha ocurrido un problema al intentar guardar el registro',
           ToastAndroid.SHORT,
         );
-        setIsLoading(false);
+        console.log('error trying save service ' + JSON.stringify(err));
       });
-    clean();
   };
 
   const handleSetImage = () => {
     ImagePicker.openPicker({
       cropping: true,
+      freeStyleCropEnabled: true,
     })
-      .then((res) => {
-        setImage(res.path);
-        setValue('image', res.path);
+      .then((pickerResponse) => {
+        setImage(pickerResponse.path);
+        setValue('imageURL', pickerResponse.path);
       })
       .catch((err) => {
         console.log(err);
@@ -97,8 +111,8 @@ const AddProducto = ({navigation, route}) => {
   };
 
   const removeImage = () => {
-    setImage(null);
-    setValue('image', null);
+    setImageURL(null);
+    setValue('imageURL', null);
   };
 
   return (
@@ -112,23 +126,20 @@ const AddProducto = ({navigation, route}) => {
             <TouchableOpacity
               style={styles.setImageButton}
               onPress={handleSetImage}>
-              {image ? (
+              {imageURL ? (
                 <TouchableOpacity
                   style={styles.imageRemoveButton}
                   onPress={removeImage}>
                   <Icon name="image-remove" style={styles.imageRemoveIcon} />
                 </TouchableOpacity>
               ) : null}
-              {image ? (
-                <Image source={{uri: image}} style={styles.image} />
+              {imageURL ? (
+                <Image source={{uri: imageURL}} style={styles.image} />
               ) : (
                 <Icon name="image-plus" style={styles.imageIcon} />
               )}
             </TouchableOpacity>
           </View>
-          <Text style={styles.screenDescription}>
-            Agrega tus productos para poder realizar tus ventas
-          </Text>
           <View style={{flexDirection: 'row', padding: 8}}>
             <TextBox
               editable={false}
@@ -160,12 +171,6 @@ const AddProducto = ({navigation, route}) => {
             style={styles.txtInput}
             onChangeText={(text) => setValue('marca', text)}
             value={watch('marca')}
-          />
-          <TextBox
-            placeholder="Categoría"
-            style={styles.txtInput}
-            onChangeText={(text) => setValue('categoria', text)}
-            value={watch('categorias')}
           />
           <TextBox
             placeholder="Cantidad"

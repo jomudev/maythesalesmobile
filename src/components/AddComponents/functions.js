@@ -1,5 +1,5 @@
-import storage from '@react-native-firebase/storage';
-import {db, getUserData} from '../mainFunctions';
+import {db, getUserData, fileStorage} from '../mainFunctions';
+import {ToastAndroid} from 'react-native';
 
 const cleanString = (string) => {
   if (!string) {
@@ -31,29 +31,31 @@ const randomId = (lettersLength, numbersLength) => {
   return `${getLetters(lettersLength)}${getNumbers(numbersLength)}`;
 };
 
-const saveProductImage = async (productRef, data) => {
-  await productRef.child(`${data.nombre}/mainImage`).putFile(data.image);
-  let url = await productRef.child(`${data.nombre}/mainImage`).getDownloadURL();
-  return url;
+const saveImage = async (productRef, data) => {
+  productRef = productRef.child(`${data.nombre}/productImage`);
+  await productRef.putFile(data.imageURL)
+  .catch((err) => {
+    ToastAndroid.show(`error: ${err}`, ToastAndroid.LONG);
+  });
+  return await productRef.getDownloadURL();
 };
 
 const saveProduct = (data, imageDownloadURL) => {
   try {
     const id = randomId(0, 6);
+    data = {
+      ...data,
+      id,
+      cantidad: Number(data.cantidad),
+      precioCosto: Number(data.precioCosto),
+      precioVenta: Number(data.precioVenta),
+      precioMayoreo: Number(data.precioMayoreo),
+      ventasPorProducto: 0,
+      imageURL: imageDownloadURL,
+    }
     return db('productos')
       .doc(id)
-      .set({
-        nombre: data.nombre,
-        id,
-        marca: data.marca,
-        barcode: data.barcode,
-        cantidad: Number(data.cantidad),
-        descripcion: data.descripcion,
-        precioCosto: Number(data.precioCosto),
-        precioVenta: Number(data.precioVenta),
-        precioMayoreo: Number(data.precioMayoreo),
-        imageURL: imageDownloadURL ? imageDownloadURL : null,
-      });
+      .set(data);
   } catch (err) {
     console.log('error trying to save the product');
   }
@@ -62,21 +64,20 @@ const saveProduct = (data, imageDownloadURL) => {
 const saveClient = (data) => {
   try {
     const id = randomId(5, 3);
+    data = {
+      ...data,
+      id,
+      telefono: cleanString(data.telefono),
+    };
     return db('clientes')
       .doc(id)
-      .set({
-        id,
-        nombre: data.nombre,
-        telefono: cleanString(data.telefono),
-        email: data.email,
-        descripcion: data.descripcion,
-      });
+      .set(data);
   } catch (err) {
     console.warn(`error trying to save the client on the inventory ${err}`);
   }
 };
 
-const saveService = (data) => {
+const saveService = (data, imageDownloadURL) => {
   try {
     const id = randomId(4, 6);
     return db('servicios')
@@ -91,6 +92,7 @@ const saveService = (data) => {
         precioCosto: Number(data.precioCosto),
         precioVenta: Number(data.precioVenta),
         precioMayoreo: Number(data.precioMayoreo),
+        imageURL: imageDownloadURL,
       });
   } catch (err) {
     console.warn(`error trying to save the service on the inventory ${err}`);
@@ -131,21 +133,23 @@ const saveWholesaler = (data) => {
 
 const save = async (type, data) => {
   try {
-    const uid = (await getUserData()).currentUser.uid;
-    let productRef = storage().ref(`negocios/${uid}`).child('productos');
     if (data.nombre !== '' && data.nombre !== null) {
       if (type === 'product') {
         if (data.image) {
-          const imageDownloadURL = await saveProductImage(productRef, data);
-          return await saveProduct(data, imageDownloadURL);
+          const imageDownloadURL = await saveImage(fileStorage('productos'), data);
+          return saveProduct(data, imageDownloadURL);
         }
-        return await saveProduct(data);
+        return saveProduct(data);
+      }
+      if (type === 'service') {
+        if (data.image) {
+          const imageDownloadURL = await saveImage(fileStorage('servicios'), data);
+          return saveService(data, imageDownloadURL);
+        }
+        return saveService(data);
       }
       if (type === 'client') {
         return saveClient(data);
-      }
-      if (type === 'service') {
-        return await saveService(data);
       }
       if (type === 'provider') {
         return await saveProvider(data);

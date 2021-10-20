@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableWithoutFeedback, Alert} from 'react-native';
+import {View, Text, TouchableWithoutFeedback, Alert, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './listStyles';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
@@ -48,7 +48,7 @@ const RenderVentasCollection = ({sale, type}) => {
       ? new Date(timestamp)
       : new Date(timestamp.seconds * 1000);
   const [isAdLoaded, setAdLoaded] = useState(false);
-  const legibleDate = format(saleDate, 'PPpp', {locale: es});
+  const legibleDate = format(saleDate, 'dd MMM', {locale: es});
   let popupRef = React.createRef();
 
   const contextMenuFunction = (index) => {
@@ -75,7 +75,7 @@ const RenderVentasCollection = ({sale, type}) => {
 
   const navigate = (screen, params) => navigation.navigate(screen, params);
 
-  const optionsList = ['Ver Reporte', 'Reporte en PDF', 'Eliminar reporte'];
+  const optionsList = ['Ver Reporte', 'Imprimir reporte', 'Eliminar reporte'];
 
   useEffect(() => {
     const adUnsubscribe = interstitial.onAdEvent((type) => {
@@ -104,6 +104,7 @@ const RenderVentasCollection = ({sale, type}) => {
         <View style={styles.saleState}>
           <Text
             style={{
+              textAlign: 'center',
               color: estado === 'Vendido' ? '#101e5a' : 'gray',
               fontWeight: 'bold',
             }}>
@@ -152,12 +153,14 @@ const RenderVentasCollection = ({sale, type}) => {
           style={{
             fontWeight: 'bold',
             flex: 1,
-            fontSize: 24,
-            textAlign: 'right',
+            fontSize: 16,
           }}>
-          Total: {moneyFormat(total)}
+          Vendido: {moneyFormat(total)}
         </Text>
       </View>
+      <TouchableOpacity style={styles.reportButton} onPress={() => contextMenuFunction(0)}>
+        <Text style={{fontWeight: 'bold', color: '#101e5a'}}>Ver Reporte</Text>
+      </TouchableOpacity>
     </View>
   );
 };
