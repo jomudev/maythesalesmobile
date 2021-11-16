@@ -63,7 +63,7 @@ const SaleReport = ({route}) => {
         <View style={{flex: 1}}>
           <Switch
             style={{alignSelf: 'flex-end'}}
-            trackColor={{false: '#fff', true: '#fff'}}
+            trackColor={{false: '#e6e8f1', true: '#e6e8f1'}}
             thumbColor={saleState ? '#434588' : '#b4b6be'}
             onValueChange={() => changeSaleStateValue(!saleState)}
             value={saleState}

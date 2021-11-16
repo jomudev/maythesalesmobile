@@ -102,7 +102,7 @@ const AddProducto = ({navigation, route}) => {
       freeStyleCropEnabled: true,
     })
       .then((pickerResponse) => {
-        setImage(pickerResponse.path);
+        setImageURL(pickerResponse.path);
         setValue('imageURL', pickerResponse.path);
       })
       .catch((err) => {

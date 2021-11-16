@@ -114,8 +114,10 @@ const App = () => {
 
   const getOptionsList = ({params}) => {
     const {data, type} = params;
+    const shareMessage = `${data.nombre} ${data.marca} - ${moneyFormat(data.precioVenta)} ${data.descripcion ? '| ' + data.descripcion : ''}`;
     const shareOptions = {       
-      title: `${data.nombre} ${data.marca} - ${moneyFormat(data.precioVenta)} ${data.descripcion ? '| ' + data.descripcion : ''}`,
+      title: shareMessage,
+      message: shareMessage
     };
     var optionsList = [{
         text: 'Eliminar',
@@ -193,7 +195,7 @@ const App = () => {
         <Stack.Navigator
           screenOptions={({route, navigation}) => {
             return {
-              headerStyle: {
+              headerStyle: { 
                 elevation: 0,
               },
               headerRight: (props) => (
@@ -265,7 +267,9 @@ const App = () => {
             component={SaleReport}
             />
             
-          <Stack.Screen name="CamScanner" component={CamScanner} />
+          <Stack.Screen
+            options={{headerMode: 'none'}}
+            name="CamScanner" component={CamScanner} />
           <Stack.Screen
             name="Clientes"
             options={{title: 'Añadir nuevo cliente'}}

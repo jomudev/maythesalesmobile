@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 24,
     bottom: 24,
-    elevation: 24,
+    elevation: 8,
   },
   header: {
     height: 60,
@@ -72,8 +72,6 @@ const styles = StyleSheet.create({
   txtInput: {
     width: '100%',
     fontSize: 16,
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
     padding: 10,
     marginBottom: 10,
   },
@@ -173,9 +171,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   form: {
-    width: '100%',
-    padding: 8,
-    flex: 1,
+    paddingHorizontal: 8,
   },
   title: {
     fontSize: 24,

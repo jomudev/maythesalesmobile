@@ -1,19 +1,17 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   SafeAreaView,
   Text,
   FlatList,
-  RefreshControl,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {moneyFormat, db, orderReportsBy} from '../mainFunctions';
+import {moneyFormat, getMonthTotals} from '../mainFunctions';
 import EmptyListImages from '../emptyListImage';
-import LoadingScreen from '../loadingScreen';
 import {ReportsBannerAd} from '../ads';
 
-const ListItemStyles = StyleSheet.create({
+const itemStyle = StyleSheet.create({
   container: {
     width: '100%',
     backgroundColor: 'white',
@@ -46,6 +44,7 @@ const ListItemStyles = StyleSheet.create({
   amountTitle: {
     fontSize: 12,
     color: 'gray',
+    fontFamily: 'VarelaRound-Regular',
   },
   amountValue: {
     fontWeight: 'bold',
@@ -53,82 +52,40 @@ const ListItemStyles = StyleSheet.create({
   }
 });
 
-const getSalesCollection = async (actualYear) => {
-  let salesCollection = (await db('ventas').get())
-    .docChanges()
-    .map((change) => change.doc.data());
-    return orderReportsBy('MMMM', salesCollection).reverse();
-};
-
 const YearReports = ({navigation, route}) => {
-  const [collection, setCollection] = useState([]);
-  const year = route.params.year;
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const {months} = route.params;
 
-  const wait = (timeout) => {
-    return new Promise((resolve) => setTimeout(resolve, timeout));
-  };
+  const filterBySold = (item) => item.estado;
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    getSalesCollection(year).then((response) => {
-      setCollection(response);
-    });
-    wait(2000).then(() => {
-      setRefreshing(false);
-    });
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = db('ventas').onSnapshot(() => {
-      getSalesCollection()
-      .then((response) => {
-        setCollection(response);
-        setLoading(false);
-      });
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  const MonthReportItem = ({item}) => {
+  const MonthReportItem = (month) => {
+    const {total, profits} = getMonthTotals(months[month].filter(filterBySold));
     return (
       <TouchableOpacity
-        style={ListItemStyles.container}
+        style={itemStyle.container}
         onPress={() =>
-          navigation.navigate('monthReports', {month: item.month})
+          navigation.navigate('monthReports', {month, monthData: months[month]})
         }>
-        <Text style={ListItemStyles.month}>{item.month.toUpperCase()}</Text>
-        <View style={ListItemStyles.amounts}>
-        <View style={ListItemStyles.amount}>
-          <Text style={ListItemStyles.amountValue}>{moneyFormat(item.totalSold)}</Text>
-          <Text style={ListItemStyles.amountTitle}>Total vendido</Text>
+        <Text style={itemStyle.month}>{month.toUpperCase()}</Text>
+        <View style={itemStyle.amounts}>
+        <View style={itemStyle.amount}>
+          <Text style={itemStyle.amountValue}>{moneyFormat(total)}</Text>
+          <Text style={itemStyle.amountTitle}>Total vendido</Text>
         </View>
-        <View style={ListItemStyles.amount}>
-        <Text style={ListItemStyles.amountValue}>{moneyFormat(item.totalProfits)}</Text>
-        <Text style={ListItemStyles.amountTitle}>Ganancias</Text>
+        <View style={itemStyle.amount}>
+        <Text style={itemStyle.amountValue}>{moneyFormat(profits)}</Text>
+        <Text style={itemStyle.amountTitle}>Ganancias</Text>
         </View>
         </View>
       </TouchableOpacity>
     );
   };
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={collection}
-        ListHeaderComponent={
-      <ReportsBannerAd />}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        renderItem={MonthReportItem}
+        data={Object.keys(months).reverse()}
+        ListHeaderComponent={<ReportsBannerAd />}
+        renderItem={({item}) => MonthReportItem(item)}
         keyExtractor={(item) => item + Math.random()}
         ListEmptyComponent={() => (
           <View style={styles.emptyListContainer}>

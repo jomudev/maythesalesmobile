@@ -8,10 +8,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#b4b6be',
   },
   contextMenuIcon: {
-    flex: 1,
     textAlign: 'center',
     textAlignVertical: 'center',
-    alignSelf: 'center',
+    position: 'absolute',
+    right: 0,
   },
   venta: {
     marginTop: 8,
@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     textAlignVertical: 'center',
     alignContent: 'center',
+    backgroundColor: 'white',
   },
   reportButton: {
     width: '100%',
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: 'black',
-    backgroundColor: '#e6e8f1',
+    backgroundColor: 'white',
     borderRadius: 4,
     margin: 1,
     padding: 16,
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
     margin: 1,
     color: 'black',
     padding: 16,
-    backgroundColor: '#e6e8f1',
+    backgroundColor: 'white',
     borderRadius: 4,
     flex: 1,
     textAlign: 'center',
@@ -52,16 +53,18 @@ const styles = StyleSheet.create({
   },
   ventaHeader: {
     flexDirection: 'row',
-    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   saleStateView: {
     height: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   saleState: {
-    width: 100,
-    flex: 10,
     padding: 8,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   ventaTitleText: {
     fontSize: 12,

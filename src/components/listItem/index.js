@@ -111,12 +111,12 @@ const RenderVentasCollection = ({sale, type}) => {
             {estado}
           </Text>
         </View>
-        <TouchableWithoutFeedback
+        <TouchableOpacity style={styles.contextMenuIcon}
           onPress={() => {
             popupRef.show();
           }}>
-          <Icon name="dots-vertical" size={28} />
-        </TouchableWithoutFeedback>
+          <Icon name="dots-horizontal" size={28} />
+        </TouchableOpacity>
         <PopupMenu
           title="Opciones de reporte"
           ref={(target) => (popupRef = target)}

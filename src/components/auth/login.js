@@ -72,6 +72,8 @@ const Login = ({setInitializing, changeScreen}) => {
         <Text style={styles.label}>Correo Electrónico:</Text>
         <TextBox
           style={styles.textInput}
+          nativeID="loginEmail"
+          testID="loginEmail"
           onChangeText={(text) => setValue('email', text)}
           keyboardType="email-address"
           blurOnSubmit={true}
@@ -87,6 +89,8 @@ const Login = ({setInitializing, changeScreen}) => {
         <Text style={styles.label}>Contraseña:</Text>
         <PasswordInput
           style={styles.passwordInput}
+          nativeID="loginPassword"
+          testID="loginPassword"
           placeholder="contraseña"
           autoCapitalize="none"
           value={watch('password')}

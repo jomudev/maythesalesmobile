@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
 const Stack = createStackNavigator();
 const Configuracion = ({navigation}) => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator headerMode="none">
       <Stack.Screen
         options={{
           headerStyle: {

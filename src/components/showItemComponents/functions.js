@@ -32,7 +32,14 @@ async function updateImage(data, collectionKey, typeOfImageToObtain, callback) {
     callback(imageURL);
     ImagePicker.clean();
   } catch (err) {
-    console.warn('error trying to update the product image: ', err);
+    err = JSON.stringify(err);
+    console.log(err);
+    err = JSON.parse(err);
+    var message = 'Error al intentar cargar la imagen.';
+    if (err.code === 'E_PICKER_CANCELLED') {
+      message = '¡Vaya! cancelaste la selección de imagen.';
+    }
+    ToastAndroid.show(message, ToastAndroid.LONG);
   }
 }
 

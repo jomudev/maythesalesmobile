@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
   },
   screenTitle: {
     fontFamily: 'VarelaRound-Regular',

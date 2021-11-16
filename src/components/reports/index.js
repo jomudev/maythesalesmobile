@@ -8,18 +8,18 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {db, orderReportsBy} from '../mainFunctions';
+import {db, sortCollection, moneyFormat, getYearTotals} from '../mainFunctions';
 import EmptyListImages from '../emptyListImage';
 import LoadingScreen from '../loadingScreen';
 import {ReportsBannerAd} from '../ads';
 
-const ListItemStyles = StyleSheet.create({
+
+const itemStyle = StyleSheet.create({
   container: {
     width: '100%',
     backgroundColor: 'white',
     paddingVertical: 16,
     fontWeight: 'bold',
-    fontFamily: 'VarelaRound-Regular',
   },
   content: {
     backgroundColor: '#FFF',
@@ -34,6 +34,24 @@ const ListItemStyles = StyleSheet.create({
     paddingHorizontal: 16,
     width: '100%',
   },
+  totalContainer: {
+    flexDirection: 'row',
+  },
+  totalTextContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  totalTitle: {
+    color: 'gray',
+    fontFamily: 'VarelaRound-Regular',
+    fontSize: 12,
+  },
+  amountValue: {
+    fontFamily: 'VarelaRound-Regular',
+    fontWeight: 'bold',
+  },
   year: {fontSize: 48, textAlign: 'center'},
 });
 
@@ -41,7 +59,7 @@ const getSalesCollection = async () => {
   let salesCollection = (await db('ventas').get())
     .docChanges()
     .map((change) => change.doc.data());
-    return orderReportsBy('yyyy', salesCollection);
+    return sortCollection(salesCollection);
 };
 
 const Index = ({navigation}) => {
@@ -76,14 +94,23 @@ const Index = ({navigation}) => {
     };
   }, []);
 
-  const YearReportItem = ({item}) => {
+  const YearReportItem = (year) => {
+    const {total, profits} = getYearTotals(collection[year]);
     return (
       <TouchableOpacity
-        style={ListItemStyles.container}
-        onPress={() =>
-          navigation.navigate('yearReports', {year: item})
-        }>
-        <Text style={ListItemStyles.year}>{item}</Text>
+        style={itemStyle.container}
+        onPress={() => navigation.navigate('yearReports', {year, months: collection[year]})}>
+        <Text style={itemStyle.year}>{year}</Text>
+        <View style={itemStyle.totalContainer}>
+          <View style={itemStyle.totalTextContainer}>
+            <Text style={itemStyle.amountValue}>{moneyFormat(total)}</Text>
+            <Text style={itemStyle.totalTitle}>Total Vendido</Text>
+          </View>
+          <View style={itemStyle.totalTextContainer}>
+            <Text style={itemStyle.amountValue}>{moneyFormat(profits)}</Text>
+            <Text style={itemStyle.totalTitle}>Ganancias</Text>
+          </View>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -95,17 +122,16 @@ const Index = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={collection}
+        data={Object.keys(collection)}
+        contentContainerStyle={styles.container}
         ListHeaderComponent={<ReportsBannerAd />}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        renderItem={YearReportItem}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        renderItem={({item}) => YearReportItem(item)}
         keyExtractor={(item) => item + Math.random()}
         ListEmptyComponent={() => (
           <View style={styles.emptyListContainer}>
-            {EmptyListImages.default()}
-            <Text style={styles.emptyListText}>
+            {EmptyListImages.default}
+            <Text style={{color: 'gray'}}>
               Todavía no hay ventas registradas.
             </Text>
             <View style={styles.emptyListBannerAd}>
@@ -125,11 +151,13 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   emptyListContainer: {
-    alignSelf: 'center',
-    width: '90%',
-    height: '90%',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
   },
   emptyListText: {
     textAlign: 'center',

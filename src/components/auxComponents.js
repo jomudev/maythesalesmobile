@@ -55,6 +55,7 @@ const TextBox = (props) => {
     <TextInput
       underlineColorAndroid="transparent"
       {...props}
+      spellCheck={true}
       style={{
         ...style,
         backgroundColor: style ? style.backgroundColor || '#e6e8f1' : '#e6e8f1',

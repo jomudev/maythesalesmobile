@@ -4,8 +4,22 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
 import {updateImage} from './functions';
 import {RenderImage} from '../auxComponents';
+import PopupMenu from '../PopupMenu';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const ShowImage = ({data, setShowImage, collectionKey, setIsLoading}) => {
+  let popupMenuRef = React.createRef();
+
+  const optionsList = [
+    {
+      text: 'Tomar foto',
+      onPress: () => handleUpdateImage(data, true),
+    },
+    {
+      text: 'De galeria',
+      onPress: () => handleUpdateImage(data, false),
+    },
+  ];
   
   const handleUpdateImage = async (value, selection) => {
     setIsLoading(true);
@@ -19,47 +33,39 @@ const ShowImage = ({data, setShowImage, collectionKey, setIsLoading}) => {
       .catch(() => setIsLoading(false));
   };
 
-  const handleSelectImageMode = () => {
-    Alert.alert(
-      '¿Qué deseas realizar?',
-      '¿De qué manera quieres seleccionar la imagen?',
-      [
-        {
-          text: 'Cancelar',
-          onPress: () => {},
-        },
-        {
-          text: 'Tomar foto',
-          onPress: () => handleUpdateImage(data, true),
-        },
-        {
-          text: 'De galeria',
-          onPress: () => handleUpdateImage(data, false),
-        },
-      ],
-    );
+  const contextMenuFunction = (index, optionsList) => {
+    if (index !== undefined) {
+      optionsList[index].onPress();
+    }
   };
 
   return (
-    <View style={styles.imageContainer}>
+    <View style={styles.imageContainer}>      
       {data.imageURL ? (
           <TouchableOpacity
             style={styles.updateImageButton}
-            onPress={handleSelectImageMode}>
+            onPress={() => popupMenuRef.show()}>
             <Icon name="pencil" size={28} color="#101e5a" />
           </TouchableOpacity>
       ) : null}
-      <TouchableOpacity
-        onPress={() =>
-          data.imageURL ? setShowImage(true) : handleSelectImageMode()
-        }
-        style={styles.showImageButton}>
-        {data.imageURL ? (
-          <RenderImage source={{uri: data.imageURL}} style={styles.image} />
-        ) : (
-          <Icon name="image-plus" style={styles.addImageIcon} />
-        )}
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            data.imageURL ? setShowImage(true) : popupMenuRef.show()
+          }
+          style={styles.showImageButton}>
+          {data.imageURL ? (
+            <RenderImage source={{uri: data.imageURL}} style={styles.image} />
+          ) : (
+            <Icon name="image-plus" style={styles.addImageIcon} />
+          )}
+        </TouchableOpacity>
+      <PopupMenu
+          ref={(ref) => (popupMenuRef = ref)}
+          title={'Actualizar imagen'}
+          function={(index) => contextMenuFunction(index, optionsList)}
+          options={optionsList.map((item) => item.text)}
+          onTouchOutside={() => popupMenuRef.close()}
+       />
     </View>
   );
 };

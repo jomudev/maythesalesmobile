@@ -4,7 +4,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    paddingTop: 32
+    paddingTop: 32,
+    backgroundColor: 'white',
+  },
+  emptyListContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontWeight: 'bold',
@@ -14,8 +20,6 @@ const styles = StyleSheet.create({
   total: {
     flexDirection: 'row',
     paddingVertical: 8,
-    borderTopWidth: 1,
-    borderColor: '#e6e8f1',
   },
   totalText: {
     fontSize: 16,

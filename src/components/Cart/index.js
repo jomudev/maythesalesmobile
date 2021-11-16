@@ -74,7 +74,7 @@ const Cart = () => {
   const total = getTotal([state.products, state.services], state.wholesaler);
 
   return state.products.length === 0 && state.services.length === 0 ? (
-    <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+    <View style={{alignItems: 'center', justifyContent: 'center', flex: 1, backgroundColor: 'white'}}>
       {EmptyListImage.default}
       <Text style={{textAlign: 'center', color: 'gray'}}>Seleccione productos en la sección "Nueva Venta" para visualizarlos aquí</Text>
     </View>

@@ -135,62 +135,102 @@ const getSaleDate = (sale, type) => {
   locale: es,
 })}
 
-function orderReportsBy(type, collection) {
-  let  newCollection = collection.map((item) => getSaleDate(item, type));
-  newCollection = Array.from(new Set(newCollection));
-
-  if (type === 'MMMM') {
-    newCollection = newCollection.map((month) => {
-      const filteredCollection = collection.filter((sale) => getSaleDate(sale, type) === month);
-      let totalSold = filteredCollection.map((sale) => Number.parseInt(sale.total, 10));
-      totalSold = totalSold.length > 0 ? totalSold.reduce((prevTotal, currentTotal) => prevTotal + currentTotal) : 0;
-
-      const totalPurchase = filteredCollection.map((sale) => {
-        let productsProfits = sale.productos.map((product) => 
-        Number.parseInt(product.precioCosto) * Number.parseInt(product.cantidad));
-
-        productsProfits = productsProfits.length > 0 ? productsProfits.reduce((prevProfits, currentProfits) => prevProfits + currentProfits) : 0;
-        let servicesProfits = sale.servicios.map((service) => 
-        Number.parseInt(service.precioCosto) * Number.parseInt(service.cantidad));
-        servicesProfits = servicesProfits.length > 0 ? servicesProfits.reduce((prevProfits, currentProfits) => prevProfits + currentProfits) : 0;
-        return productsProfits + servicesProfits;
-      }).reduce((prevProfits, currentProfits) => prevProfits + currentProfits);
-
-      const totalProfits = totalSold - totalPurchase;
-
-      return {
-        month,
-        totalSold,
-        totalProfits,
-      }
+function sortCollection (collection) {
+  let reports = {};
+  collection.forEach((sale) => {
+    let totalPurchased = 0;
+    let totalProfits = 0;
+    sale.productos.forEach((producto) => {
+      totalPurchased += sale.estado ? producto.precioCosto * producto.cantidad : 0;
     });
-  } else if (type === 'YYYY') {
-    newCollection = newCollection.map(year => {
-      const filteredCollection = collection.filter((sale) => getSaleDate(sale, type) === year);
-    })
-  }
-  return newCollection;
+
+    sale.servicios.forEach((servicio) => {
+      totalPurchased += servicio.precioCosto * servicio.cantidad;
+    });
+
+    totalProfits = sale.total - totalPurchased;
+
+    const year = getSaleDate(sale, 'yyyy');
+    const month = getSaleDate(sale, 'MMMM');
+
+    reports[year] = {
+      ...reports[year],
+      [month] : Array.from(reports[year] ? reports[year][month] ? reports[year][month] : [] : []).concat(sale),
+    };
+  });
+  return reports;
 }
 
-function getTotal(collection, isWholesaler) {
+function getTotal(list, isWholesaler) {
   try {
     let total = 0;
-    collection.forEach((list) => {
-      list.forEach((listElement) => {
+    list.forEach((collection) => {
+      collection.forEach((element) => {
         total += isWholesaler
-          ? listElement.precioMayoreo * listElement.cantidad
-          : listElement.precioVenta * listElement.cantidad;
+          ? element.precioMayoreo * element.cantidad
+          : element.precioVenta * element.cantidad;
       });
-    });
+    })
     return total;
   } catch (er) {
     console.log(er);
   }
 }
 
+function getProfits(list, isWholesaler) {
+  try {
+    let total = 0;
+    let totalPurchased = 0;
+    list.forEach((collection) => {
+      total += getTotal([collection], isWholesaler);
+      collection.forEach((element) => {
+        totalPurchased += element.precioCosto * element.cantidad;
+      });
+    });
+    return total - totalPurchased;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+function getYearTotals(collection) {
+  let total = 0;
+  let profits = 0;
+
+  Object.keys(collection).forEach((month) => {
+    collection[month].filter(item => item.estado).forEach((sale) => {
+      total += getTotal([sale.productos, sale.servicios], sale.mayorista);
+      profits += getProfits([sale.productos, sale.servicios], sale.mayorista);
+    });
+  });
+
+  return {
+    total,
+    profits,
+  }
+}
+
+function getMonthTotals(collection) {
+  let total = 0;
+  let profits = 0;
+
+  collection.forEach((sale) => {
+    total += getTotal([sale.productos, sale.servicios], sale.mayorista);
+    profits += getProfits([sale.productos, sale.servicios], sale.mayorista);
+  });
+
+  return {
+    total,
+    profits,
+  }
+}
+
 async function share(content) {
-  console.log('sharing');
-  return await Share.open(content);
+  try {
+    return await Share.open(content);
+  } catch (err) {
+    ToastAndroid.show('¡Ups! Ocurrio un problema, intenta nuevamente.');
+  }
 }
 
 async function shareImage(url, content) {
@@ -210,7 +250,8 @@ async function shareImage(url, content) {
         RNFetchBlob.fs.unlink(imagePath);
       });
   } catch (err) {
-    console.warn(`Ocurrio un error al intentar compartir la imagen ${err}`);
+    console.error(`Ocurrio un error al intentar compartir la imagen ${err}`);
+    ToastAndroid.show('¡Ups! Ocurrio un problema, revisa tu conexión a internet.', ToastAndroid.LONG);
   }
 }
 
@@ -304,8 +345,7 @@ export {
   filterItems,
   moneyFormat,
   update,
-  orderReportsBy,
-  getTotal,
+  sortCollection,
   shareImage,
   share,
   handleGetList,
@@ -313,4 +353,8 @@ export {
   postSale,
   deleteImage,
   getSaleDate,
+  getTotal,
+  getProfits,
+  getYearTotals,
+  getMonthTotals,
 };

@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ScrollView,
   View,
+  FlatList,
   Animated,
   RefreshControl,
 } from 'react-native';
@@ -126,21 +127,6 @@ function ShowInventory({navigation, route}) {
       );
     }
 
-    function renderCollection(data) {
-      const {collection, alphabet} = data;
-      if (!collection.length) {
-        return (
-          <View style={styles.emptyListContainer}>
-            {EmptyListImages.default}
-            <Text style={styles.emptyListText}>
-              Agrega {collectionKey} para visualizarlos aquí...
-            </Text>
-          </View>
-        )
-      }
-      return alphabet.map((letter) => renderByAlphabet(letter, collection));
-    }
-
     useEffect(() => {
       var searchSubscriber;
       const dataSubscriber = db(collectionKey).onSnapshot((snap) => {
@@ -191,25 +177,34 @@ function ShowInventory({navigation, route}) {
   }
   return (
     <>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        style={styles.container}
+      <FlatList
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        contentContainerStyle={styles.container}
+        keyExtractor={(item) => item}
+        renderItem={({item}) => renderByAlphabet(item, filteredCollection.collection.length > 0 
+          ? filteredCollection.collection 
+          : inventory.collection
+          )}
+        ListEmptyComponent={ () => (
+          <View style={styles.emptyListContainer}>
+            {EmptyListImages.default}
+            <Text style={styles.emptyListText}>
+              Agrega {collectionKey} para visualizarlos aquí...
+            </Text>
+          </View>
+          )}
         onScroll={(event) =>
           scrollEvent(
             scrollPosition,
             event.nativeEvent.contentOffset.y,
             addButtonPosition,
             setScrollPosition,
-          )
-        }>
-        {
-          filteredCollection.collection.length > 0 
-          ? renderCollection(filteredCollection) 
-          : renderCollection(inventory)
-        }
-      </ScrollView>
+          )}
+          data={
+            filteredCollection.collection.length > 0 
+          ? filteredCollection.alphabet 
+          : inventory.alphabet}
+        />
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
         onPress={() =>

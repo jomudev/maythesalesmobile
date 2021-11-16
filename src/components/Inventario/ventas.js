@@ -86,7 +86,7 @@ const Ventas = () => {
           ...StyleSheet.absoluteFillObject,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#e6e8f1',
+          backgroundColor: 'white',
         }}>
         <View style={styles.emptyListContainer}>
           {EmptyListImages.default}
@@ -126,10 +126,7 @@ export default Ventas;
 const styles = StyleSheet.create({
   mainContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#e6e8f1',
-  },
-  salesContainer: {
-    backgroundColor: '#e6e8f1',
+    backgroundColor: 'white',
   },
   totalContainer: {
     flexDirection: 'row',
@@ -140,7 +137,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: 'black',
-    backgroundColor: '#e6e8f1',
+    backgroundColor: 'white',
     borderRadius: 4,
     margin: 1,
     padding: 16,
@@ -150,7 +147,7 @@ const styles = StyleSheet.create({
     margin: 1,
     color: 'black',
     padding: 16,
-    backgroundColor: '#e6e8f1',
+    backgroundColor: 'white',
     borderRadius: 4,
     flex: 1,
     textAlign: 'center',
