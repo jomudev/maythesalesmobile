@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import 'react-native-gesture-handler';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import auth from '@react-native-firebase/auth';
 import SignInComponent from './src/components/auth/signInComponent';
@@ -69,7 +69,7 @@ const App = () => {
             text: 'Sí, estoy seguro',
             onPress: () =>
               deleteFromInventory(type.toLowerCase(), data)
-                .then((res) => {
+                .then(() => {
                   navigation.goBack();
                 })
                 .catch((err) => {
@@ -112,20 +112,21 @@ const App = () => {
     );
   };
 
-  const getOptionsList = ({params}) => {
+  const getOptionsList = ({params}, navigation) => {
     const {data, type} = params;
     const shareMessage = `${data.nombre} ${data.marca} - ${moneyFormat(data.precioVenta)} ${data.descripcion ? '| ' + data.descripcion : ''}`;
     const shareOptions = {       
       title: shareMessage,
       message: shareMessage
     };
+
     var optionsList = [{
         text: 'Eliminar',
         onPress: () => {
           handleDelete(
-            route.params.type,
-            route.params.data,
-            navigation,
+            params.type,
+            params.data,
+            navigation
           );
         },
       }]
@@ -209,7 +210,7 @@ const App = () => {
           }}>
             <Stack.Screen
               name="MainNavigator"
-              options={({navigation}) => ({
+              options={() => ({
                 title: "Maythe's Sales",
                 headerTitleStyle: {
                   fontSize: 28,
@@ -228,13 +229,13 @@ const App = () => {
             />
             <Stack.Screen
             name="ShowItem"
-            options={({route}) => ({
+            options={({route, navigation}) => ({
               title: route.params.data.nombre,
               headerRight: (props) => {
                 return (
                   <ContextMenu
                     {...props}
-                    optionsList={getOptionsList(route)}
+                    optionsList={getOptionsList(route, navigation)}
                   />
                 );
               },

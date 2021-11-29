@@ -74,7 +74,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
         />
         <Text>Precio de costo por unidad</Text>
         <TextBox
-          placeholder={moneyFormat(data.precioCosto)}
+          defaultValue={moneyFormat(data.precioCosto)}
+          placeholder={moneyFormat(0)}
           onChangeText={(text) => setValue('precioCosto', text)}
           onEndEditing={() =>
             handleUpdate('precioCosto', getValues('precioCosto'))
@@ -84,7 +85,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
         />
         <Text>Precio de venta por unidad</Text>
         <TextBox
-          placeholder={moneyFormat(data.precioVenta)}
+          defaultValue={moneyFormat(data.precioVenta)}
+          placeholder={moneyFormat(0)}
           onChangeText={(text) => setValue('precioVenta', text)}
           onEndEditing={() =>
             handleUpdate('precioVenta', getValues('precioVenta'))
@@ -94,7 +96,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
         />
         <Text>Precio de venta por mayoreo</Text>
         <TextBox
-          placeholder={moneyFormat(data.precioMayoreo)}
+          defaultValue={moneyFormat(data.precioMayoreo)}
+          placeholder={moneyFormat(0)}
           onChangeText={(text) => setValue('precioMayoreo', text)}
           onEndEditing={() =>
             handleUpdate('precioMayoreo', getValues('precioMayoreo'))

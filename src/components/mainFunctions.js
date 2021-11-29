@@ -85,10 +85,11 @@ const handleGetList = async (collectionKey) => {
 };
 
 function moneyFormat(number) {
+  
   return new Intl.NumberFormat('es-ES', {
     style: 'currency',
-    currency: store.getState().defaultCurrencyFormat || 'HNL',
-  }).format(Number(number));
+    currency: store.getState().defaultCurrencyFormat,
+  }).format(Number(number));;
 }
 
 async function update(collectionKey, data) {
@@ -107,7 +108,6 @@ async function update(collectionKey, data) {
 async function deleteImage(imageType, docData) {
   try {
     const imageRef = `${imageType}/${docData.nombre}/productImage`;
-    console.log(imageRef);
     return fileStorage(imageRef).delete()
   } catch (err) {
     console.warn('file storage alert: ', err);
@@ -117,9 +117,11 @@ async function deleteImage(imageType, docData) {
 async function deleteFromInventory(collectionToDelete, docData) {
   try {
     if (collectionToDelete === 'productos' || collectionToDelete === 'services') {
-      await deleteImage(collectionToDelete, docData).catch((err) => {
-        ToastAndroid.show(err, ToastAndroid.SHORT);
-      });
+      if (docData.imageURL) {
+        await deleteImage(collectionToDelete, docData).catch((err) => {
+          ToastAndroid.show(err, ToastAndroid.SHORT);
+        });
+      }
     }
     return await db()
       .collection(collectionToDelete)

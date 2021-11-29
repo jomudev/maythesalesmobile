@@ -4,7 +4,7 @@ import {View, ScrollView, RefreshControl, Text} from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProductItem, ServiceItem, ClientItem, WholesalerItem} from './items';
-import {filterItems, db} from '../mainFunctions';
+import {filterItems, db, moneyFormat} from '../mainFunctions';
 import {TextBox, HelpMessage} from '../auxComponents';
 import {HomeBannerAd} from '../ads';
 import newSaleHelpMessages from '../helpMessages/newSale';
@@ -104,6 +104,7 @@ const NewSale = ({navigation}) => {
       handleSetProduct(returnedCollection);
       setRefreshing(false);
     })()
+    
   }, []);
 
   useEffect(() => {

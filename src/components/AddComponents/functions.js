@@ -135,7 +135,7 @@ const save = async (type, data) => {
   try {
     if (data.nombre !== '' && data.nombre !== null) {
       if (type === 'product') {
-        if (data.image) {
+        if (data.imageURL) {
           const imageDownloadURL = await saveImage(fileStorage('productos'), data);
           return saveProduct(data, imageDownloadURL);
         }

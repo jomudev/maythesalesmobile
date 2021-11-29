@@ -122,7 +122,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
           onChangeText={(text) =>
             setValue('cantidad', Number.parseInt(text, 10))
           }
-          placeholder={`${data.cantidad}`}
+          defaultValue={`${data.cantidad}`}
+          placeholder={'0'}
           keyboardType="number-pad"
           style={styles.txtInput}
         />
@@ -135,7 +136,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             onChangeText={(text) =>
               setValue('precioCosto', Number.parseInt(text, 10))
             }
-            placeholder={moneyFormat(data.precioCosto)}
+            defaultValue={moneyFormat(data.precioCosto)}
+            placeholder={moneyFormat(0)}
             keyboardType="number-pad"
             style={styles.txtInput}
           />
@@ -146,7 +148,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             onEndEditing={() =>
               handleUpdate('precioVenta', getValues('precioVenta'))
             }
-            placeholder={moneyFormat(data.precioVenta)}
+            defaultValue={moneyFormat(data.precioVenta)}
+            placeholder={moneyFormat(0)}
             onChangeText={(text) =>
               setValue('precioVenta', Number.parseInt(text, 10))
             }
@@ -160,7 +163,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             onEndEditing={() =>
               handleUpdate('precioMayoreo', getValues('precioMayoreo'))
             }
-            placeholder={moneyFormat(data.precioMayoreo)}
+            defaultValue={moneyFormat(data.precioMayoreo)}
+            placeholder={moneyFormat(0)}
             onChangeText={(text) =>
               setValue('precioMayoreo', Number.parseInt(text, 10))
             }

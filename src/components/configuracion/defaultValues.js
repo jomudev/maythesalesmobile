@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, ToastAndroid} from 'react-native';
 import styles from './styles';
 import {Select} from '../auxComponents';
 import {db} from '../mainFunctions';
@@ -11,6 +11,7 @@ const DefaultValues = () => {
       await db().update({
         defaultCurrencyFormat: value,
       });
+      ToastAndroid.show('Puede que necesites reiniciar la aplicación para que los cambios surtan efecto', ToastAndroid.LONG);
     } catch (err) {
       console.warn('error trying to update currencyFormat ', err);
     }
