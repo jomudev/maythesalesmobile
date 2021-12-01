@@ -135,12 +135,13 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         missingDimensionStrategy 'react-native-camera', 'general'
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.0.1"
+        versionCode 4
+        versionName "1.0.2"
         multiDexEnabled true
         aaptOptions{
             noCompress "tflite", "model"
         }
+        ndkVersion "24.0.7856742"
         ndk {
             debugSymbolLevel 'FULL'
         }

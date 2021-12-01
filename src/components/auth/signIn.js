@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useRef} from 'react';
-import {View, Text, ToastAndroid, TouchableOpacity} from 'react-native';
+import {View, Text, ToastAndroid, TouchableOpacity, ScrollView} from 'react-native';
 import {TextBox, PasswordInput} from '../auxComponents';
 import Button from './button';
 import firestore from '@react-native-firebase/firestore';
@@ -105,7 +105,7 @@ const SignIn = ({setInitializing, changeScreen}) => {
   }, []);
 
   return (
-    <React.Fragment>
+    <ScrollView contentContainerStyle={{width: '100%', alignItems: 'center'}} >
       <Text style={styles.welcomeTitle}>Crea tu propia cuenta</Text>
       <View style={styles.textInputContainer}>
         <Text style={styles.label}>Ingresa tu Correo electrónico:</Text>
@@ -153,7 +153,7 @@ const SignIn = ({setInitializing, changeScreen}) => {
           <Text style={{color: 'white', fontSize: 18}}>Registrarse</Text>
         </Button>
       </View>
-    </React.Fragment>
+    </ScrollView>
   );
 };
 

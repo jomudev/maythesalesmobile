@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import React, {useEffect, useRef} from 'react';
-import {TouchableOpacity, ToastAndroid, Text, View} from 'react-native';
+import {TouchableOpacity, ToastAndroid, Text, View, ScrollView} from 'react-native';
 import Button from './button';
 import auth from '@react-native-firebase/auth';
 import styles from './authStyles';
@@ -66,7 +66,7 @@ const Login = ({setInitializing, changeScreen}) => {
     }
   };
   return (
-    <React.Fragment>
+    <ScrollView contentContainerStyle={{width: '100%', alignItems: 'center'}} >
       <Text style={styles.welcomeTitle}>Inicia sesión</Text>
       <View style={styles.textInputContainer}>
         <Text style={styles.label}>Correo Electrónico:</Text>
@@ -112,7 +112,7 @@ const Login = ({setInitializing, changeScreen}) => {
           <Text style={{color: 'white', fontSize: 18}}>Iniciar sesión</Text>
         </Button>
       </View>
-    </React.Fragment>
+    </ScrollView>
   );
 };
 
