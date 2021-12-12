@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, TouchableOpacity, ToastAndroid} from 'react-native';
 import styles from './styles';
 import auth from '@react-native-firebase/auth';
 import {TextBox} from '../auxComponents';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import {db} from '../mainFunctions';
 
 const Perfil = () => {
@@ -70,6 +71,31 @@ const Perfil = () => {
       <Text style={styles.info}>
         Esta información sera utilizada al momento de generar los reportes.
       </Text>
+      <Text style={styles.label}>Correo electrónico:</Text>
+      <TextBox
+        style={styles.text}
+        autoCapitalize="words"
+        defaultValue={user.email}
+        disabled={true}
+        onChangeText={(text) => setUserName(text)}
+      />
+      <View style={styles.messageContainer}>
+        <Text style={{...styles.message, color: user.emailVerified ? 'skyblue' : 'red'}} >{user.emailVerified ? "Correo verificado" : "Correo no verificado"}</Text>
+        <Icon style={{...styles.messageIcon, color: user.emailVerified ? 'skyblue' : 'red'}} name={user.emailVerified ? "email-check-outline" : "email-alert-outline"} />
+      </View>
+      {
+        !user.emailVerified ? 
+        <TouchableOpacity style={styles.actionButton} onPress={() => {
+          user.sendEmailVerification().catch(() => {
+            ToastAndroid.show("¡Vaya! algo acaba de ocurrir, vuelve a intentarlo, probablemente sean los extraterrestres haciendo de las suyas nuevamente.", ToastAndroid.LONG)       
+          })
+          user.reload()
+          ToastAndroid.show("Reinicia la aplicación para que los cambios surtan efecto.", ToastAndroid.LONG)       
+          }}>
+          <Text style={{color: 'white'}}>Confirmar correo electrónico nuevamente</Text>
+        </TouchableOpacity> : null
+      }
+      
       <Text style={styles.label}>Nombre:</Text>
       <TextBox
         style={styles.text}

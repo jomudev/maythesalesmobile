@@ -4,6 +4,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'white',
+    paddingHorizontal: 16,
   },
   label: {
     fontSize: 14,
@@ -16,6 +17,29 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     paddingVertical: 4,
     flexDirection: 'row',
+  },
+  messageContainer: { 
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  messageIcon: {
+    fontSize: 16,
+    padding: 8,
+  },
+  message: {
+    textAlign: 'center',
+    marginVertical: 8,
+  },
+  actionButton: {
+    borderRadius: 8,
+    backgroundColor: '#101e5a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '80%',
+    alignSelf: 'center',
+    paddingVertical: 18,
+    marginVertical: 16,
   },
   logoutButton: {
     position: 'absolute',

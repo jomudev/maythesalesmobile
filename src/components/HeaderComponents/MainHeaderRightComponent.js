@@ -13,6 +13,7 @@ import store from '../../../store';
 import {clearStoreCart} from '../cartComponents/functions';
 import {TextBox} from '../auxComponents';
 import PopupMenu from '../PopupMenu';
+import auth from '@react-native-firebase/auth'
 
 const styles = StyleSheet.create({
   cartButtonNavigationBadge: {
@@ -66,6 +67,18 @@ const MainHeaderRightComponent = (props) => {
   let popupMenuRef = React.createRef();
   const routeName = props.route.name;
   const navigation = props.navigation;
+  
+  const notification = () => {
+    let pendingNotificationExist = false
+
+    if (!auth().currentUser.emailVerified) {
+      pendingNotificationExist = true
+    }
+
+    return pendingNotificationExist ? (
+      <Icon name="alert-circle" color="red" size={18} style={{position: 'absolute', top: -8, right: 0}} />
+    ) : null
+  }
 
   const ContextMenu = ({tintColor, optionsList, title}) => {
     return (
@@ -156,6 +169,9 @@ const MainHeaderRightComponent = (props) => {
           onPress={() => navigation.navigate('Configuration')}>
           <View>
             <Icon name="cog-outline" size={24} />
+            {
+              notification()
+            }
           </View>
         </TouchableOpacity>
       </View>

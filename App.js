@@ -36,6 +36,7 @@ import {es} from 'date-fns/locale';
 import PopupMenu from './src/components/PopupMenu';
 import Cart from './src/components/Cart';
 import MainHeaderRightComponent from './src/components/HeaderComponents/MainHeaderRightComponent';
+import EmailVerification from './src/components/EmailVerification'
 import store from './store';
 
 //const colorScheme = Appearance.getColorScheme();
@@ -189,8 +190,8 @@ const App = () => {
     return <LoadingScreen />;
   }
 
-
   if (user) {
+
     return (
       <NavigationContainer>
         <Stack.Navigator
@@ -211,6 +212,7 @@ const App = () => {
             <Stack.Screen
               name="MainNavigator"
               options={() => ({
+                headerLeft: null,
                 title: "Maythe's Sales",
                 headerTitleStyle: {
                   fontSize: 28,
@@ -296,14 +298,6 @@ const App = () => {
             options={{title: 'Añadir nuevo comprador mayorista'}}
             component={AddWholesaler}
           />
-          
-          {/*<Stack.Screen
-            name="SecludedSales"
-            options={{
-              title: 'Ventas apartadas',
-            }}
-            component={SecludedSales}
-          />*/}
         </Stack.Navigator>
       </NavigationContainer>
     );

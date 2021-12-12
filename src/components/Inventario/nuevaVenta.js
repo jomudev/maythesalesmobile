@@ -4,10 +4,9 @@ import {View, ScrollView, RefreshControl, Text} from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProductItem, ServiceItem, ClientItem, WholesalerItem} from './items';
-import {filterItems, db, moneyFormat} from '../mainFunctions';
-import {TextBox, HelpMessage} from '../auxComponents';
+import {filterItems, db} from '../mainFunctions';
+import {TextBox} from '../auxComponents';
 import {HomeBannerAd} from '../ads';
-import newSaleHelpMessages from '../helpMessages/newSale';
 
 const handleGetList = (snap, list, setList) => {
   try {

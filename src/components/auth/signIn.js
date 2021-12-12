@@ -66,6 +66,7 @@ const SignIn = ({setInitializing, changeScreen}) => {
                 console.warn(err.code);
                 setInitializing(false);
               });
+              res.user.sendEmailVerification()
           })
           .catch((err) => {
             console.log(err);
