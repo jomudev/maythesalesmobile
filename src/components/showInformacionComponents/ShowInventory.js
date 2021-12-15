@@ -2,9 +2,10 @@ import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   Text,
   TouchableOpacity,
-  ScrollView,
   View,
-  FlatList,
+  VirtualizedList,
+  SafeAreaView,
+  Dimensions,
   Animated,
   RefreshControl,
 } from 'react-native';
@@ -15,6 +16,8 @@ import {filterItems, handleGetList, db} from '../mainFunctions';
 import store from '../../../store';
 import EmptyListImages from '../emptyListImage';
 import LoadingScreen from '../loadingScreen';
+
+const deviceHeight = Dimensions.get('screen').height;
 
 function scrollEvent(
   scrollPosition,
@@ -54,18 +57,14 @@ function sortCollectionItems(prev, next) {
 
 function sortCollection(collection) {
   try {
-    var sortedCollection = {
-      collection: [],
-      alphabet: [],
-    };
+    var sortedCollection = {};
 
     if (collection || collection.length != 0) {
       const newList = collection.sort(sortCollectionItems);
-      var alphabetToUse = new Set(
-        newList.map((item) => item.nombre.split('')[0].toUpperCase()),
-      );
-      sortedCollection.collection = newList;
-      sortedCollection.alphabet = Array.from(alphabetToUse);
+      newList.forEach((item) => {
+        const letter = item.nombre.split('')[0].toUpperCase()
+        sortedCollection[letter] = sortedCollection[letter] ? sortedCollection[letter].concat(item) : [item]
+      });
     }
     return sortedCollection;
   } catch (err) {
@@ -92,40 +91,13 @@ function wait(timeout) {
 }
 
 function ShowInventory({navigation, route}) {
-  var [inventory, setInventory] = useState({
-    collection: [],
-    alphabet: [],
-  });
-  let [filteredCollection, setFilteredCollection] = useState({
-    collection: [],
-    alphabet: [],
-  });
+  var [collection, setCollection] = useState({});
+  let [filteredCollection, setFilteredCollection] = useState({});
   const [scrollPosition, setScrollPosition] = useState(0);
   const addButtonPosition = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
   const {collectionKey} = route.params;
   const [refreshing, setRefreshing] = useState(false);
-
-    function renderByAlphabet(letter, collectionToRender){
-      collectionToRender = collectionToRender.filter(
-        (item) => item.nombre.split('')[0].toUpperCase() === letter,
-      );
-      return (
-        <View key={letter}>
-          <Text style={styles.listLetter}>{letter}</Text>
-          {collectionToRender.map((item) => {
-            return (
-              <ListItem
-                key={Math.random()}
-                type={collectionKey}
-                data={item}
-                navigation={navigation}
-              />
-            );
-          })}
-        </View>
-      );
-    }
 
     useEffect(() => {
       var searchSubscriber;
@@ -135,15 +107,15 @@ function ShowInventory({navigation, route}) {
         }
         handleGetList(collectionKey).then((collectionFromDB) => {
           const returnedCollection = sortCollection(collectionFromDB);
-          setInventory(returnedCollection);
+          setCollection(returnedCollection);
           setLoading(false);
 
           searchSubscriber = store.subscribe(() => {
-            if (returnedCollection.collection.length < 1) {
+            if (collectionFromDB) {
               return false;
             }
             handleSearch(
-              returnedCollection.collection,
+              collectionFromDB,
               store.getState().search,
             ).then((returnedCollection) => {
               setFilteredCollection(returnedCollection);
@@ -165,7 +137,7 @@ function ShowInventory({navigation, route}) {
     (async () => {
         handleGetList(collectionKey).then((collectionFromDB) => {
           const returnedCollection = sortCollection(collectionFromDB);
-          setInventory(returnedCollection);
+          setCollection(returnedCollection);
         });
         setLoading(false);
     })()
@@ -175,17 +147,46 @@ function ShowInventory({navigation, route}) {
   if (loading) {
     return <LoadingScreen />;
   }
+
+  function renderItem({item}) {
+    return (
+      <View key={JSON.stringify(item)}>
+        <Text style={styles.listLetter}>{item.key}</Text>
+          {item.data.map((item) => {
+          return (
+            <ListItem
+              key={Math.random()}
+              type={collectionKey}
+              data={item}
+              navigation={navigation}
+            />
+          );
+        })}
+      </View>
+    );
+  }
+
+  const getItem = (data, index) => ({
+    key: data[index],
+    id: Math.random().toString(12).substring(0),
+    data: Object.keys(filteredCollection).length ? filteredCollection[data[index]] : collection[data[index]]
+  })
+
   return (
-    <>
-      <FlatList
+    <SafeAreaView style={{height: '100%'}}>
+      <VirtualizedList
+        data={
+          Object.keys(filteredCollection).length ? 
+          Object.keys(filteredCollection) :
+          Object.keys(collection)
+          }
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={styles.container}
-        keyExtractor={(item) => item}
-        renderItem={({item}) => renderByAlphabet(item, filteredCollection.collection.length > 0 
-          ? filteredCollection.collection 
-          : inventory.collection
-          )}
-        ListEmptyComponent={ () => (
+        initialNumToRender={10}
+        getItemCount={(data) => Object.keys(filteredCollection && collection).length}
+        getItem={getItem}
+        renderItem={renderItem}
+        ListEmptyComponent={() => (
           <View style={styles.emptyListContainer}>
             {EmptyListImages.default}
             <Text style={styles.emptyListText}>
@@ -200,10 +201,6 @@ function ShowInventory({navigation, route}) {
             addButtonPosition,
             setScrollPosition,
           )}
-          data={
-            filteredCollection.collection.length > 0 
-          ? filteredCollection.alphabet 
-          : inventory.alphabet}
         />
       <TouchableOpacity
         style={{...styles.AddBtn, transform: [{translateY: addButtonPosition}]}}
@@ -214,7 +211,7 @@ function ShowInventory({navigation, route}) {
         }>
         <Icon name="add" color="#FFF" size={28} />
       </TouchableOpacity>
-    </>
+    </SafeAreaView>
   );
 }
 

@@ -68,16 +68,24 @@ const MainHeaderRightComponent = (props) => {
   const routeName = props.route.name;
   const navigation = props.navigation;
   
-  const notification = () => {
-    let pendingNotificationExist = false
+  const alerts = (type) => {
+    var pendingAlertExist = false
 
-    if (!auth().currentUser.emailVerified) {
-      pendingNotificationExist = true
+    switch (type) {
+      case 'configuration' : 
+        if (!auth().currentUser.emailVerified) {
+          pendingAlertExist = true
+        }
+
+        return pendingAlertExist ? (
+          <View style={styles.alertContainer}>
+            <Icon name="alert-circle" color="red" size={20} />
+          </View>
+        ) : null
+
+      case 'cart' :
+        
     }
-
-    return pendingNotificationExist ? (
-      <Icon name="alert-circle" color="red" size={18} style={{position: 'absolute', top: -8, right: 0}} />
-    ) : null
   }
 
   const ContextMenu = ({tintColor, optionsList, title}) => {
@@ -159,7 +167,7 @@ const MainHeaderRightComponent = (props) => {
                 </View>
                 <Icon name="cart" size={24} />
               </>
-            ) : (
+            ) : (   
               <Icon name="cart-outline" size={24} />
             )}
           </View>
@@ -170,7 +178,7 @@ const MainHeaderRightComponent = (props) => {
           <View>
             <Icon name="cog-outline" size={24} />
             {
-              notification()
+              alerts()
             }
           </View>
         </TouchableOpacity>

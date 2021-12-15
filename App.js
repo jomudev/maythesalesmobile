@@ -29,14 +29,12 @@ import AddProveedor from './src/components/AddComponents/addProveedor';
 import AddWholesaler from './src/components/AddComponents/addWholesaler';
 import CamScanner from './src/components/CamScanner';
 import SaleReport from './src/components/reports/saleReport';
-//import SecludedSales from './src/components/secludedSales';
 import ShowInventory from './src/components/showInformacionComponents/ShowInventory';
 import {format} from 'date-fns';
 import {es} from 'date-fns/locale';
 import PopupMenu from './src/components/PopupMenu';
 import Cart from './src/components/Cart';
 import MainHeaderRightComponent from './src/components/HeaderComponents/MainHeaderRightComponent';
-import EmailVerification from './src/components/EmailVerification'
 import store from './store';
 
 //const colorScheme = Appearance.getColorScheme();

@@ -179,7 +179,6 @@ const styles = StyleSheet.create({
     color: '#00000055',
   },
   container: {
-    flex: 1,
     backgroundColor: 'white',
   },
   imageContainer: {
