@@ -38,6 +38,23 @@ const styles = StyleSheet.create({
   cartButtonNavigator: {
     paddingHorizontal: 8,
   },
+  alertContainer: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  alertIcon: {
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 const contextMenuFunction = (index, optionsList) => {
@@ -46,20 +63,7 @@ const contextMenuFunction = (index, optionsList) => {
   }
 };
 
-/*const getActualSale = () => {
-  const appState = store.getState();
-  return {
-    productos: appState.cartProducts,
-    servicios: appState.cartServices,
-    estado: appState.saleState,
-    mayorista: appState.cartWholesaler,
-    cliente: appState.cartClient,
-    timestamp: Date.now(),
-  };
-};*/
-
-const getCartActivity = () =>
-  store.getState().cartProducts.length + store.getState().cartServices.length;
+const getCartActivity = () => store.getState().cartProducts.length + store.getState().cartServices.length;
 
 const MainHeaderRightComponent = (props) => {
   const [searchIcon, setSearchIcon] = useState('magnify');
@@ -68,24 +72,29 @@ const MainHeaderRightComponent = (props) => {
   const routeName = props.route.name;
   const navigation = props.navigation;
   
-  const alerts = (type) => {
-    var pendingAlertExist = false
-
+  const alerts = (type, condition) => {
+    let iconName;
     switch (type) {
       case 'configuration' : 
-        if (!auth().currentUser.emailVerified) {
-          pendingAlertExist = true
-        }
-
-        return pendingAlertExist ? (
-          <View style={styles.alertContainer}>
-            <Icon name="alert-circle" color="red" size={20} />
-          </View>
-        ) : null
-
+        iconName = "alert-circle";
+        break;
       case 'cart' :
-        
+        if (condition) {
+          return (
+            <View style={styles.alertContainer}>
+              <View style={styles.alertIcon}>
+                  <Text style={styles.badgeText}>{cartActivity}</Text>
+              </View>
+            </View>
+          )
+        }
     }
+
+    return (
+      <View style={styles.alertContainer}>
+        <Icon name={iconName} color="red" size={20} />
+      </View>
+    )
   }
 
   const ContextMenu = ({tintColor, optionsList, title}) => {
@@ -159,17 +168,11 @@ const MainHeaderRightComponent = (props) => {
         <TouchableOpacity
           style={styles.cartButtonNavigator}
           onPress={() => navigation.navigate('Cart')}>
-          <View>
-            {cartActivity > 0 ? (
-              <>
-                <View style={styles.cartButtonNavigationBadge}>
-                  <Text style={styles.badgeText}>{cartActivity}</Text>
-                </View>
-                <Icon name="cart" size={24} />
-              </>
-            ) : (   
+          <View>   
               <Icon name="cart-outline" size={24} />
-            )}
+              {
+                alerts('cart', cartActivity)
+              }
           </View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -178,7 +181,7 @@ const MainHeaderRightComponent = (props) => {
           <View>
             <Icon name="cog-outline" size={24} />
             {
-              alerts()
+              alerts('configuration', auth().currentUser.emailVerified)
             }
           </View>
         </TouchableOpacity>

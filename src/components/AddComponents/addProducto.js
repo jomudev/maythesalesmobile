@@ -56,17 +56,7 @@ const AddProducto = ({navigation, route}) => {
   }
 
   const clean = () => {
-    reset({
-      nombre: '',
-      marca: '',
-      cantidad: '',
-      proveedor: '',
-      descripcion: '',
-      precioCosto: '',
-      precioVenta: '',
-      precioMayoreo: '',
-      imageURL: '',
-    });
+    reset();
     setBarcode('');
     setImageURL(null);
     setValue('imageURL', null);

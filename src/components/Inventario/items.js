@@ -23,6 +23,8 @@ const itemStyles = StyleSheet.create({
   title: {
     fontSize: 10,
     color: '#101e5a',
+    height: 25,
+    overflow: 'hidden',
     textAlign: 'center',
     fontWeight: 'bold',
     fontFamily: 'VarelaRound-Regular',
@@ -95,8 +97,11 @@ const ProductItem = ({data}) => {
         }}
       />
       <View>
-        <Text style={itemStyles.title}>
-          {`${data.nombre} ${moneyFormat(data.precioVenta)}`}
+        <Text style={itemStyles.title} ellipsizeMode='tail'>
+          {data.nombre}
+        </Text>
+        <Text style={itemStyles.subtitle}>
+          {moneyFormat(data.precioVenta)}
         </Text>
       </View>
     </TouchableOpacity>
@@ -121,9 +126,9 @@ const ServiceItem = ({data}) => {
           : addToCart(type, data, setIsSelected)
       }>
       <Text style={itemStyles.title}>{data.nombre}</Text>
-      <Text style={itemStyles.subtitle} ellipsizeMode="tail">
+      <Text style={itemStyles.subtitle}>
         {moneyFormat(data.precioVenta)}
-        {data.descripcion ? ` ${data.descripcion}` : ' '}
+        {data.descripcion && ' '}
       </Text>
     </TouchableOpacity>
   );
