@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
   },
   txtInput: {
     width: '90%',
+    backgroundColor: '#e6e8f1',
   },
   btn: {
     backgroundColor: '#101e5a',

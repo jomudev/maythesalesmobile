@@ -76,7 +76,11 @@ const MainHeaderRightComponent = (props) => {
     let iconName;
     switch (type) {
       case 'configuration' : 
-        iconName = "alert-circle";
+        if (!condition) {
+          iconName = "alert-circle";
+        } else {
+          return null;
+        }
         break;
       case 'cart' :
         if (condition) {

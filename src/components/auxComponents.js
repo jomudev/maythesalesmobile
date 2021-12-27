@@ -17,8 +17,6 @@ import FastImage from 'react-native-fast-image';
 import buttonStyles from './AddComponents/styles';
 import {Picker} from '@react-native-picker/picker';
 
-const deviceHeight = Dimensions.get('window').height;
-
 const PasswordInput = (props) => {
   const [icon, setIcon] = useState('eye');
   const [showPassword, setShowPassword] = useState(false);
@@ -50,21 +48,21 @@ const PasswordInput = (props) => {
 };
 
 const TextBox = (props) => {
-  const {style, Ref, isTextArea} = props;
+  let {style, Ref, isTextArea} = props;
   return (
     <TextInput
       underlineColorAndroid="transparent"
       {...props}
-      spellCheck={true}
       style={{
         ...style,
-        backgroundColor: style ? style.backgroundColor || '#e6e8f1' : '#e6e8f1',
+        backgroundColor: style ? style.backgroundColor && '#e6e8f1' : '#e6e8f1',
         marginVertical: 4,
         marginHorizontal: 8,
         paddingHorizontal: 16,
         borderRadius: 8,
         textAlignVertical: isTextArea ? 'top' : 'auto',
       }}
+      spellCheck={true}
       ref={Ref}
     />
   );

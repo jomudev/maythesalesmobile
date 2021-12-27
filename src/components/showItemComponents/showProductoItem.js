@@ -95,6 +95,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
         <TextBox
           editable={false}
           defaultValue={data.barcode}
+          style={styles.txtInput}
           placeholder="No asignado..."
         />
         <Text>Marca</Text>

@@ -213,6 +213,25 @@ const NewSale = ({navigation}) => {
     }
   };
 
+  const SearchList = ({type, list, foundElement}) => {
+
+    if (type === 'products') {
+      return <ScrollView
+              horizontal={true}
+              style={styles.findProductsList}
+              showsHorizontalScrollIndicator={false}>
+              <Search list={list} type={type} />
+             </ScrollView>
+    } else {
+      return <ScrollView
+              style={styles.findProductsList}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}>
+              {foundElement ? <Search list={list} type={type} /> : null}
+             </ScrollView>
+    }
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -251,12 +270,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <ScrollView
-            horizontal={true}
-            style={styles.findProductsList}
-            showsHorizontalScrollIndicator={false}>
-            <Search list={products} type="products" />
-          </ScrollView>
+          <SearchList list={products} type="products" />
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
@@ -280,12 +294,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <ScrollView
-            style={styles.findProductsList}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}>
-            {foundClient ? <Search list={clients} type="clients" /> : null}
-          </ScrollView>
+          <SearchList type="clients" list={clients} foundElement={foundClient} />
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
@@ -309,12 +318,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <ScrollView
-            style={styles.findProductsList}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}>
-            {foundService ? <Search list={services} type="services" /> : null}
-          </ScrollView>
+          <SearchList type="services" list={services} foundElement={foundService} />
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
@@ -338,11 +342,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            {foundWholesaler ? (
-              <Search list={wholesalers} type="wholesalers" />
-            ) : null}
-          </ScrollView>
+          <SearchList type="wholesalers" list={wholesalers} foundElement={foundWholesaler} />
         </View>
         <HomeBannerAd />
       </ScrollView>

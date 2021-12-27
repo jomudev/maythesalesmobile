@@ -92,7 +92,7 @@ const Perfil = () => {
           user.reload()
           ToastAndroid.show("Reinicia la aplicación para que los cambios surtan efecto.", ToastAndroid.LONG)       
           }}>
-          <Text style={{color: 'white'}}>Confirmar correo electrónico nuevamente</Text>
+          <Text style={{color: 'white'}}>Enviar correo de verificación</Text>
         </TouchableOpacity> : null
       }
       

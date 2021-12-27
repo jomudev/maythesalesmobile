@@ -173,7 +173,7 @@ function ShowInventory({navigation, route}) {
   })
 
   return (
-    <SafeAreaView style={{height: '100%'}}>
+    <SafeAreaView style={{height: '100%', backgroundColor: 'white'}}>
       <VirtualizedList
         data={
           Object.keys(filteredCollection).length ? 

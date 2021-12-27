@@ -40,14 +40,44 @@ const styles = StyleSheet.create({
   textInputContainer: {
     width: '80%',
     height: '30%',
+    paddingVertical: 16,
+  },
+  label: {
+    marginVertical: 8,
+    marginLeft: 16
+  },
+  textInput: {
+    backgroundColor: '#e6e8f1',
+    position: 'relative',
+    height: 48,
+    marginVertical: 4,
+    marginHorizontal: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
   },
   passwordView: {
     flexDirection: 'row',
-    width: '100%',
+    width: '111%',
     alignItems: 'center',
+    marginVertical: 4,
+    marginHorizontal: 8,
+    paddingRight: 16,
+    paddingLeft: 0,
+    height: 48,
+    alignSelf: 'center',
+    borderRadius: 8,
+    backgroundColor: '#e6e8f1'
   },
   passwordInput: {
-    flex: 7,
+    textAlign: 'left',
+    padding: 0,
+    width: '80%',
+    margin: 0,
+    height: 48,
+  },
+  showPasswordIcon: {
+    alignSelf: 'flex-end',
+    marginLeft: 16,
   },
   changeScreenText: {
     textAlign: 'center',

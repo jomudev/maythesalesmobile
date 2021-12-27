@@ -72,7 +72,9 @@ const styles = StyleSheet.create({
   txtInput: {
     width: '100%',
     fontSize: 16,
+    alignSelf: 'center',
     padding: 10,
+    backgroundColor: '#e6e8f1',
     marginBottom: 10,
   },
   textContainer: {
@@ -167,8 +169,6 @@ const styles = StyleSheet.create({
     paddingRight: 50,
     overflow: 'hidden',
     fontFamily: 'VarelaRound-Regular',
-    borderColor: '#e6e8f1',
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   form: {
     paddingHorizontal: 8,
