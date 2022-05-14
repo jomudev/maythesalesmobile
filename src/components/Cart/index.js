@@ -1,21 +1,20 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect, useRef} from 'react';
 import {
-  ScrollView,
   Switch,
   Text,
   TouchableOpacity,
-  ActivityIndicator,
   ToastAndroid,
   View,
+  FlatList
 } from 'react-native';
 import store from '../../../store';
 import {getTotal, moneyFormat, postSale} from '../mainFunctions';
 import {interstitialAdConfig, InterstitialUnitId} from '../ads';
 import {AdEventType, InterstitialAd} from '@react-native-firebase/admob';
-import {clearStoreCart} from '../cartComponents/functions';
-import ProductsList from '../cartComponents/productsList';
-import ServicesList from '../cartComponents/servicesList';
+import {clearStoreCart} from './cartComponents/functions';
+import ProductsList from './cartComponents/productsList';
+import ServicesList from './cartComponents/servicesList';
 import styles from './styles';
 import EmptyListImage from '../emptyListImage';
 
@@ -46,11 +45,13 @@ const Cart = () => {
   useEffect(() => {
     const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, interstitialAdConfig);
     interstitial.load();
+    
     const adEventListener = interstitial.onAdEvent((eventType) => {
       if (eventType === AdEventType.LOADED) {
         interstitial.show();
       }
     });
+
     const unsubscribe = store.subscribe(() => {
       const prevState = state;
       const newState = store.getState();
@@ -71,31 +72,21 @@ const Cart = () => {
     };
   }, []);
 
-  const total = getTotal([state.products, state.services], state.wholesaler);
-
-  return state.products.length === 0 && state.services.length === 0 ? (
+  const servicesList = state.services ? state.services : []
+  const productsList = state.products ? state.products : []
+  const total = getTotal([productsList, servicesList], state.wholesaler);
+  return state.products.length === 0 && servicesList.length === 0 ? (
     <View style={{alignItems: 'center', justifyContent: 'center', flex: 1, backgroundColor: 'white'}}>
       {EmptyListImage.default}
       <Text style={{textAlign: 'center', color: 'gray'}}>Seleccione productos en la sección "Nueva Venta" para visualizarlos aquí</Text>
     </View>
   ) : (
     <View style={styles.container}>
-      <ScrollView>
-        <ProductsList products={state.products} wholesaler={state.wholesaler} />
-        {state.products.length > 0 ? (
-          <Subtotal
-            text="Subtotal"
-            value={getTotal([state.products], state.wholesaler)}
-          />
-        ) : null}
-        <ServicesList services={state.services} wholesaler={state.wholesaler} />
-        {state.services.length > 0 ? (
-          <Subtotal
-            text="Subtotal"
-            value={getTotal([state.services], state.wholesaler)}
-          />
-        ) : null}
-      </ScrollView>
+      <FlatList
+        data={[productsList, servicesList]}
+        ListHeaderComponent={() => (<ProductsList products={productsList} wholesaler={state.wholesaler} />)}
+        ListFooterComponent={() => (<ServicesList services={servicesList} wholesaler={state.wholesaler} />)}
+       />
       <View style={styles.bottomView}>
         <View style={styles.bottomViewContent}>
           {state.client ? (
@@ -115,8 +106,8 @@ const Cart = () => {
               </Text>
               <Switch
                 style={styles.switchSaleState}
-                trackColor={{false: '#101e5a', true: '#101e5a'}}
-                thumbColor={saleState ? '#434588' : '#434588'}
+                trackColor={{false: '#e6e8f1', true: '#e6e8f1'}}
+                thumbColor={saleState ? '#434588' : '#b4b6be'}
                 onValueChange={() => {
                   setSaleState(!saleState);
                 }}
@@ -130,7 +121,7 @@ const Cart = () => {
             postSale({
               ...state,
               total: getTotal(
-                [state.products, state.services],
+                [productsList, servicesList],
                 state.wholesaler,
               ),
               saleState,
@@ -155,9 +146,10 @@ const Cart = () => {
 
 const Subtotal = ({text, value}) => {
   return (
-    <Text style={styles.subtotal}>
-      {text} : {moneyFormat(value)}
-    </Text>
+    <View style={styles.subtotal}>
+      <Text>{text} </Text>
+      <Text>{moneyFormat(value)}</Text>
+    </View>
   );
 };
 

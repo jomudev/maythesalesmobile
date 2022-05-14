@@ -250,7 +250,7 @@ const App = () => {
           <Stack.Screen
             name="Cart"
             options={{
-              title: 'Carrito de ventas',
+              title: 'Carrito',
             }}
             component={Cart}
           />

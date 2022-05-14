@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Text,
-  Dimensions,
   Modal,
   ActivityIndicator,
   StyleSheet,
@@ -54,13 +53,11 @@ const TextBox = (props) => {
       underlineColorAndroid="transparent"
       {...props}
       style={{
-        ...style,
-        backgroundColor: style ? style.backgroundColor && '#e6e8f1' : '#e6e8f1',
-        marginVertical: 4,
-        marginHorizontal: 8,
+        backgroundColor: '#e6e8f1',
         paddingHorizontal: 16,
-        borderRadius: 8,
+        borderRadius: 100,
         textAlignVertical: isTextArea ? 'top' : 'auto',
+        ...style,
       }}
       spellCheck={true}
       ref={Ref}
@@ -84,7 +81,7 @@ const RenderImage = (props) => {
 
   if (source) {
     return (
-      <>
+      <View>
         {isLoading ? (
           <ActivityIndicator
             size="small"
@@ -102,7 +99,7 @@ const RenderImage = (props) => {
           onLoadStart={() => setIsLoading(true)}
           onLoad={() => setIsLoading(false)}
         />
-      </>
+      </View>
     );
   } else {
     return <Icon name="image-plus" style={styles.addImageIcon} />;
@@ -147,109 +144,6 @@ const Select = ({items, onValueChange, selectedValue}) => {
     </Picker>
   );
 };
-class ContextMenu extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      show: false,
-      position: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-      },
-    };
-  }
-
-  close = () => {
-    this.setState({
-      show: false,
-    });
-  };
-
-  show = (position) => {
-    this.setState({
-      position: position || this.state.position,
-      show: true,
-    });
-  };
-
-  renderOutsideTouchable = (onTouch) => {
-    const view = <View style={{flex: 1, width: '100%'}} />;
-    if (!onTouch) {
-      return view;
-    }
-
-    return (
-      <TouchableWithoutFeedback
-        onPress={onTouch}
-        style={{flex: 1, width: '100%'}}>
-        {view}
-      </TouchableWithoutFeedback>
-    );
-  };
-
-  render() {
-    const {show, position} = this.state;
-    const {onTouchOutside, optionsList} = this.props;
-    return (
-      <Modal
-        visible={show}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={this.close}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#00000000',
-            justifyContent: 'flex-end',
-          }}>
-          {this.renderOutsideTouchable(onTouchOutside)}
-          <View
-            style={{
-              ...styles.contextMenuOptions,
-              top: position.y + position.height - 30,
-              right: 20,
-            }}>
-            {optionsList.map(({text, onPress}) => (
-              <TouchableOpacity
-                key={iconName + text}
-                onPress={() => {
-                  this.close();
-                  onPress();
-                }}
-                style={styles.contextMenuOption}>
-                <View style={styles.contextMenuIcons}>
-                  {iconName ? <Icon name={iconName} size={24} /> : null}
-                </View>
-                <Text style={styles.contextMenuOptionText}>{text}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </Modal>
-    );
-  }
-}
-
-const CarouselItem = ({data, selectedHelpMessage}) => (
-  <View
-    style={
-      selectedHelpMessage === data.id
-        ? styles.selectedCarouseItem
-        : styles.nonSelectedCarouselItem
-    }>
-    <View style={styles.helpMessageIconContainer}>
-      <Icon name={data.icon} size={24} style={styles.helpMessageIcon} />
-    </View>
-    <View style={styles.helpMessageTitleContainer}>
-      <Text style={styles.helpMessageTitleText}>{data.title}</Text>
-    </View>
-    <View style={styles.helpMessageBodyContainer}>
-      <Text style={styles.helpMessageBodyText}>{data.body}</Text>
-    </View>
-  </View>
-);
 
 const HelpMessage = ({helpMessages, closeHelpMassage}) => {
   const [selectedHelpMessage, setSelectedHelpMessage] = useState(0);
@@ -331,7 +225,6 @@ export {
   Button,
   RenderImage,
   Select,
-  ContextMenu,
   Group,
   HelpMessage,
 };
@@ -341,106 +234,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     position: 'absolute',
     top: '45%',
-  },
-  helpMessageContainer: {
-    zIndex: 1000,
-    elevation: 15,
-    position: 'absolute',
-    left: '50%',
-    bottom: '10%',
-    transform: [{translateX: -200}],
-    backgroundColor: 'white',
-    width: 400,
-    height: 400,
-    overflow: 'scroll',
-    borderRadius: 8,
-    flexDirection: 'column',
-  },
-  helpMessageTitleContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  helpMessageCloseButton: {
-    position: 'absolute',
-    right: 10,
-    top: 10,
-  },
-  helpMessageTitleText: {
-    fontSize: 28,
-    textAlignVertical: 'bottom',
-    bottom: 0,
-  },
-  helpMessageBodyContainer: {
-    flex: 3,
-    paddingHorizontal: 56,
-  },
-  helpMessageBodyText: {
-    fontSize: 24,
-    textAlign: 'justify',
-  },
-  helpMessageIconContainer: {
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: '#e6e8f1',
-    padding: 16,
-    alignSelf: 'center',
-    marginTop: 16,
-  },
-  helpMessageIcon: {
-    fontSize: 100,
-    color: '#101e5a',
-  },
-  selectedCarouseItem: {
-    flex: 1,
-  },
-  carouselIndicatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    position: 'absolute',
-    bottom: 10,
-  },
-  nonSelectedCarouselItem: {
-    display: 'none',
-  },
-  helpMessageCarousel: {
-    position: 'relative',
-  },
-  helpMessageCarouselArrow: {
-    position: 'absolute',
-    top: '50%',
-  },
-  contextMenu: {
-    paddingVertical: 8,
-    elevation: 30,
-  },
-  contextMenuOption: {
-    padding: 8,
-    backgroundColor: '#ffff',
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '100%',
-  },
-  contextMenuOptions: {
-    flexDirection: 'column',
-    backgroundColor: '#ffff',
-    width: '50%',
-    borderRadius: 2,
-    paddingVertical: 8,
-    elevation: 30,
-    position: 'absolute',
-  },
-  contextMenuIcons: {
-    alignItems: 'center',
-    borderRadius: 100,
-    justifyContent: 'center',
-    marginRight: 8,
-    width: 32,
-    height: 32,
-    backgroundColor: 'white',
-  },
-  contextMenuOptionText: {
-    fontSize: 16,
+    left: '45%',
   },
 });

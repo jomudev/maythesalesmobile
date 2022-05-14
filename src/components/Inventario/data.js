@@ -26,12 +26,6 @@ const FormOptions = [
     description:
       'Agrega y muestra los proveedores con los que esta asociado el negocio.',
   },
-  {
-    name: 'Agregar Mayorista',
-    icon: 'account-tie',
-    type: 'Mayoristas',
-    description: 'Agrega vendedores mayoristas a quienes les vendes.',
-  }
 ];
 
 export default FormOptions;

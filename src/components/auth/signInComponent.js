@@ -56,17 +56,14 @@ const SignInComponent = () => {
     <ScrollView contentContainerStyle={styles.lightMainContainer}>
       {initializing ? <LoadingScreen /> : null}
       <StatusBar
-        barStyle="light-content"
+        barStyle="dark-content"
         translucent={true}
-        backgroundColor="rgba(0,0,0,0.5)"
+        backgroundColor="white"
       />
-      <ImageBackground
-        source={require('../../assets/AdditionalMedia/signin_cover.jpg')}
-        style={styles.coverPhoto}
-        resizeMode="cover">
+      <View style={styles.logoContainer}>
         <Logo style={styles.logo} />
-      </ImageBackground>
-      <View style={{flexDirection: 'row', alignSelf: 'flex-start', flex: 2}}>
+      </View>
+      <View style={{flexDirection: 'row', alignSelf: 'flex-start'}}>
         <Animated.View style={{...styles.form, left: SignInAnimationScreen}}>
           <SignIn setInitializing={setInitializing} changeScreen={animation} />
         </Animated.View>

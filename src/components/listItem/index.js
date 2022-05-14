@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableWithoutFeedback, Alert, TouchableOpacity} from 'react-native';
+import {View, Text, Alert, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './listStyles';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';

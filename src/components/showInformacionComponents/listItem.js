@@ -63,16 +63,18 @@ const ListItem = ({navigation, type, data}) => {
           data,
         })
       }>
-      {data.cantidad ? (
-        <View style={styles.listItemQuantity}>
-          <Text
-            adjustsFontSizeToFit
-            style={{color: 'black', fontWeight: 'bold'}}>
-            {data.cantidad}
-          </Text>
-        </View>
-      ) : null}
       {type === 'productos' || type === 'servicios' ? <ItemImage imageURL={data.imageURL} /> : null}
+      <View style={styles.quantityContainer}>
+        {data.cantidad ? (
+          <View style={styles.listItemQuantity}>
+            <Text
+              adjustsFontSizeToFit
+              style={{color: 'black', fontWeight: 'bold'}}>
+              {data.cantidad}
+            </Text>
+          </View>
+        ) : null}
+      </View>
       <View style={styles.listItemText}>
         <Text style={styles.itemTitle}>{data.nombre}</Text>
         <Text
@@ -88,6 +90,11 @@ const ListItem = ({navigation, type, data}) => {
             );
           })}
         </Text>
+      </View>
+      <View style={styles.modifyQuantityContainer}>
+          <TouchableOpacity style={styles.modifyQuantityButton}>
+            <Icon name="add" size={20} color="#999" />
+          </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );

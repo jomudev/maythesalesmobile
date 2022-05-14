@@ -29,7 +29,7 @@ const initialFormValues = {
 
 function AddServicio ({navigation, route}) {
   const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
-  const {register, handleSubmit, errors, watch, reset, setValue} = useForm({
+  const {register, handleSubmit, errors, watch, setValue} = useForm({
     defaultValues: initialFormValues,
     mode: 'onSubmit',
     criteriaMode: 'firstError',
@@ -55,21 +55,19 @@ function AddServicio ({navigation, route}) {
     setBarcode(paramsBarcode);
   }
 
-  const clean = () => {
-    reset({
-      nombre: '',
-      marca: '',
-      cantidad: 0,
-      proveedor: '',
-      descripcion: '',
-      precioCosto: 0,
-      precioVenta: 0,
-      previoMayoreo: 0,
-    });
-    setBarcode('');
-    setImage(null);
-    setValue('image', null);
-  };
+  const reset = () => {
+    setValue('image', '')
+    setValue('nombre', '')
+    setValue('marca', '')
+    setValue('cantidad', '')
+    setValue('proveedor', '')
+    setValue('precioCosto', '')
+    setValue('precioVenta', '')
+    setValue('precioMayoreo', '')
+    setValue('descripcion', '')
+    setBarcode('')
+    setImage(null)
+  }
   
   const onSubmit = (data) => {
     setIsLoading(true);
@@ -83,7 +81,7 @@ function AddServicio ({navigation, route}) {
           ToastAndroid.SHORT,
         );
         setIsLoading(false);
-        clean();
+        reset();
       })
       .catch((err) => {
         setIsLoading(false);

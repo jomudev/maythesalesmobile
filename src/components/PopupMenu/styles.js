@@ -8,9 +8,12 @@ const styles = StyleSheet.create({
   },
   modalPopupMenu: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    width: '100%',
+    borderRadius: 24,
+    width: '95%',
+    alignSelf: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 8,
+    paddingBottom: 16,
   },
   popupMenuTitle: {
     textAlign: 'center',

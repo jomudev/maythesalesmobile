@@ -67,9 +67,8 @@ const Login = ({setInitializing, changeScreen}) => {
   };
   return (
     <ScrollView contentContainerStyle={{width: '100%', alignItems: 'center'}} >
-      <Text style={styles.welcomeTitle}>Inicia sesión</Text>
+      <Text style={styles.loginTitle}>Iniciar sesión</Text>
       <View style={styles.textInputContainer}>
-        <Text style={styles.label}>Correo Electrónico:</Text>
         <TextBox
           style={styles.textInput}
           nativeID="loginEmail"
@@ -79,19 +78,18 @@ const Login = ({setInitializing, changeScreen}) => {
           blurOnSubmit={true}
           onSubmitEditing={() => passwordRef.current.focus()}
           value={watch('email')}
-          placeholder="alguien@ejemplo.com"
+          placeholder="Correo Electrónico"
           autoCapitalize="none"
           returnKeyType="next"
         />
         {errors.email && (
           <ErrorMessage text="Debes proporcionar el correo de inicio de sesion" />
         )}
-        <Text style={styles.label}>Contraseña:</Text>
         <PasswordInput
           style={styles.passwordInput}
           nativeID="loginPassword"
           testID="loginPassword"
-          placeholder="contraseña"
+          placeholder="Contraseña"
           autoCapitalize="none"
           value={watch('password')}
           onChangeText={(text) => setValue('password', text)}
@@ -101,18 +99,26 @@ const Login = ({setInitializing, changeScreen}) => {
         {errors.password && (
           <ErrorMessage text="Debes proporcionar la contraseña" />
         )}
-        <TouchableOpacity
-          style={styles.changeScreen}
-          onPress={() => changeScreen('toSignIn')}>
-          <Text style={styles.changeScreenText}>
-            ¿No tienes cuenta? Registrarse
-          </Text>
-        </TouchableOpacity>
+        
+        
         <Button onPress={handleSubmit(onSubmit)}>
           <Text style={{color: 'white', fontSize: 18}}>Iniciar sesión</Text>
         </Button>
       </View>
+      <View style={styles.registerContainer}>
+          <Text>
+            ¿No tienes una cuenta?{' '}
+          </Text>
+          <TouchableOpacity
+            style={styles.changeScreen}
+            onPress={() => changeScreen('toSignIn')}>
+            <Text style={styles.changeScreenText}>
+              Registrarse
+            </Text>
+          </TouchableOpacity>
+        </View>
     </ScrollView>
+    
   );
 };
 

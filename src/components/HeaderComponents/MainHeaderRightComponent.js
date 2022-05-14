@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import store from '../../../store';
-import {clearStoreCart} from '../cartComponents/functions';
+import {clearStoreCart} from '../Cart/cartComponents/functions';
 import {TextBox} from '../auxComponents';
 import PopupMenu from '../PopupMenu';
 import auth from '@react-native-firebase/auth'

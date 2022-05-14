@@ -1,4 +1,6 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
+
+const {width} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   lightMainContainer: {
@@ -15,76 +17,85 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  coverPhoto: {
+  form: {
+    width,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loginTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'black',
+    width: '100%',
+    textAlign: 'center',
+  },
+  logoContainer: {
     width: '100%',
     height: '100%',
     flex: 1,
     top: 0,
   },
-  form: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  welcomeTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'black',
-    alignSelf: 'center',
-  },
   logo: {
-    height: '80%',
-    marginTop: 30,
-    width: '100%',
+    height: '50%',
+    top: '35%',
     resizeMode: 'center',
   },
   textInputContainer: {
-    width: '80%',
-    height: '30%',
-    paddingVertical: 16,
+    width,
+    paddingHorizontal: 48,
   },
   label: {
     marginVertical: 8,
-    marginLeft: 16
   },
   textInput: {
     backgroundColor: '#e6e8f1',
     position: 'relative',
-    height: 48,
-    marginVertical: 4,
-    marginHorizontal: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    height: 56,
+    width: '100%',
+    borderRadius: 100,
+    marginVertical: 8,
   },
   passwordView: {
+    marginVertical: 8,
     flexDirection: 'row',
-    width: '111%',
+    width: '100%',
     alignItems: 'center',
-    marginVertical: 4,
-    marginHorizontal: 8,
-    paddingRight: 16,
-    paddingLeft: 0,
-    height: 48,
+    height: 56,
     alignSelf: 'center',
-    borderRadius: 8,
-    backgroundColor: '#e6e8f1'
+    borderRadius: 100,
+    overflow: 'hidden',
+    backgroundColor: '#e6e8f1',
   },
   passwordInput: {
     textAlign: 'left',
     padding: 0,
-    width: '80%',
     margin: 0,
-    height: 48,
+    width: '80%',
+    height: '100%',
   },
   showPasswordIcon: {
-    alignSelf: 'flex-end',
-    marginLeft: 16,
-  },
-  changeScreenText: {
+    position: 'absolute',
+    right: 16,
+    width: 48,
+    height: '100%',
+    textAlignVertical: 'center',
     textAlign: 'center',
   },
-  changeScreen: {
-    height: 50,
+  registerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
+  },
+  changeScreenText: {
+    textAlign: 'right',
+  },
+  changeScreen: {
+    height: 56,
+    borderRadius: 100,
+    backgroundColor: '#e6e8f1',
+    width: '50%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

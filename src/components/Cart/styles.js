@@ -6,9 +6,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   subtotal: {
-    fontSize: 24,
+    fontSize: 16,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
+    fontWeight: 'bold',
   },
   bottomView: {
     bottom: 0,
@@ -19,7 +23,8 @@ const styles = StyleSheet.create({
   bottomViewContent: {
     width: '100%',
     flexDirection: 'column',
-    padding: 16
+    padding: 16,
+    backgroundColor: '#efefef',
   },
   bottomViewContentRow: {
     width: '100%',
@@ -50,7 +55,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     width: '100%',
-    fontSize: 32,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   soldButton: {
@@ -67,7 +72,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     fontWeight: 'bold',
     paddingHorizontal: 8,
-    fontSize: 24,
+    fontSize: 16,
   }
 });
 

@@ -15,28 +15,9 @@ import store from '../../../store';
 import {
   removeProductFromCart,
   removeServiceFromCart,
-} from '../cartComponents/functions';
+} from '../Cart/cartComponents/functions';
 
 const defaultImageURI = Image.resolveAssetSource(defaultImage).uri;
-
-const itemStyles = StyleSheet.create({
-  title: {
-    fontSize: 10,
-    color: '#101e5a',
-    height: 25,
-    overflow: 'hidden',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontFamily: 'VarelaRound-Regular',
-  },
-  subtitle: {
-    fontSize: 10,
-    color: '#6f7daf',
-    fontFamily: 'VarelaRound-Regular',
-    overflow: 'hidden',
-    maxHeight: 16,
-  },
-});
 
 const elementIsSelected = (storeCartElements, id) => {
   if (storeCartElements == undefined) {
@@ -81,6 +62,16 @@ const ProductItem = ({data}) => {
     elementIsSelected(store.getState().cartProducts, data.id),
   );
 
+  React.useEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      setIsSelected(elementIsSelected(store.getState().cartProducts, data.id));
+    }
+    );
+    return () => {
+      unsubscribe();
+    }
+  }, []);
+
   return (
     <TouchableOpacity
       style={[styles.itemList, isSelected ? styles.selectedItemList : null]}
@@ -96,11 +87,11 @@ const ProductItem = ({data}) => {
           priority: FastImage.priority.high,
         }}
       />
-      <View>
-        <Text style={itemStyles.title} ellipsizeMode='tail'>
+      <View style={styles.itemDescription}>
+        <Text style={styles.itemName} ellipsizeMode='tail' numberOfLines={1}>
           {data.nombre}
         </Text>
-        <Text style={itemStyles.subtitle}>
+        <Text style={styles.itemPrice}>
           {moneyFormat(data.precioVenta)}
         </Text>
       </View>

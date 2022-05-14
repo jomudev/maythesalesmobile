@@ -30,7 +30,7 @@ const initialFormValues = {
 
 const AddProducto = ({navigation, route}) => {
   const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
-  const {register, handleSubmit, errors, watch, reset, setValue} = useForm({
+  const {register, handleSubmit, errors, watch, setValue} = useForm({
     defaultValues: initialFormValues,
     mode: 'onSubmit',
     criteriaMode: 'firstError',
@@ -38,6 +38,20 @@ const AddProducto = ({navigation, route}) => {
   const [imageURL, setImageURL] = useState(null);
   const [barcode, setBarcode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const reset = () => {
+    setValue('imageURL', '')
+    setValue('nombre', '')
+    setValue('marca', '')
+    setValue('cantidad', '')
+    setValue('proveedor', '')
+    setValue('precioCosto', '')
+    setValue('precioVenta', '')
+    setValue('precioMayoreo', '')
+    setValue('descripcion', '')
+    setBarcode('')
+    setImageURL(null)
+  }
 
   useEffect(() => {
     register('imageURL');

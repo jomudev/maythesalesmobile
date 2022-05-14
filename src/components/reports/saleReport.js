@@ -78,43 +78,29 @@ const SaleReport = ({route}) => {
       {productos.map((product) => (
         <ListItem element={product} key={product.id} />
       ))}
-      {productos.length && servicios.length ? (
-        <Total
-          text="Total productos"
-          value={moneyFormat(getTotal([productos], mayorista))}
-        />
-      ) : null}
       {servicios.length ? (
         <Text style={styles.title}>Lista de servicios</Text>
       ) : null}
       {servicios.map((service) => (
         <ListItem element={service} key={service.id} />
       ))}
-      {servicios.length ? (
-        <Total
-          text="Total servicios"
-          value={moneyFormat(getTotal([servicios], mayorista))}
-        />
-      ) : null}
       <Total text="Total Venta" isPrimary={true} value={moneyFormat(total)} />
     </ScrollView>
   );
 };
 
 const ListItem = ({element}) => {
-  const {precioCosto, precioVenta, nombre, cantidad, wholesaler} = element;
+  const {precioMayoreo, precioVenta, nombre, cantidad, wholesaler} = element;
   return (
-    <View style={{flexDirection: 'row', paddingVertical: 4}}>
-      <Text allowFontScaling={true} style={{flex: 1}}>
+    <View style={{flexDirection: 'row', paddingVertical: 4, justifyContent: 'space-between'}}>
+      <Text ellipsizeMode="tail" numberOfLines={1} style={{width: '50%'}}>
         {cantidad}
         {'  '}
         {nombre}
-        {'  '}
-        {wholesaler ? moneyFormat(precioCosto) : moneyFormat(precioVenta)}
       </Text>
-      <Text style={{flex: 1, textAlign: 'right'}}>
+      <Text>
         {wholesaler
-          ? moneyFormat(cantidad * precioCosto)
+          ? moneyFormat(cantidad * precioMayoreo)
           : moneyFormat(cantidad * precioVenta)}
       </Text>
     </View>
@@ -126,7 +112,7 @@ const Total = ({text, value, isPrimary}) => (
     <Text style={{...styles.totalText, color: isPrimary ? 'black' : '#666'}}>
       {text}
     </Text>
-    <Text style={styles.totalValue}>{value}</Text>
+    <Text style={{fontWeight: 'bold'}} >{value}</Text>
   </View>
 );
 

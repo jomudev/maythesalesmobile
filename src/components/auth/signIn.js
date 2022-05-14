@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useRef} from 'react';
-import {View, Text, ToastAndroid, TouchableOpacity, ScrollView} from 'react-native';
+import {View, Text, ToastAndroid, TouchableOpacity, ScrollView, Dimensions} from 'react-native';
 import {TextBox, PasswordInput} from '../auxComponents';
 import Button from './button';
 import firestore from '@react-native-firebase/firestore';
@@ -8,6 +8,9 @@ import firestore from '@react-native-firebase/firestore';
 import styles from './authStyles';
 import auth from '@react-native-firebase/auth';
 import {useForm} from 'react-hook-form';
+
+
+const width = Dimensions.get('window').width;
 
 const ErrorMessage = ({text}) => {
   return (
@@ -106,24 +109,22 @@ const SignIn = ({setInitializing, changeScreen}) => {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={{width: '100%', alignItems: 'center'}} >
-      <Text style={styles.welcomeTitle}>Crea tu propia cuenta</Text>
+    <ScrollView contentContainerStyle={{width, alignItems: 'center'}} >
+      <Text style={styles.loginTitle}>Crea una nueva cuenta</Text>
       <View style={styles.textInputContainer}>
-        <Text style={styles.label}>Ingresa tu Correo electrónico:</Text>
         <TextBox
           style={styles.textInput}
           keyboardType="email-address"
-          placeholder="alguien@ejemplo.com"
+          placeholder="Correo electrónico"
           returnKeyType="next"
           onChangeText={(text) => setValue('email', text)}
           autoCapitalize="none"
           onSubmitEditing={() => password.current.focus()}
           Ref={email}
         />
-        <Text style={styles.label}>Ingresa tu contraseña:</Text>
         <PasswordInput
           style={styles.passwordInput}
-          placeholder="contraseña"
+          placeholder="Contraseña"
           onChangeText={(text) => {
             setValue('password', text);
           }}
@@ -132,7 +133,6 @@ const SignIn = ({setInitializing, changeScreen}) => {
           passRef={password}
         />
         {verifyPasswordRequirements()}
-        <Text style={styles.label}>Confirma tu contraseña:</Text>
         <PasswordInput
           style={styles.passwordInput}
           placeholder="Confirmar contraseña"
@@ -143,16 +143,21 @@ const SignIn = ({setInitializing, changeScreen}) => {
           passRef={repeatPassword}
         />
         {verifyPasswords()}
-        <TouchableOpacity
-          style={styles.changeScreen}
-          onPress={() => changeScreen('toLogin')}>
-          <Text style={styles.changeScreenText}>
-            ¿Ya tienes cuenta? Inicia sesión
-          </Text>
-        </TouchableOpacity>
         <Button onPress={handleSubmit(onSubmit)}>
           <Text style={{color: 'white', fontSize: 18}}>Registrarse</Text>
         </Button>
+        <View style={styles.registerContainer}>
+          <Text>
+            ¿Ya tienes cuenta?{' '}
+          </Text>
+          <TouchableOpacity
+            style={styles.changeScreen}
+            onPress={() => changeScreen('toLogin')}>
+            <Text style={styles.changeScreenText}>
+              Inicia sesión
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );

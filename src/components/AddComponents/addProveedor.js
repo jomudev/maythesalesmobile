@@ -8,8 +8,15 @@ import {useForm} from 'react-hook-form';
 import LoadingScreen from '../loadingScreen';
 
 const AddProveedor = () => {
-  const {register, handleSubmit, errors, setValue, watch, reset} = useForm();
+  const {register, handleSubmit, errors, setValue, watch} = useForm();
   const [isLoading, setIsLoading] = useState(false);
+  
+  const reset = () => {
+    setValue('nombre', '')
+    setValue('telefono', '')
+    setValue('email', '')
+    setValue('descripcion', '')
+  }
 
   const onSubmit = (data) => {
     setIsLoading(true);

@@ -7,8 +7,15 @@ import {save} from './functions';
 import LoadingScreen from '../loadingScreen';
 
 const AddWholesaler = () => {
-  const {register, handleSubmit, watch, setValue, reset} = useForm();
+  const {register, handleSubmit, watch, setValue} = useForm();
   const [isLoading, setIsLoading] = useState(false);
+
+  const reset = () => {
+    setValue('nombre', '')
+    setValue('telefono', '')
+    setValue('email', '')
+    setValue('descripcion', '')
+  }
 
   useEffect(() => {
     register('nombre', {required: true});

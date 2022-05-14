@@ -79,7 +79,7 @@ export default class PopupMenu extends React.Component {
                   this.props.function(index);
                   this.close();
                 }}>
-                <Text style={{fontSize: 24, textAlign: 'center'}}>{option}</Text>
+                <Text style={{fontSize: 16, textAlign: 'center'}}>{option}</Text>
               </Pressable>
             ))}
           </Animated.View>

@@ -146,71 +146,77 @@ const NewSale = ({navigation}) => {
 
   const Search = ({list, type}) => {
     let found = [];
-    if (type === 'products') {
-      if (foundProduct) {
-        found = list.filter((item) => filterItems(item, foundProduct));
-        return found.map((product, index) => (
-          <ProductItem
-            data={product}
-            index={index}
-            key={JSON.stringify(product) + index}
-          />
-        ));
-      } else {
-        return list.length === 0 ? (
-          <Text style={styles.emptySearch}>
-            Agrega productos al inventario para poder verlos aquí.
-          </Text>
-        ) : (
-          list.map((product, index) => (
+    const types = {
+      "products": () => {
+        if (foundProduct) {
+          found = list.filter((item) => filterItems(item, foundProduct));
+          return found.map((product, index) => (
             <ProductItem
               data={product}
               index={index}
               key={JSON.stringify(product) + index}
             />
+          ));
+        } else {
+          return list.length === 0 ? (
+            <Text style={styles.emptySearch}>
+              Agrega productos al inventario para poder verlos aquí.
+            </Text>
+          ) : (
+            list.map((product, index) => (
+              <ProductItem
+                data={product}
+                index={index}
+                key={JSON.stringify(product) + index}
+              />
+            ))
+          );
+        }
+      },
+      "clients": () => {
+        found = list.filter((item) => filterItems(item, foundClient));
+        return found.length === 0 ? (
+          <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
+        ) : (
+          found.map((client, index) => (
+            <ClientItem
+              data={client}
+              index={index}
+              key={JSON.stringify(client) + index}
+            />
+          ))
+        );
+      },
+      "services": () => {
+        found = list.filter((item) => filterItems(item, foundService));
+        return found.length === 0 ? (
+          <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
+        ) : (
+          found.map((service, index) => (
+            <ServiceItem
+              data={service}
+              index={index}
+              key={JSON.stringify(service) + index}
+            />
+          ))
+        );
+      },
+      "wholesalers": () => {
+        found = list.filter((item) => filterItems(item, foundWholesaler));
+        return found.length === 0 ? (
+          <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
+        ) : (
+          found.map((wholesaler, index) => (
+            <WholesalerItem
+              data={wholesaler}
+              index={index}
+              key={JSON.stringify(wholesaler) + index}
+            />
           ))
         );
       }
-    } else if (type === 'clients') {
-      found = list.filter((item) => filterItems(item, foundClient));
-      return found.length === 0 ? (
-        <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
-      ) : (
-        found.map((client, index) => (
-          <ClientItem
-            data={client}
-            index={index}
-            key={JSON.stringify(client) + index}
-          />
-        ))
-      );
-    } else if (type === 'services') {
-      found = list.filter((item) => filterItems(item, foundService));
-      return found.length === 0 ? (
-        <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
-      ) : (
-        found.map((service, index) => (
-          <ServiceItem
-            data={service}
-            index={index}
-            key={JSON.stringify(service) + index}
-          />
-        ))
-      );
-    } else if (type === 'wholesalers') {
-      found = list.filter((item) => filterItems(item, foundWholesaler));
-      return found.length === 0 ? (
-        <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
-      ) : (
-        found.map((wholesaler, index) => (
-          <WholesalerItem
-            data={wholesaler}
-            index={index}
-            key={JSON.stringify(wholesaler) + index}
-          />
-        ))
-      );
     }
+    return types[type]();
   };
 
   const SearchList = ({type, list, foundElement}) => {

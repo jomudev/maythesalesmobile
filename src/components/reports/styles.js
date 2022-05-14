@@ -3,7 +3,7 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 24,
     paddingTop: 32,
     backgroundColor: 'white',
   },
@@ -15,11 +15,13 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     paddingVertical: 8,
-    fontSize: 16,
+    color: 'gray',
+    fontSize: 12,
   },
   total: {
     flexDirection: 'row',
-    paddingVertical: 8,
+    justifyContent: 'space-between',
+    paddingVertical: 16,
   },
   totalText: {
     fontSize: 16,
@@ -27,10 +29,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontWeight: 'bold',
   },
-  totalValue: {
-    flex: 1,
-    textAlign: 'right',
-  }
 });
 
 export default styles;

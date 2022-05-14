@@ -12,7 +12,7 @@ import servicesOptionsImage from '../../assets/AdditionalMedia/services-option-i
 // Foto de Ainis Jankauskas en Pexels
 import providersOptionsImage from '../../assets/AdditionalMedia/providers-option-image.jpg';
 // Foto de Oleg Magni en Pexels
-import wholesalersOptionsImage from '../../assets/AdditionalMedia/wholesalers-option-image.jpg';
+//import wholesalersOptionsImage from '../../assets/AdditionalMedia/wholesalers-option-image.jpg';
 // Foto de Tiger Lily en Pexels
 
 const ItemList = ({navigation, item}) => {
@@ -23,8 +23,6 @@ const ItemList = ({navigation, item}) => {
     optionImageURI = Image.resolveAssetSource(servicesOptionsImage).uri;
   } else if (item.type === 'Proveedores') {
     optionImageURI = Image.resolveAssetSource(providersOptionsImage).uri;
-  } else if (item.type === 'Mayoristas') {
-    optionImageURI = Image.resolveAssetSource(wholesalersOptionsImage).uri;
   }
 
   return (
