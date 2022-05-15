@@ -1,148 +1,30 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import store from '../../../store';
-import {View, ScrollView, RefreshControl, Text} from 'react-native';
+import {View, ScrollView, Text} from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProductItem, ServiceItem, ClientItem, WholesalerItem} from './items';
-import {filterItems, db} from '../mainFunctions';
+import {filterItems} from '../mainFunctions';
 import {TextBox} from '../auxComponents';
 import {HomeBannerAd} from '../ads';
-
-const handleGetList = (snap, list, setList) => {
-  try {
-    let newList = list;
-    snap.docChanges().forEach((change) => {
-      const data = change.doc.data();
-      switch (change.type) {
-        case 'added':
-          const filter = list.filter((item) => item.id === data.id);
-          const isInList = filter.length > 0;
-          if (!isInList) {
-            newList = newList.concat(data);
-          }
-          break;
-        case 'modified':
-          newList = list.map((item) => (item.id === data.id ? data : item));
-          break;
-        case 'removed':
-          newList = list.filter((item) => item.id !== data.id);
-          break;
-        default:
-          break;
-      }
-    });
-    if (JSON.stringify(list) !== JSON.stringify(newList)) {
-      setList(newList);
-    }
-  } catch (err) {
-    console.warn('error trying to get the inventory list ', err);
-  }
-};
 
 const NewSale = ({navigation}) => {
   const [foundProduct, setFindProduct] = useState(null);
   const [foundClient, setFindClient] = useState(null);
   const [foundService, setFindService] = useState(null);
-  const [foundWholesaler, setFindWholesaler] = useState(null);
-  const [products, setProducts] = useState(store.getState().products || []);
-  const [clients, setClients] = useState(store.getState().clients || []);
-  const [services, setServices] = useState(store.getState().services || []);
-  const [wholesalers, setWholesalers] = useState(
-    store.getState().wholesalers || [],
-  );
-  const [refreshing, setRefreshing] = useState(true);
-
-  const wait = (timeout) => {
-    return new Promise((resolve) => setTimeout(resolve, timeout));
-  };
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    (async () => {
-      const returnedCollection = await db('productos').get().then((snap) => {
-        return  snap.docChanges().map((change) => change.doc.data());
-      });
-      handleSetProduct(returnedCollection);
-      wait(2000).then(() => setRefreshing(false));
-    })()
-  }, []);
-
-  const handleSetProduct = (list) => {
-    store.dispatch({
-      type: 'SET_PRODUCTS',
-      data: list,
-    });
-  };
-
-  const handleSetClients = (list) => {
-    store.dispatch({
-      type: 'SET_CLIENTS',
-      data: list,
-    });
-  };
-
-  const handleSetServices = (list) => {
-    store.dispatch({
-      type: 'SET_SERVICES',
-      data: list,
-    });
-  };
-
-  const handleSetWholesalers = (list) => {
-    store.dispatch({
-      type: 'SET_WHOLESALERS',
-      data: list,
-    });
-  };
+  const [collections, setCollections] = useState(null);
 
   useEffect(() => {
-    (async () => {
-      const returnedCollection = await db('productos').get().then((snap) => {
-        return  snap.docChanges().map((change) => change.doc.data());
+    const unsubscribe = store.subscribe(() => {
+      const {products, clients, services, proveedores} = store.getState().collections;
+      setCollections({
+        products,
+        clients,
+        services, 
+        proveedores
       });
-      handleSetProduct(returnedCollection);
-      setRefreshing(false);
-    })()
-    
+    });
   }, []);
-
-  useEffect(() => {
-    try {
-      const unsubscribeProducts = db('productos').onSnapshot((snap) =>
-        handleGetList(snap, products, handleSetProduct),
-      );
-
-      const unsubscribeClients = db('clientes').onSnapshot((snap) =>
-        handleGetList(snap, clients, handleSetClients),
-      );
-
-      const unsubscribeServices = db('servicios').onSnapshot((snap) =>
-        handleGetList(snap, services, handleSetServices),
-      );
-
-      const unsubscribeWholesalers = db('mayoristas').onSnapshot((snap) =>
-        handleGetList(snap, wholesalers, handleSetWholesalers),
-      );
-
-      const storeUnsubscribe = store.subscribe(() => {
-        const storeState = store.getState();
-        setProducts(storeState.products);
-        setClients(storeState.clients);
-        setServices(storeState.services);
-        setWholesalers(storeState.wholesalers);
-      });
-
-      return () => {
-        unsubscribeProducts();
-        unsubscribeClients();
-        unsubscribeServices();
-        unsubscribeWholesalers();
-        storeUnsubscribe();
-      };
-    } catch (err) {
-      console.warn('error trying to get the inventory data', err);
-    }
-  }, [refreshing]);
 
   const Search = ({list, type}) => {
     let found = [];
@@ -241,10 +123,7 @@ const NewSale = ({navigation}) => {
   return (
     <View style={styles.container}>
       <ScrollView
-        style={styles.form}
-        refreshControl={
-          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-        }>
+        style={styles.form}>
         <View style={{...styles.formGroup, paddingHorizontal: 0}}>
           <View style={{...styles.textContainer, paddingHorizontal: 16}}>
             <Icon

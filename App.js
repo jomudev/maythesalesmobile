@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import 'react-native-gesture-handler';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import auth from '@react-native-firebase/auth';
 import SignInComponent from './src/components/auth/signInComponent';
@@ -16,11 +16,10 @@ import {
   View,
 } from 'react-native';
 import LoadingScreen from './src/components/loadingScreen';
-import {initializeAppData} from './src/components/mainFunctions';
 import ShowItem from './src/components/showInformacionComponents/ShowItem';
 import MainNavigator from './src/components/mainNavigator';
 import Configuracion from './src/containers/configurationContainer';
-import {deleteFromInventory, shareImage, share, moneyFormat} from './src/components/mainFunctions';
+import {deleteFromInventory, shareImage, share, moneyFormat, db} from './src/components/mainFunctions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddCliente from './src/components/AddComponents/addCliente';
 import AddProducto from './src/components/AddComponents/addProducto';
@@ -36,6 +35,11 @@ import PopupMenu from './src/components/PopupMenu';
 import Cart from './src/components/Cart';
 import MainHeaderRightComponent from './src/components/HeaderComponents/MainHeaderRightComponent';
 import store from './store';
+import Product from './src/components/Classes/product';
+import Service from './src/components/Classes/service';
+import Client from './src/components/Classes/client';
+import Provider from './src/components/Classes/provider';
+import Sale from './src/components/Classes/sale';
 
 //const colorScheme = Appearance.getColorScheme();
 
@@ -154,26 +158,54 @@ const App = () => {
   useEffect(() => {
     const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
       if (authUser) {
-        const userCreationTime = new Date(authUser.metadata.creationTime);
-        const lastSignInTime = new Date(authUser.metadata.lastSignInTime);
-        store.dispatch({
-          type: 'SET_IS_NEW_USER',
-          data:
-            differenceInMinutes(lastSignInTime, userCreationTime) < 10
-              ? true
-              : false,
-        });
+        db().onSnapshot((snapshot) => {
+          const user = snapshot.data();
+          setUser({
+            ...auth().currentUser,
+            ...user,
+          });
+          store.dispatch({
+            type: 'SET_USER',
+            data: user,
+          });
 
-        initializeAppData(authUser).then(
-          () => {
-            setUser(authUser);
+          db('productos').get().then((doc) => { 
+            const products = doc.docs.map(item => new Product(item.data()));
+            db('servicios').get().then((doc) => {
+              const services = doc.docs.map(item => new Service(item.data()));
+              db('clientes').get().then((doc) => {
+                const clients = doc.docs.map(item => new Client(item.data()));
+                db('proveedores').get().then((doc) => {
+                  const providers = doc.docs.map(item => new Provider(item.data()));
+                  store.dispatch({
+                      type: 'SET_INVENTORY',
+                      data: {
+                        products,
+                        services,
+                        clients,
+                        providers,
+                      },
+                    });
+                  setLoading(false);
+                }).catch((err) => {
+                  setLoading(false);
+                  console.warn(err);
+                });
+              }).catch((err) => {
+                setLoading(false);
+                console.warn(err);
+              });
+            }).catch((err) => {
+              setLoading(false);
+              console.warn(err);
+            });
+          }).catch((err) => {
             setLoading(false);
-          },
-          (err) => {
-            setLoading(false);
-            console.warn('error trying to initialize app data', err);
-          },
-        );
+            console.warn(err);
+          });
+
+
+        })
       } else {
         setUser(null);
         setLoading(false);

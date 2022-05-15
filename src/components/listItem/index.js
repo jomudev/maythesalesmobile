@@ -6,8 +6,6 @@ import styles from './listStyles';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNPrint from 'react-native-print';
 import {moneyFormat, db} from '../mainFunctions';
-import {format, formatDistanceToNow} from 'date-fns';
-import {es} from 'date-fns/locale';
 import {useNavigation} from '@react-navigation/native';
 import htmlData from './htmlData';
 import {InterstitialUnitId} from '../ads';
@@ -19,36 +17,10 @@ const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, {
   keywords: ['business', 'marketing', 'market', 'delivery'],
 });
 
-const ganancias = (lista, isWholesaler) => {
-  let sum = 0;
-  lista.forEach((item) => {
-    if (isWholesaler) {
-      sum +=
-        ((item.precioMayoreo ? item.precioMayoreo : item.precioVenta) -
-          item.precioCosto) *
-        item.cantidad;
-    } else {
-      sum += (item.precioVenta - item.precioCosto) * item.cantidad;
-    }
-  });
-  return sum;
-};
-
-const RenderVentasCollection = ({sale, type}) => {
-  const {productos, servicios, mayorista, cliente, total, timestamp} = sale;
-  let {estado} = sale;
-  estado = estado ? 'Vendido' : 'Pendiente';
-
+const RenderVentasCollection = ({sale}) => {
+  const estado = sale.estado ? 'Vendido' : 'Pendiente';
   const navigation = useNavigation();
-  if (!timestamp) {
-    return null;
-  }
-  const saleDate =
-    type === 'secluded'
-      ? new Date(timestamp)
-      : new Date(timestamp.seconds * 1000);
   const [isAdLoaded, setAdLoaded] = useState(false);
-  const legibleDate = format(saleDate, 'dd MMM', {locale: es});
   let popupRef = React.createRef();
 
   const contextMenuFunction = (index) => {
@@ -75,7 +47,7 @@ const RenderVentasCollection = ({sale, type}) => {
 
   const navigate = (screen, params) => navigation.navigate(screen, params);
 
-  const optionsList = ['Ver Reporte', 'Imprimir reporte', 'Eliminar reporte'];
+  const popupMenuOptions = ['Ver Reporte', 'Imprimir reporte', 'Eliminar reporte'];
 
   useEffect(() => {
     const adUnsubscribe = interstitial.onAdEvent((type) => {
@@ -97,7 +69,7 @@ const RenderVentasCollection = ({sale, type}) => {
       <View
         style={{
           ...styles.saleStateView,
-          backgroundColor: estado === 'Vendido' ? '#101e5a' : '#ffff',
+          backgroundColor: sale.estado ? '#101e5a' : '#ffff',
         }}
       />
       <View style={styles.ventaHeader}>
@@ -105,7 +77,7 @@ const RenderVentasCollection = ({sale, type}) => {
           <Text
             style={{
               textAlign: 'center',
-              color: estado === 'Vendido' ? '#101e5a' : 'gray',
+              color: sale.estado ? '#101e5a' : 'gray',
               fontWeight: 'bold',
             }}>
             {estado}
@@ -120,34 +92,28 @@ const RenderVentasCollection = ({sale, type}) => {
         <PopupMenu
           title="Opciones de reporte"
           ref={(target) => (popupRef = target)}
-          options={optionsList}
+          options={popupMenuOptions}
           function={contextMenuFunction}
           onTouchOutside={() => popupRef.close()}
         />
       </View>
 
       <Text style={styles.ventaTitleText}>
-        {formatDistanceToNow(saleDate, {locale: es, addSuffix: true})}
+        {sale.getDateDistanceToNow()}
         {'  |  '}
-        {legibleDate}
+        {sale.formattedDate('dd MMM')}
       </Text>
-
-      {mayorista && <Text>Comprador Mayorista: {mayorista.nombre}</Text>}
-      {cliente && <Text>Cliente: {cliente.nombre}</Text>}
+      {sale.cliente && <Text>Cliente: {sale.cliente.nombre}</Text>}
       <View>
-        {countElements({
-          list: productos,
-          single: 'producto',
-          plural: 'productos',
-        })}
-        {countElements({
-          list: servicios,
-          single: 'servicio',
-          plural: 'servicios',
-        })}
+        <Text>
+          {sale.getProductsQuantity('text')}
+        </Text>
+        <Text>
+          {sale.getServicesQuantity('text')}
+        </Text>
         <Text style={{fontWeight: 'bold', flex: 1}}>
           Ganancias de la venta:{' '}
-          {moneyFormat(ganancias(productos, mayorista) + ganancias(servicios))}
+          {moneyFormat(sale.ganancias)}
         </Text>
         <Text
           style={{
@@ -155,31 +121,13 @@ const RenderVentasCollection = ({sale, type}) => {
             flex: 1,
             fontSize: 16,
           }}>
-          Vendido: {moneyFormat(total)}
+          Vendido: {moneyFormat(sale.total)}
         </Text>
       </View>
       <TouchableOpacity style={styles.reportButton} onPress={() => contextMenuFunction(0)}>
         <Text style={{fontWeight: 'bold', color: '#101e5a'}}>Ver Reporte</Text>
       </TouchableOpacity>
     </View>
-  );
-};
-
-const countElements = ({list, single, plural}) => {
-  const listLength = list.length;
-  let substantive = null;
-  if (listLength > 1) {
-    substantive = plural;
-  } else if (listLength === 1) {
-    substantive = single;
-  } else {
-    return null;
-  }
-
-  return (
-    <Text>
-      {listLength} {substantive}
-    </Text>
   );
 };
 

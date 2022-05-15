@@ -4,40 +4,40 @@ const initialState = {
   // Usual
   search: '',
   // Collections
-  products: [],
-  clients: [],
-  services: [],
-  wholesalers: [],
+  collections: {
+    sales: [],
+    products: [],
+    clients: [],
+    services: [],
+    providers: [],
+  },
   // Cart
-  cartProducts: [],
-  cartServices: [],
-  cartClient: null,
-  cartWholesaler: null,
+  cart: {
+    products: [],
+    services: [],
+    client: null,
+  },
   // Configuration
-  defaultSaleState: true,
-  defaultCurrencyFormat: 'HNL',
-  email: null,
-  negocio: null,
-  telefono: null,
-  isNewUser: null,
-  secludedSales: [],
+  data: {
+    defaultSaleState: true,
+    defaultCurrencyFormat: 'HNL',
+    email: null,
+    negocio: null,
+    telefono: null,
+    isNewUser: null,
+  },
 };
 
 const reducers = (prevState, action) => {
   let newState = prevState;
 
-  if (action.type === 'SET_ASIDE_SALE') {
-    newState = {
-      ...prevState,
-      secludedSales: prevState.secludedSales.concat(action.data),
-    };
+  if (action.type === 'SET_COLLECTIONS') {
+    console.log(action.data);
+    newState.collections = action.data;
   }
 
   if (action.type === 'SET_IS_NEW_USER') {
-    newState = {
-      ...prevState,
-      isNewUser: action.data,
-    };
+    newState.data.isNewUser = action.data;
   }
 
   if (action.type === 'SET_SEARCH') {
@@ -47,81 +47,34 @@ const reducers = (prevState, action) => {
     }
   }
 
-  if (action.type === 'UPDATE_CART_LISTS') {
-    newState = {
-      ...prevState,
-      cartProducts: action.cartProducts,
-      cartServices: action.cartServices,
-    }
+  if (action.type === 'SET_CART') {
+    newState.cart = action.cart;
   }
 
   if (action.type === 'UPDATE_PRODUCTS') {
 
-    newState = {
-      ...prevState,
-      cartProducts: action.data,
-    };
+    newState.cart.products = action.data;
   }
   /** */
   if (action.type === 'UPDATE_SERVICES') {
-    newState = {
-      ...prevState,
-      cartServices: action.data,
-    };
+    newState.cart.services = action.data;
   }
 
-  if (action.type === 'SET_CLIENT') {
-    newState = {
-      ...prevState,
-      cartClient: action.data,
-    };
-  }
-
-  if (action.type === 'SET_WHOLESALER') {
-    newState = {
-      ...prevState,
-      cartWholesaler: action.data,
-    }
+  if (action.type === 'SET_CART_CLIENT') {
+    newState.cart.client = action.data;
   }
 
   /** */
   if (action.type === 'CLEAR_CART') {
-    newState = {
-      ...prevState,
+    newState.cart = {
       cartProducts: [],
       cartServices: [],
       cartClient: null,
-      cartWholesaler: null,
     };
   }
 
-  /** */
   if (action.type === 'SIGN_OUT') {
     newState = initialState;
-  }
-  if (action.type === 'SET_PRODUCTS') {
-    newState = {
-      ...prevState,
-      products: action.data,
-    }
-  }
-  if (action.type === 'SET_CLIENTS') {
-    newState = {
-      ...prevState,
-      clients: action.data,
-    }
-  }
-  if (action.type === 'SET_SERVICES') {
-    newState = {
-      ...prevState,
-      services: action.data,
-    }
-  }
-  if (action.type === 'SET_WHOLESALERS'){
-    newState = {
-      ...prevState,
-      wholesalers: action.data,
-    }
   }
 
   if (action.type === 'SET_DEFAULT_SALE_STATE') {
@@ -132,17 +85,11 @@ const reducers = (prevState, action) => {
   }
 
   if (action.type === 'SET_DEFAULT_CURRENCY_FORMAT') {
-    newState = {
-      ...prevState,
-      defaultCurrencyFormat: action.data,
-    }
+    newState.data.defaultCurrencyFormat = action.data;
   }
 
-  if (action.type === 'INITIALIZE_APP_DATA') {
-    newState = {
-      ...prevState,
-      ...action.data,
-    }
+  if (action.type === 'SET_DATA') {
+    newState.data = action.data
   }
 
   return newState;

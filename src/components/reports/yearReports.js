@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React from 'react';
 import {
   View,
   SafeAreaView,
@@ -7,9 +7,10 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {moneyFormat, getMonthTotals} from '../mainFunctions';
+import {moneyFormat} from '../mainFunctions';
 import EmptyListImages from '../emptyListImage';
 import {ReportsBannerAd} from '../ads';
+import Months from './Months';
 
 const itemStyle = StyleSheet.create({
   container: {
@@ -53,26 +54,29 @@ const itemStyle = StyleSheet.create({
 });
 
 const YearReports = ({navigation, route}) => {
-  const {months} = route.params;
-
-  const filterBySold = (item) => item.estado;
+  const months = new Months(route.params.sales, route.params.year);
 
   const MonthReportItem = (month) => {
-    const {total, profits} = getMonthTotals(months[month].filter(filterBySold));
+    month = months.months[month];
     return (
       <TouchableOpacity
         style={itemStyle.container}
         onPress={() =>
-          navigation.navigate('monthReports', {month, monthData: months[month]})
+          navigation.navigate('monthReports', {
+            month: month.month,
+            total: month.total,
+            ganancias: month.ganancias,
+            sales: month.sales,
+          })
         }>
-        <Text style={itemStyle.month}>{month.toUpperCase()}</Text>
+        <Text style={itemStyle.month}>{month.month.toUpperCase()}</Text>
         <View style={itemStyle.amounts}>
         <View style={itemStyle.amount}>
-          <Text style={itemStyle.amountValue}>{moneyFormat(total)}</Text>
+          <Text style={itemStyle.amountValue}>{moneyFormat(month.total)}</Text>
           <Text style={itemStyle.amountTitle}>Total vendido</Text>
         </View>
         <View style={itemStyle.amount}>
-        <Text style={itemStyle.amountValue}>{moneyFormat(profits)}</Text>
+        <Text style={itemStyle.amountValue}>{moneyFormat(month.ganancias)}</Text>
         <Text style={itemStyle.amountTitle}>Ganancias</Text>
         </View>
         </View>
@@ -83,10 +87,10 @@ const YearReports = ({navigation, route}) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={Object.keys(months).reverse()}
+        data={Object.keys(months.months).reverse()}
         ListHeaderComponent={<ReportsBannerAd />}
         renderItem={({item}) => MonthReportItem(item)}
-        keyExtractor={(item) => item + Math.random()}
+        keyExtractor={(item) => item + Math.random() * 1000}
         ListEmptyComponent={() => (
           <View style={styles.emptyListContainer}>
             {EmptyListImages.default()}

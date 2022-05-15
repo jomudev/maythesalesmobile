@@ -34,12 +34,14 @@ async function initializeAppData(authUser) {
           const products = await getCollections('productos');
           const services = await getCollections('servicios');
           const wholesalers = await getCollections('mayoristas');
+          const sales = await getCollections('ventas');
           const data = {
             ...newData,
             clients,
             products,
             services,
             wholesalers,
+            sales,
           };
           store.dispatch({
             type: 'INITIALIZE_APP_DATA',
@@ -123,8 +125,7 @@ async function deleteFromInventory(collectionToDelete, docData) {
         });
       }
     }
-    return await db()
-      .collection(collectionToDelete)
+    return await db(collectionToDelete)
       .doc(docData.id)
       .delete();
   } catch (err) {
@@ -139,27 +140,17 @@ const getSaleDate = (sale, type) => {
 
 function sortCollection (collection) {
   let reports = {};
-  collection.forEach((sale) => {
-    let totalPurchased = 0;
-    let totalProfits = 0;
-    sale.productos.forEach((producto) => {
-      totalPurchased += sale.estado ? producto.precioCosto * producto.cantidad : 0;
-    });
-
-    sale.servicios.forEach((servicio) => {
-      totalPurchased += servicio.precioCosto * servicio.cantidad;
-    });
-
-    totalProfits = sale.total - totalPurchased;
-
-    const year = getSaleDate(sale, 'yyyy');
-    const month = getSaleDate(sale, 'MMMM');
-
-    reports[year] = {
-      ...reports[year],
-      [month] : Array.from(reports[year] ? reports[year][month] ? reports[year][month] : [] : []).concat(sale),
-    };
-  });
+  collection.forEach(sale => {
+    let saleYear = sale.getYear();
+    let saleMonth = sale.getMonth();
+    if (!!reports[saleYear]) {
+      if (!!reports[saleYear][saleMonth]) {
+        reports[saleYear][saleMonth].push(sale);
+      }
+    }
+    saleYear = null;
+    saleMonth = null;
+  })
   return reports;
 }
 

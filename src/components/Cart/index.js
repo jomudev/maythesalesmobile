@@ -21,19 +21,17 @@ import EmptyListImage from '../emptyListImage';
 const Cart = () => {
   const storeState = store.getState();
   const [state, setState] = useState({
-    products: storeState.cartProducts || [],
-    services: storeState.cartServices || [],
-    client: storeState.cartClient || null,
-    wholesaler: storeState.cartWholesaler || null,
+    products: storeState.cart.products,
+    services: storeState.cart.services,
+    client: storeState.cart.client,
   });
-  const [saleState, setSaleState] = useState(store.getState().defaultSaleState);
+  const [saleState, setSaleState] = useState(storeState.data.defaultSaleState);
   
   const stateChange = (prevState, newState) => {
     newState = {
-      products: newState.cartProducts,
-      services: newState.cartServices,
-      client: newState.cartClient,
-      wholesaler: newState.cartWholesaler,
+      products: newState.cart.products,
+      services: newState.cart.services,
+      client: newState.cart.client,
     };
     
     const prevPlainState = JSON.stringify(prevState);
@@ -58,10 +56,9 @@ const Cart = () => {
       const theStateChange = stateChange(prevState, newState);
       if (theStateChange) {
         setState({
-          products: newState.cartProducts,
-          services: newState.cartServices,
-          client: newState.cartClient,
-          wholesaler: newState.cartWholesaler,
+          products: newState.cart.products,
+          services: newState.cart.services,
+          client: newState.cart.client,
         });
       }
     });
