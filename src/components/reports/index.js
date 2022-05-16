@@ -8,12 +8,12 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {db, moneyFormat, getYearTotals} from '../mainFunctions';
 import EmptyListImages from '../emptyListImage';
 import LoadingScreen from '../loadingScreen';
 import Sale from '../Classes/sale';
 import Years from './Years'
 import {ReportsBannerAd} from '../ads';
+import store from '../../../store';
 
 
 const itemStyle = StyleSheet.create({
@@ -58,43 +58,12 @@ const itemStyle = StyleSheet.create({
   year: {fontSize: 48, textAlign: 'center'},
 });
 
-const getSalesCollection = async () => {
-  let salesCollection = (await db('ventas').get())
-    .docChanges()
-    .map((change) => new Sale(change.doc.data()));
-  store.dispatch({
-    type: 'SET_SALES',
-    sales: salesCollection,
-  });
-  return new Years(salesCollection);
-};
-
 const Index = ({navigation}) => {
-  const [collection, setCollection] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-  const [refreshing, setRefreshing] = React.useState(false);
-
-  const wait = (timeout) => {
-    return new Promise((resolve) => setTimeout(resolve, timeout));
-  };
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    getSalesCollection().then((response) => {
-      setCollection(response);
-    });
-    wait(2000).then(() => {
-      setRefreshing(false);
-    });
-  }, []);
+  const [collection, setCollection] = React.useState(store.getState().collections.sales);
 
   React.useEffect(() => {
-    const unsubscribe = db('ventas').onSnapshot(() => {
-      getSalesCollection()
-      .then((response) => {
-        setCollection(response);
-        setLoading(false);
-      });
+    const unsubscribe = store.subscribe(() => {
+      setCollection(new Years(store.getState().collections.sales));
     });
     return () => {
       unsubscribe();
@@ -124,17 +93,12 @@ const Index = ({navigation}) => {
     );
   };
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         data={Object.keys(collection.years)}
         contentContainerStyle={styles.container}
         ListHeaderComponent={<ReportsBannerAd />}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         renderItem={({item}) => YearReportItem(item)}
         keyExtractor={(item) => item + Math.random() * 1000}
         ItemSeparatorComponent={() => <View style={styles.separator} />}

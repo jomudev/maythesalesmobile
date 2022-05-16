@@ -8,22 +8,30 @@ import {filterItems} from '../mainFunctions';
 import {TextBox} from '../auxComponents';
 import {HomeBannerAd} from '../ads';
 
+const collectionInitialState = {
+  products: [],
+  services: [],
+  clients: [],
+  providers: [],
+};
+
 const NewSale = ({navigation}) => {
   const [foundProduct, setFindProduct] = useState(null);
   const [foundClient, setFindClient] = useState(null);
   const [foundService, setFindService] = useState(null);
-  const [collections, setCollections] = useState(null);
+  const [collections, setCollections] = useState(collectionInitialState);
 
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
-      const {products, clients, services, proveedores} = store.getState().collections;
+      const {products, clients, services, providers} = store.getState().collections;
       setCollections({
         products,
         clients,
         services, 
-        proveedores
+        providers
       });
     });
+    return unsubscribe;
   }, []);
 
   const Search = ({list, type}) => {
@@ -155,7 +163,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <SearchList list={products} type="products" />
+          <SearchList list={collections.products} type="products" />
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
@@ -179,7 +187,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <SearchList type="clients" list={clients} foundElement={foundClient} />
+          <SearchList type="clients" list={collections.clients} foundElement={foundClient} />
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
@@ -203,31 +211,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <SearchList type="services" list={services} foundElement={foundService} />
-        </View>
-        <View style={styles.formGroup}>
-          <View style={styles.textContainer}>
-            <TextBox
-              onChangeText={(text) => setFindWholesaler(text)}
-              style={styles.txtInput}
-              value={foundWholesaler}
-              placeholder="Buscar un mayorista"
-            />
-            {foundWholesaler ? (
-              <Icon
-                name="close"
-                style={styles.Icon}
-                onPress={() => setFindWholesaler('')}
-              />
-            ) : (
-              <Icon
-                name="plus"
-                style={styles.Icon}
-                onPress={() => navigation.navigate('Mayoristas')}
-              />
-            )}
-          </View>
-          <SearchList type="wholesalers" list={wholesalers} foundElement={foundWholesaler} />
+          <SearchList type="services" list={collections.services} foundElement={foundService} />
         </View>
         <HomeBannerAd />
       </ScrollView>

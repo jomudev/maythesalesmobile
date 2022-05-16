@@ -32,10 +32,10 @@ export default class Years {
 
     calculateTotals(sales) {
         Object.keys(this.years).forEach(year => {
-            this.years[year].total = sales.filter(sale => sale.getYear() === year).reduce((acc, sale) => {
+            this.years[year].total = sales.reduce((acc, sale) => {
                 return acc + sale.total;
             }, 0);
-            this.years[year].ganancias = sales.filter(sale => sale.getYear() === year).reduce((acc, sale) => {
+            this.years[year].ganancias = sales.reduce((acc, sale) => {
                 return acc + sale.ganancias;
             }, 0);
         });

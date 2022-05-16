@@ -158,7 +158,7 @@ const App = () => {
   useEffect(() => {
     const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
       if (authUser) {
-        db().onSnapshot((snapshot) => {
+        db().onSnapshot(async (snapshot) => {
           const user = snapshot.data();
           setUser({
             ...auth().currentUser,
@@ -169,40 +169,33 @@ const App = () => {
             data: user,
           });
 
-          db('productos').get().then((doc) => { 
+          await db('productos').get().then(async (doc) => { 
             const products = doc.docs.map(item => new Product(item.data()));
-            db('servicios').get().then((doc) => {
+            console.log(products)
+            await db('servicios').get().then(async (doc) => {
               const services = doc.docs.map(item => new Service(item.data()));
-              db('clientes').get().then((doc) => {
+              await db('clientes').get().then(async (doc) => {
                 const clients = doc.docs.map(item => new Client(item.data()));
-                db('proveedores').get().then((doc) => {
+                await db('proveedores').get().then(async (doc) => {
                   const providers = doc.docs.map(item => new Provider(item.data()));
-                  store.dispatch({
+                  await db('ventas').get().then(async (doc) => {
+                    const sales = doc.docs.map(item => new Sale(item.data()));
+                    store.dispatch({
                       type: 'SET_INVENTORY',
                       data: {
                         products,
                         services,
                         clients,
                         providers,
+                        sales,
                       },
                     });
-                  setLoading(false);
-                }).catch((err) => {
-                  setLoading(false);
-                  console.warn(err);
-                });
-              }).catch((err) => {
-                setLoading(false);
-                console.warn(err);
-              });
-            }).catch((err) => {
-              setLoading(false);
-              console.warn(err);
-            });
-          }).catch((err) => {
-            setLoading(false);
-            console.warn(err);
-          });
+                    setLoading(false);
+                  });
+                })
+              })
+            })
+          })
 
 
         })

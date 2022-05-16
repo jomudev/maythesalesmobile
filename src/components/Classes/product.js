@@ -39,7 +39,6 @@ export default class Product {
             nombre: this.nombre,
             precioCosto: this.precioCosto,
             precioVenta: this.precioVenta,
-            precioMayoreo: this.precioMayoreo,
             proveedor: this.proveedor,
         };
     }

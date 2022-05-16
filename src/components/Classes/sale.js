@@ -18,8 +18,8 @@ export default class Sale {
             this.cliente = data.cliente;
             this.estado = data.estado;
             this.id = data.id;
-            this.productos = data.productos.map(product => product.id);
-            this.servicios = data.servicios.map(service => service.id);
+            this.productos = data.productos;
+            this.servicios = data.servicios;
             this.timestamp = data.timestamp;
         } else {
             this.generateID();
