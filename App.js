@@ -5,21 +5,23 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import auth from '@react-native-firebase/auth';
 import SignInComponent from './src/components/auth/signInComponent';
-import {differenceInMinutes} from 'date-fns';
 import {
   Alert,
   StatusBar,
-  Text,
-  TextInput,
   TouchableWithoutFeedback,
-  // Appearance,
   View,
 } from 'react-native';
 import LoadingScreen from './src/components/loadingScreen';
 import ShowItem from './src/components/showInformacionComponents/ShowItem';
 import MainNavigator from './src/components/mainNavigator';
 import Configuracion from './src/containers/configurationContainer';
-import {deleteFromInventory, shareImage, share, moneyFormat, db} from './src/components/mainFunctions';
+import {
+  deleteFromInventory, 
+  shareImage, 
+  share, 
+  moneyFormat, 
+  db
+} from './src/components/mainFunctions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddCliente from './src/components/AddComponents/addCliente';
 import AddProducto from './src/components/AddComponents/addProducto';
@@ -35,21 +37,12 @@ import PopupMenu from './src/components/PopupMenu';
 import Cart from './src/components/Cart';
 import MainHeaderRightComponent from './src/components/HeaderComponents/MainHeaderRightComponent';
 import store from './store';
-import Product from './src/components/Classes/product';
-import Service from './src/components/Classes/service';
-import Client from './src/components/Classes/client';
-import Provider from './src/components/Classes/provider';
-import Sale from './src/components/Classes/sale';
-
-//const colorScheme = Appearance.getColorScheme();
-
-Text.defaultProps = {};
-Text.defaultProps.maxFontSizeMultiplier = 1.3;
-Text.defaultProps.allowFontScaling = true;
-
-TextInput.defaultProps = {};
-TextInput.defaultProps.maxFontSizeMultiplier = 1.3;
-TextInput.defaultProps.allowFontScaling = true;
+import Product from './src/components/Product';
+import Service from './src/components/Service';
+import Client from './src/components/Customer';
+import Provider from './src/components/Provider';
+import Sale from './src/components/Sale';
+import Reports from './src/components/reports/Reports';
 
 const Stack = createStackNavigator();
 
@@ -171,7 +164,6 @@ const App = () => {
 
           await db('productos').get().then(async (doc) => { 
             const products = doc.docs.map(item => new Product(item.data()));
-            console.log(products)
             await db('servicios').get().then(async (doc) => {
               const services = doc.docs.map(item => new Service(item.data()));
               await db('clientes').get().then(async (doc) => {
@@ -181,7 +173,7 @@ const App = () => {
                   await db('ventas').get().then(async (doc) => {
                     const sales = doc.docs.map(item => new Sale(item.data()));
                     store.dispatch({
-                      type: 'SET_INVENTORY',
+                      type: 'SET_COLLECTIONS',
                       data: {
                         products,
                         services,
@@ -189,6 +181,11 @@ const App = () => {
                         providers,
                         sales,
                       },
+                    });
+                    const reports = new Reports();
+                    store.dispatch({
+                      type: 'SET_REPORTS',
+                      data: reports,
                     });
                     setLoading(false);
                   });
@@ -204,9 +201,7 @@ const App = () => {
         setLoading(false);
       }
     });
-    return () => {
-      authUnsubscribe;
-    };
+    return authUnsubscribe
   }, []);
 
   if (loading) {

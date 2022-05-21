@@ -11,7 +11,6 @@ export default class Years {
             if (!this.years[year]) {
                 this.years[year] = {
                     year: year,
-                    sales: [],
                     total: 0,
                     ganancias: 0,
                 };

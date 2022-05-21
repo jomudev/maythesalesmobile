@@ -91,20 +91,6 @@ const NewSale = ({navigation}) => {
           ))
         );
       },
-      "wholesalers": () => {
-        found = list.filter((item) => filterItems(item, foundWholesaler));
-        return found.length === 0 ? (
-          <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
-        ) : (
-          found.map((wholesaler, index) => (
-            <WholesalerItem
-              data={wholesaler}
-              index={index}
-              key={JSON.stringify(wholesaler) + index}
-            />
-          ))
-        );
-      }
     }
     return types[type]();
   };

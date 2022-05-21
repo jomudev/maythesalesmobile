@@ -86,14 +86,6 @@ const handleGetList = async (collectionKey) => {
   }
 };
 
-function moneyFormat(number) {
-  
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: store.getState().defaultCurrencyFormat,
-  }).format(Number(number));;
-}
-
 async function update(collectionKey, data) {
   try {
     return db(collectionKey).doc(data.id).update(data);
@@ -336,7 +328,6 @@ export {
   fileStorage,
   phoneFormat,
   filterItems,
-  moneyFormat,
   update,
   sortCollection,
   shareImage,

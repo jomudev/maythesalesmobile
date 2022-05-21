@@ -1,7 +1,9 @@
+import CurrencyFunctions from '../../utils/currencyFunctions';
 import {db} from '../mainFunctions';
+const currencyFunctions = new CurrencyFunctions();
+const {moneyFormat} = currencyFunctions;
 
-
-export default class Service {
+export default class Product {
     constructor(data) {
         if (!data.id) {
             this.generateID();
@@ -11,12 +13,21 @@ export default class Service {
         this.barcode = data.barcode;
         this.cantidad = data.cantidad;
         this.descripcion = data.descripcion;
+        this.imageURL = data.imageURL;
         this.marca = data.marca;
         this.nombre = data.nombre;
         this.precioCosto = data.precioCosto;
         this.precioVenta = data.precioVenta;
         this.proveedor = data.proveedor;
-        this.profit = data.precioVenta - data.precioCosto;
+        this.ganancias = data.precioVenta - data.precioCosto;
+    }
+
+    getPrecioVenta() {
+        return moneyFormat(this.precioVenta);
+    }
+
+    getGanancias() {
+        return moneyFormat(this.ganancias);
     }
 
     generateID() {
@@ -33,6 +44,7 @@ export default class Service {
             cantidad: this.cantidad,
             descripcion: this.descripcion,
             id: this.id,
+            imageURL: this.imageURL,
             marca: this.marca,
             nombre: this.nombre,
             precioCosto: this.precioCosto,
@@ -42,7 +54,7 @@ export default class Service {
     }
 
     async save() {
-        const serviceRef = db('services').doc(this.id);
-        await serviceRef.set(this.toJSON());
+        const productRef = db('products').doc(this.id);
+        await productRef.set(this.toJSON());
     }
 }

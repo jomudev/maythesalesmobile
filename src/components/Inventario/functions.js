@@ -2,7 +2,7 @@ import store from '../../../store';
 
 const addProductToCart = (data) => {
   data.cantidad = 1;
-  let cartProducts = store.getState().cartProducts || [];
+  let cartProducts = store.getState().cart.products || [];
   let isInCart = cartProducts.filter(
     (cartProduct) => cartProduct.id === data.id,
   );
@@ -18,7 +18,7 @@ const addProductToCart = (data) => {
 
 const addServiceToCart = (data) => {
   data.cantidad = 1;
-  let cartServices = store.getState().cartServices || [];
+  let cartServices = store.getState().cart.services || [];
   let isInCart = cartServices.filter(
     (cartService) => cartService.id === data.id,
   );
@@ -33,7 +33,7 @@ const addServiceToCart = (data) => {
 };
 
 const addClientToCart = (data) => {
-  const cartClient = store.getState().cartClient;
+  const cartClient = store.getState().cart.client;
   if (cartClient) {
     if (data) {
       if (data.id !== cartClient.id) {
@@ -51,28 +51,9 @@ const addClientToCart = (data) => {
   });
 };
 
-const addWholesalerToCart = (data) => {
-  const cartWholesaler = store.getState().cartWholesaler;
-  if (cartWholesaler) {
-    if (data) {
-      if (data.id !== cartWholesaler.id) {
-        store.dispatch({
-          type: 'SET_WHOLESALER',
-          data,
-        });
-        return;
-      }
-    }
-  }
-    store.dispatch({
-      type: 'SET_WHOLESALER',
-      data,
-    });
-};
-
 const removeProductFromCart = (id) => {
   console.log(id);
-  let cartProducts = store.getState().cartProducts;
+  let cartProducts = store.getState().cart.products;
   cartProducts = cartProducts.filter((product) => product.id !== id);
   store.dispatch({
     type: 'UPDATE_PRODUCTS',
@@ -81,7 +62,7 @@ const removeProductFromCart = (id) => {
 };
 
 const removeServiceFromCart = (id) => {
-  let cartServices = store.getState().cartServices;
+  let cartServices = store.getState().cart.services;
   cartServices = cartServices.filter((service) => service.id !== id);
   store.dispatch({
     type: 'UPDATE_SERVICES',
@@ -91,8 +72,8 @@ const removeServiceFromCart = (id) => {
 
 const updateQuantity = (type, quantity, id) => {
   quantity = quantity > 0 ? quantity : 1;
-  let cartProducts = store.getState().cartProducts;
-  let cartServices = store.getState().cartServices;
+  let cartProducts = store.getState().cart.products;
+  let cartServices = store.getState().cart.services;
   if (type === 'PRODUCT') {
     cartProducts = cartProducts.map((product) =>
       product.id === id ? {...product, cantidad: quantity} : product,
@@ -122,7 +103,6 @@ export {
   addProductToCart,
   addServiceToCart,
   addClientToCart,
-  addWholesalerToCart,
   removeProductFromCart,
   removeServiceFromCart,
   updateQuantity,

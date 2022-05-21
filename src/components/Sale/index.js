@@ -1,6 +1,8 @@
 import {format} from 'date-fns';
 import {es} from 'date-fns/locale';
 import {formatDistanceToNow} from 'date-fns';
+import Product from '../Product';
+import Service from '../Service';
 
 const configuredFormat = (date, dateType) => format(date, dateType, {locale: es});
 
@@ -18,8 +20,8 @@ export default class Sale {
             this.cliente = data.cliente;
             this.estado = data.estado;
             this.id = data.id;
-            this.productos = data.productos;
-            this.servicios = data.servicios;
+            this.productos = data.productos.map(product => new Product(product));
+            this.servicios = data.servicios.map(service => new Service(service));
             this.timestamp = data.timestamp;
         } else {
             this.generateID();
@@ -69,46 +71,27 @@ export default class Sale {
         };
     }
 
-    calculateProfit() {
-        this.ganancias = this.total - this.productos.reduce((acc, item) => {
-            if (this.estado) {
-                return acc + item.precioCosto * item.cantidad;
-            } else {
-                return acc;
-            }
-        }, 0);
 
-        this.ganancias = this.total - this.servicios.reduce((acc, item) => {
-            if (this.estado) {
-                return acc + item.precioCosto * item.cantidad;
-            } else {
-                return acc;
-            }
-        }, 0);
+    calculateProductsTotalPurchase = (item) =>  item.precioVenta * item.cantidad;
+    calculateProductsProfits = (item) =>  item.ganancias * item.cantidad;
+    reducer = (acc, actualValue) => acc + actualValue;
+
+    getPurchased() {
+        const precioVentasProductos = this.productos.map(this.calculateProductsTotalPurchase);
+        const precioVentasServicios = this.servicios.map(this.calculateProductsTotalPurchase);
+        this.total = precioVentasProductos.reduce(this.reducer, 0) + precioVentasServicios.reduce(this.reducer, 0);
+        
     }
 
-    calculatePurchased() {
-        this.total = this.productos.reduce((acc, item) => {
-            if (this.estado) {
-                return acc + item.precioVenta * item.cantidad;
-            } else {
-                return acc;
-            }
-        }, 0);
-
-        this.total = this.total + this.servicios.reduce((acc, item) => {
-            if (this.estado) {
-                return acc + item.precioVenta * item.cantidad;
-            } else {
-                return acc;
-            }
-        }, 0);
-
+    getProfits() {  
+        const gananciasProductos = this.productos.map(this.calculateProductsProfits);
+        const gananciasServicios = this.servicios.map(this.calculateProductsProfits);
+        this.ganancias = gananciasProductos.reduce(this.reducer, 0) + gananciasServicios.reduce(this.reducer, 0);
     }
 
     calculateTotals() {
-        this.calculatePurchased();
-        this.calculateProfit();
+        this.getPurchased();
+        this.getProfits();
         this.quantify();
     }
 

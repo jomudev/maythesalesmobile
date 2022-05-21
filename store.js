@@ -11,6 +11,8 @@ const initialState = {
     services: [],
     providers: [],
   },
+  // Reports
+  reports: null,
   // Cart
   cart: {
     products: [],
@@ -32,8 +34,11 @@ const reducers = (prevState, action) => {
   let newState = prevState;
 
   if (action.type === 'SET_COLLECTIONS') {
-    console.log(action.data);
     newState.collections = action.data;
+  }
+
+  if (action.type  === 'SET_REPORTS') {
+    newState.reports = action.data;
   }
 
   if (action.type === 'SET_IS_NEW_USER') {

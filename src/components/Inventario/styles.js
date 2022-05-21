@@ -65,8 +65,9 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   itemDescription: {
-    paddingVertical: 16,
     paddingHorizontal: 8,
+    paddingTop: 4,
+    paddingBottom: 24,
   },
   itemName: {
     fontSize: 12,

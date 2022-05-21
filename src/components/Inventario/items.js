@@ -1,8 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {View, Text, ToastAndroid, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {View, Text, ToastAndroid,Image, TouchableOpacity} from 'react-native';
 import FastImage from 'react-native-fast-image';
-import {moneyFormat} from '../mainFunctions';
 import {
   addProductToCart,
   addServiceToCart,
@@ -59,7 +58,7 @@ const addToCart = (type, id, setIsSelected) => {
 const ProductItem = ({data}) => {
   const type = 'product';
   const [isSelected, setIsSelected] = useState(
-    elementIsSelected(store.getState().cartProducts, data.id),
+    elementIsSelected(store.getState().cart.products, data.id),
   );
 
   React.useEffect(() => {
@@ -92,7 +91,7 @@ const ProductItem = ({data}) => {
           {data.nombre}
         </Text>
         <Text style={styles.itemPrice}>
-          {moneyFormat(data.precioVenta)}
+          {data.getPrecioVenta()}
         </Text>
       </View>
     </TouchableOpacity>
@@ -118,7 +117,7 @@ const ServiceItem = ({data}) => {
       }>
       <Text style={itemStyles.title}>{data.nombre}</Text>
       <Text style={itemStyles.subtitle}>
-        {moneyFormat(data.precioVenta)}
+        {data.getPrecioVenta()}
         {data.descripcion && ' '}
       </Text>
     </TouchableOpacity>

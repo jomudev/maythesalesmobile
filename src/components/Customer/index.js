@@ -1,4 +1,4 @@
-export default class Client {
+export default class Customer {
     constructor(data) {
         this.id = null;
         this.nombre = null;

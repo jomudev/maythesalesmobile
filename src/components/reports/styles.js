@@ -3,31 +3,62 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    padding: 16,
     paddingTop: 32,
-    backgroundColor: 'white',
   },
-  emptyListContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  separator: {
+    height: 8,
   },
-  title: {
-    fontWeight: 'bold',
-    paddingVertical: 8,
-    color: 'gray',
+  yearItem: {
+    backgroundColor: '#fff',
+    padding: 24,
+    borderRadius: 24,
+    flexDirection: 'column',
+  },  
+  totalText: {
     fontSize: 12,
+    fontWeight: 'bold',
   },
-  total: {
+  heading6: {
+    fontSize: 12,
+    color: '#999',
+  },
+  textCenter: {
+    textAlign: 'center',
+  },
+  actualYear: {
+    backgroundColor: '#e6e8f1',
+  },
+  actualYearText: {
+    fontSize: 16,
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  itemHeader: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  itemBody: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  itemCol1: {
+    flex: 1,
+  },
+  itemCol2: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    alignItems: 'center',
   },
-  totalText: {
+  itemTitle: {
     fontSize: 16,
-    flex: 1,
-    textAlign: 'left',
     fontWeight: 'bold',
+  },
+  itemSubtitle: {
+    fontSize: 12,
+    color: '#999',
   },
 });
 
