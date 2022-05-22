@@ -27,7 +27,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   actualYear: {
-    backgroundColor: '#e6e8f1',
+    borderWidth: 3,
+    borderColor: '#9CB1D3',
+    backgroundColor: '#EEF0FC',
   },
   actualYearText: {
     fontSize: 16,
