@@ -5,20 +5,25 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './listStyles';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNPrint from 'react-native-print';
-import {moneyFormat} from '../../utils/currencyFunctions';
+import CurrencyFunctions from '../../utils/currencyFunctions';
 import {db} from '../../utils/firebase';
 import {useNavigation} from '@react-navigation/native';
 import htmlData from './htmlData';
 import {InterstitialUnitId} from '../ads';
 import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
+import store from '../../../store';
 import PopupMenu from '../PopupMenu';
+
+const currencyFunctions = new CurrencyFunctions();
+const {moneyFormat} = currencyFunctions;
 
 const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, {
   requestNonPersonalizedAdsOnly: true,
   keywords: ['business', 'marketing', 'market', 'delivery'],
 });
 
-const RenderVentasCollection = ({sale}) => {
+const RenderVentasCollection = ({saleId}) => {
+  const sale = store.getState().collections.sales.find((sale) => sale.id == saleId);
   const estado = sale.estado ? 'Vendido' : 'Pendiente';
   const navigation = useNavigation();
   const [isAdLoaded, setAdLoaded] = useState(false);
@@ -29,7 +34,7 @@ const RenderVentasCollection = ({sale}) => {
       switch (index) {
         case 0:
           navigate('saleReport', {
-            data: sale,
+            data: saleId,
           });
           break;
         case 1:

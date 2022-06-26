@@ -19,9 +19,9 @@ import {
   deleteFromInventory, 
   shareImage, 
   share, 
-  moneyFormat, 
-  db
 } from './src/components/mainFunctions';
+import Firebase from './src/utils/firebase';
+import CurrencyFunctions from './src/utils/currencyFunctions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddCliente from './src/components/AddComponents/addCliente';
 import AddProducto from './src/components/AddComponents/addProducto';
@@ -110,7 +110,7 @@ const App = () => {
 
   const getOptionsList = ({params}, navigation) => {
     const {data, type} = params;
-    const shareMessage = `${data.nombre} ${data.marca} - ${moneyFormat(data.precioVenta)} ${data.descripcion ? '| ' + data.descripcion : ''}`;
+    const shareMessage = `${data.nombre} ${data.marca} - ${CurrencyFunctions.moneyFormat(data.precioVenta)} ${data.descripcion ? '| ' + data.descripcion : ''}`;
     const shareOptions = {       
       title: shareMessage,
       message: shareMessage
@@ -151,7 +151,7 @@ const App = () => {
   useEffect(() => {
     const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
       if (authUser) {
-        db().onSnapshot(async (snapshot) => {
+        Firebase.db().onSnapshot(async (snapshot) => {
           const user = snapshot.data();
           setUser({
             ...auth().currentUser,
@@ -162,24 +162,27 @@ const App = () => {
             data: user,
           });
 
-          await db('productos').get().then(async (doc) => { 
-            const products = doc.docs.map(item => new Product(item.data()));
-            await db('servicios').get().then(async (doc) => {
-              const services = doc.docs.map(item => new Service(item.data()));
-              await db('clientes').get().then(async (doc) => {
-                const clients = doc.docs.map(item => new Client(item.data()));
-                await db('proveedores').get().then(async (doc) => {
-                  const providers = doc.docs.map(item => new Provider(item.data()));
-                  await db('ventas').get().then(async (doc) => {
-                    const sales = doc.docs.map(item => new Sale(item.data()));
+          await Firebase.db('productos').get().then(async (doc) => { 
+            const productos = doc.docs.map(item => new Product(item.data()));
+            await Firebase.db('servicios').get().then(async (doc) => {
+              const servicios = doc.docs.map(item => new Service(item.data()));
+              await Firebase.db('clientes').get().then(async (doc) => {
+                const clientes = doc.docs.map(item => new Client(item.data()));
+                await Firebase.db('proveedores').get().then(async (doc) => {
+                  const proveedores = doc.docs.map(item => new Provider(item.data()));
+                  await Firebase.db('ventas').get().then(async (doc) => {
+                    const ventas = doc.docs.map(item => {
+                      const sale = new Sale(item.data());
+                      return sale;
+                    });
                     store.dispatch({
                       type: 'SET_COLLECTIONS',
                       data: {
-                        products,
-                        services,
-                        clients,
-                        providers,
-                        sales,
+                        productos,
+                        servicios,
+                        clientes,
+                        proveedores,
+                        ventas,
                       },
                     });
                     const reports = new Reports();
@@ -242,8 +245,8 @@ const App = () => {
             />
             <Stack.Screen
               name="ShowInventory"
-              options={({route}) => ({
-                title: route.params.collectionKey[0].toUpperCase() + route.params.collectionKey.substring(1),
+              options={() => ({
+                title: null,
               })}
               component={ShowInventory}
             />
@@ -278,7 +281,7 @@ const App = () => {
             name="saleReport"
             options={({route}) => ({
               title: `Venta del ${format(
-                new Date(route.params.data.timestamp.seconds * 1000),
+                new Date(store.getState().collections.ventas.find((sale) => route.params.data == sale.id).timestamp.seconds * 1000),
                 'PPPP',
                 {
                   locale: es,

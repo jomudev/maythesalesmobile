@@ -1,9 +1,7 @@
-import React from 'react';
-import {Text, View} from 'react-native';
 import ShowClienteItem from '../showItemComponents/showClienteItem';
 import ShowProductoItem from '../showItemComponents/showProductoItem';
+import ShowServiceItem from '../showItemComponents/showServicioItem';
 import ShowProveedorItem from '../showItemComponents/showProveedorItem';
-import ShowWholesalerItem from '../showItemComponents/showWholesalerItem';
 
 const editIcon = 'pencil';
 const closeIcon = 'close';
@@ -11,55 +9,20 @@ const closeIcon = 'close';
 const ShowItem = ({route, navigation}) => {
   const type = route.params.type;
   const data = route.params.data;
-  if (type === 'servicios' || type === 'productos') {
-    return (
-      <ShowProductoItem
-        data={data}
-        closeIcon={closeIcon}
-        editIcon={editIcon}
-        type={type}
-        navigation={navigation}
-      />
-    );
-  }
-  if (type === 'clientes') {
-    return (
-      <ShowClienteItem
-        data={data}
-        closeIcon={closeIcon}
-        editIcon={editIcon}
-        type={type}
-        navigation={navigation}
-      />
-    );
-  }
-  if (type === 'proveedores') {
-    return (
-      <ShowProveedorItem
-        data={data}
-        closeIcon={closeIcon}
-        editIcon={editIcon}
-        type={type}
-        navigation={navigation}
-      />
-    );
-  }
-  if (type === 'mayoristas') {
-    return (
-      <ShowWholesalerItem
-        data={data}
-        closeIcon={closeIcon}
-        editIcon={editIcon}
-        type={type}
-        navigation={navigation}
-      />
-    )
-  }
-  return (
-    <View>
-      <Text>Opción no disponible</Text>
-    </View>
-  );
+  const args = {type, data, navigation, editIcon, closeIcon};
+  const productItem = new ShowProductoItem(args);
+  const serviceItem = new ShowServiceItem(args);
+  const clientItem = new ShowClienteItem(args);
+  const providerItem = new ShowProveedorItem(args);
+
+  const Items = {
+    productos: productItem,
+    servicios: serviceItem,
+    clientes: clientItem,
+    proveedores: providerItem,
+  };
+
+  return Items[type] && Items[type];
 };
 
 export default ShowItem;

@@ -77,7 +77,7 @@ const Button = ({action, styles, text}) => {
 
 const RenderImage = (props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const {source, priority} = props;
+  const [source, priority] = props;
 
   if (source) {
     return (

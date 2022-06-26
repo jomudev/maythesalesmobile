@@ -4,6 +4,29 @@ const styles = StyleSheet.create({
   searchComponent: {
     margin: 2,
   },
+  header: { 
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+  },  
+  container: {
+    backgroundColor: 'white',
+    overflow: 'hidden',
+    alignContent: 'center',
+    alignItems: 'center',
+  },
+  letterContainer: {
+    flexDirection: 'column',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    padding: 8,
+  },
   mutedText: {
     color: '#aaa',
     fontSize: 12,
@@ -58,16 +81,21 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 100,
     position: 'absolute',
-    right: 24,
     bottom: 24,
     elevation: 8,
   },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingVertical: 10,
+  flex1Center: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+    padding: 8,
+  },
+  flex2Center: {
+    flex: 2,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: 8,
   },
   txtInput: {
     width: '100%',
@@ -125,40 +153,30 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   listItem: {
-    width: '100%',
-    justifyContent: 'space-between',
-    height: 64,
-    padding: 8,
-    paddingHorizontal: 36,
-    marginVertical: 16,
+    width: '90%',
+    height: 100,
+    overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 8,
   },
   listItemImage: {
-    width: 80,
-    height: 80,
-    resizeMode: 'cover',
-    borderRadius: 16,
-  },
-  listItemText: {
-    maxWidth: '40%',
+    height: '100%',
+    width: '100%',
+    resizeMode: 'contain',
+    borderRadius: 8,
   },
   modifyQuantityContainer: {
-    borderWidth: 3,
-    borderColor: '#ddd',
     width: 36,
     alignItems: 'center',
     justifyContent: 'center',
     height: 36,
-    borderRadius: 100,
-  },
-  modifyQuantityButton: {
-
   },
   listItemQuantity: {
     width: 18,
     height: 18,
     padding: 2,
+    marginRight: 8,
     borderRadius: 100,
     backgroundColor: '#ddd',
     alignItems: 'center',
@@ -166,28 +184,20 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     fontSize: 14,
-    paddingTop: 8,
-    fontFamily: 'VarelaRound-Regular',
+    overflow: 'hidden',
   },
   itemSubtitle: {
     fontSize: 12,
     color: '#b4b6be',
-    paddingBottom: 16,
-    width: '100%',
-    paddingRight: 50,
     overflow: 'hidden',
-    fontFamily: 'VarelaRound-Regular',
   },
   form: {
     paddingHorizontal: 8,
-  },
+  },  
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#00000055',
-  },
-  container: {
-    backgroundColor: 'white',
   },
   imageContainer: {
     alignItems: 'center',
@@ -240,33 +250,17 @@ const styles = StyleSheet.create({
     zIndex: 100,
     elevation: 30,
   },
-  shareImageIcon: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#f6f7f8aa',
-    borderRadius: 100,
-    padding: 10,
-    elevation: 30,
-  },
-  emptyListContainer: {
-    alignSelf: 'center',
-    width: '90%',
-    height: '90%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyListText: {
-    fontSize: 20,
-    color: 'gray',
-    textAlign: 'center',
-  },
-  listLetter: {
+  listTitle: {
     marginTop: 8,
     marginLeft: 8,
-    color: 'gray',
+    color: 'darkgray',
+    fontSize: 24,
     fontWeight: 'bold',
   },
+  listGroupContainer: {
+    borderBottomWidth: 0.5,
+    borderColor: '#eee',
+  }
 });
 
 export default styles;

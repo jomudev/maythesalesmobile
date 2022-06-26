@@ -6,9 +6,10 @@ import styles from '../showInformacionComponents/styles';
 import {TextBox} from '../auxComponents';
 import DisplayImageComponent from './displayImageComponent';
 import ShowImage from './showImage';
-import {update, moneyFormat} from '../mainFunctions';
+import {update} from '../mainFunctions';
 import LoadingScreen from '../loadingScreen';
 import {useForm} from 'react-hook-form';
+import CurrencyFunctions from "../../utils/currencyFunctions";
 
 const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
   const {register, getValues, setValue} = useForm();
@@ -25,7 +26,6 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
     register('cantidad');
     register('precioCosto');
     register('precioVenta');
-    register('precioMayoreo');
   }, []);
 
   const toggleEdit = () => {
@@ -137,8 +137,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             onChangeText={(text) =>
               setValue('precioCosto', Number.parseInt(text, 10))
             }
-            defaultValue={moneyFormat(data.precioCosto)}
-            placeholder={moneyFormat(0)}
+            defaultValue={CurrencyFunctions.moneyFormat(data.precioCosto)}
+            placeholder={CurrencyFunctions.moneyFormat(0)}
             keyboardType="number-pad"
             style={styles.txtInput}
           />
@@ -149,8 +149,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             onEndEditing={() =>
               handleUpdate('precioVenta', getValues('precioVenta'))
             }
-            defaultValue={moneyFormat(data.precioVenta)}
-            placeholder={moneyFormat(0)}
+            defaultValue={CurrencyFunctions.moneyFormat(data.precioVenta)}
+            placeholder={CurrencyFunctions.moneyFormat(0)}
             onChangeText={(text) =>
               setValue('precioVenta', Number.parseInt(text, 10))
             }
@@ -158,23 +158,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             style={styles.txtInput}
           />
         </View>
-        <Text>Precio de venta al por mayor</Text>
-        <View style={styles.priceContainer}>
-          <TextBox
-            onEndEditing={() =>
-              handleUpdate('precioMayoreo', getValues('precioMayoreo'))
-            }
-            defaultValue={moneyFormat(data.precioMayoreo)}
-            placeholder={moneyFormat(0)}
-            onChangeText={(text) =>
-              setValue('precioMayoreo', Number.parseInt(text, 10))
-            }
-            keyboardType="number-pad"
-            style={styles.txtInput}
-          />
-        </View>
         <Text style={{fontSize: 24}}>
-          Ganancia: {moneyFormat(data.precioVenta - data.precioCosto)}
+          Ganancia: {CurrencyFunctions.moneyFormat(data.precioVenta - data.precioCosto)}
         </Text>
       </View>
     </ScrollView>

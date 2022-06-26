@@ -5,19 +5,19 @@ const initialState = {
   search: '',
   // Collections
   collections: {
-    sales: [],
-    products: [],
-    clients: [],
-    services: [],
-    providers: [],
+    ventas: [],
+    productos: [],
+    clientes: [],
+    servicios: [],
+    proveedores: [],
   },
   // Reports
   reports: null,
   // Cart
   cart: {
-    products: [],
-    services: [],
-    client: null,
+    productos: [],
+    servicios: [],
+    cliente: null,
   },
   // Configuration
   data: {

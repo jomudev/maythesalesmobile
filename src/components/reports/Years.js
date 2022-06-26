@@ -1,12 +1,12 @@
+import store from '../../../store';
 export default class Years {
-    constructor(sales) {
+    constructor() {
         this.years = {};
-        this.sales = sales;
-        this.initialize(sales);
+        this.initialize();
     }
 
-    initialize(sales) {
-        const years = sales.map(sale => sale.getYear());
+    initialize() {
+        const years = store.getState().collections.sales.map(sale => sale.getYear());
         years.forEach(year => {
             if (!this.years[year]) {
                 this.years[year] = {
@@ -16,12 +16,12 @@ export default class Years {
                 };
             }
         });
-        this.calculateTotals(sales);
+        this.calculateTotals();
         this.setYearSales();
     }
 
     setYearSales() {
-        this.sales.forEach(sale => {
+        store.getState().collections.sales.forEach(sale => {
             const year = sale.getYear();
             if (!this.years[year].sales.includes(sale)) {
                 this.years[year].sales.push(sale);
@@ -29,12 +29,12 @@ export default class Years {
         });
     }
 
-    calculateTotals(sales) {
+    calculateTotals() {
         Object.keys(this.years).forEach(year => {
-            this.years[year].total = sales.reduce((acc, sale) => {
+            this.years[year].total = store.getState().collections.sales.reduce((acc, sale) => {
                 return acc + sale.total;
             }, 0);
-            this.years[year].ganancias = sales.reduce((acc, sale) => {
+            this.years[year].ganancias = store.getState().collections.sales.reduce((acc, sale) => {
                 return acc + sale.ganancias;
             }, 0);
         });

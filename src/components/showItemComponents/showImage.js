@@ -1,11 +1,10 @@
 import React from 'react';
-import {View, TouchableOpacity, Alert} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
 import {updateImage} from './functions';
 import {RenderImage} from '../auxComponents';
 import PopupMenu from '../PopupMenu';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const ShowImage = ({data, setShowImage, collectionKey, setIsLoading}) => {
   let popupMenuRef = React.createRef();

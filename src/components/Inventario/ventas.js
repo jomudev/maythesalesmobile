@@ -89,7 +89,7 @@ const Ventas = () => {
           backgroundColor: 'white',
         }}>
         <View style={styles.emptyListContainer}>
-          {EmptyListImages.default}
+          {/* {EmptyListImages.default()} */}
           <Text style={{color: 'gray', textAlign: 'center'}}>Realice una venta en la sección de "Nueva venta" para verlas reflejadas aquí</Text>
         </View>
       </View>

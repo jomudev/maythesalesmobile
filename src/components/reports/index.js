@@ -35,7 +35,7 @@ const Index = ({navigation}) => {
         keyExtractor={(item, index) => index.toString()}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={({item}) => (
-          <YearReportItem data={item}/>
+          <YearReportItem data={item} navigation={navigation}/>
           )}
       />
     </View>

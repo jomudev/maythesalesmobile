@@ -3,11 +3,12 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
-import {update, moneyFormat} from '../mainFunctions';
+import {update} from '../mainFunctions';
+import CurrencyFunctions from '../../utils/currencyFunctions';
 import {useForm} from 'react-hook-form';
 import {TextBox} from '../auxComponents';
 
-const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
+const ShowServicioItem = ({data, editIcon, closeIcon}) => {
   const [edit, setEdit] = useState(false);
   const [icon, setIcon] = useState(editIcon);
   const {register, setValue, getValues} = useForm();
@@ -20,7 +21,6 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
     register('descripcion');
     register('precioCosto');
     register('precioVenta');
-    register('precioMayoreo');
   }, []);
 
   const toggleEdit = () => {
@@ -74,8 +74,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
         />
         <Text>Precio de costo por unidad</Text>
         <TextBox
-          defaultValue={moneyFormat(data.precioCosto)}
-          placeholder={moneyFormat(0)}
+          defaultValue={CurrencyFunctions.moneyFormat(data.precioCosto)}
+          placeholder={CurrencyFunctions.moneyFormat(0)}
           onChangeText={(text) => setValue('precioCosto', text)}
           onEndEditing={() =>
             handleUpdate('precioCosto', getValues('precioCosto'))
@@ -85,8 +85,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
         />
         <Text>Precio de venta por unidad</Text>
         <TextBox
-          defaultValue={moneyFormat(data.precioVenta)}
-          placeholder={moneyFormat(0)}
+          defaultValue={CurrencyFunctions.moneyFormat(data.precioVenta)}
+          placeholder={CurrencyFunctions.moneyFormat(0)}
           onChangeText={(text) => setValue('precioVenta', text)}
           onEndEditing={() =>
             handleUpdate('precioVenta', getValues('precioVenta'))
@@ -94,20 +94,9 @@ const ShowServicioItem = ({data, editIcon, closeIcon, navigation}) => {
           keyboardType="phone-pad"
           style={styles.txtInput}
         />
-        <Text>Precio de venta por mayoreo</Text>
-        <TextBox
-          defaultValue={moneyFormat(data.precioMayoreo)}
-          placeholder={moneyFormat(0)}
-          onChangeText={(text) => setValue('precioMayoreo', text)}
-          onEndEditing={() =>
-            handleUpdate('precioMayoreo', getValues('precioMayoreo'))
-          }
-          keyboardType="phone-pad"
-          style={styles.txtInput}
-        />
         <Text style={{fontSize: 24}}>
           Ganancias:
-          {' ' + moneyFormat(data.precioVenta - data.precioCosto)}
+          {' ' + CurrencyFunctions.moneyFormat(data.ganancias)}
         </Text>
       </View>
     </View>

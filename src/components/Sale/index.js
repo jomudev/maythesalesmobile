@@ -1,4 +1,5 @@
 import {format} from 'date-fns';
+import {db} from '../../utils/firebase';
 import {es} from 'date-fns/locale';
 import {formatDistanceToNow} from 'date-fns';
 import Product from '../Product';
@@ -58,17 +59,15 @@ export default class Sale {
     }
 
     toJSON() {
-        return {
-            cliente: this.cliente,
-            estado: this.estado,
+        let json = {
             id: this.id,
-            mayorista: this.mayorista,
-            productos: this.productos,
-            servicios: this.servicios,
+            estado: this.estado,
             timestamp: this.timestamp,
-            total: this.total,
-            ganancias: this.ganancias,
+            productos: this.productos.map(product => product.toJSON()),
+            servicios: this.servicios.map(service => service.toJSON()),
+            cliente: this.cliente
         };
+        return json
     }
 
 

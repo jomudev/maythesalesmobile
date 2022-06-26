@@ -1,23 +1,24 @@
 import store from '../../../store';
 export default class Reports {
     constructor() {
-        this.salesLength = store.getState().collections.sales.length;
+        this.salesLength = store.getState().collections.ventas.length;
         this.reports = {}
         this.init();
     }
 
     init() {
-        store.getState().collections.sales.forEach(sale => {
+        store.getState().collections.ventas.forEach(sale => {
             const year = sale.getYear();
             const month = sale.getMonth();
             if (!this.reports[year]) {
                 const reportMonths = {
                     [month]: {
                         total: sale.total,
+                        ventas: [sale.id],
                         ganancias: sale.ganancias,
-                        quantity: 1,
-                        products: sale.getProductsQuantity(),
-                        services: sale.getServicesQuantity()
+                        cantidad: 1,
+                        productos: sale.getProductsQuantity(),
+                        servicios: sale.getServicesQuantity()
                     }
                 };
                 this.reports[year] = {
@@ -25,24 +26,25 @@ export default class Reports {
                     months: reportMonths,
                     total: sale.total,
                     ganancias: sale.ganancias,
-                    quantity: 1,
-                    products: sale.getProductsQuantity(),
-                    services: sale.getServicesQuantity()
+                    cantidad: 1,
+                    productos: sale.getProductsQuantity(),
+                    servicios: sale.getServicesQuantity()
                 };
             } else {
                 this.reports[year].months[month] = {
-                    total: this.reports[year].months[month] ? this.reports[year].months[month].total + sale.total : sale.total,
-                    ganancias: this.reports[year].months[month] ? this.reports[year].months[month].ganancias + sale.ganancias : sale.ganancias,
-                    quantity: this.reports[year].months[month] ? this.reports[year].months[month].quantity + 1 : 1,
-                    products: this.reports[year].months[month] ? this.reports[year].months[month].products + sale.getProductsQuantity() : sale.getProductsQuantity(),
-                    services: this.reports[year].months[month] ? this.reports[year].months[month].services + sale.getServicesQuantity() : sale.getServicesQuantity()
-                };
+                    total: this.reports[year].months[month].total + sale.total,
+                    ventas: this.reports[year].months[month].ventas.concat(sale.id),
+                    ganancias: this.reports[year].months[month].ganancias + sale.ganancias,
+                    cantidad: this.reports[year].months[month].cantidad + 1,
+                    productos: this.reports[year].months[month].productos + sale.getProductsQuantity(),
+                    servicios: this.reports[year].months[month].servicios + sale.getServicesQuantity(),
+            };
 
                 this.reports[year].total = this.reports[year].total + sale.total;
                 this.reports[year].ganancias = this.reports[year].ganancias + sale.ganancias;
-                this.reports[year].quantity = this.reports[year].quantity + 1;
-                this.reports[year].products = this.reports[year].products + sale.getProductsQuantity();
-                this.reports[year].services = this.reports[year].services + sale.getServicesQuantity();
+                this.reports[year].cantidad = this.reports[year].cantidad + 1;
+                this.reports[year].productos = this.reports[year].productos + sale.getProductsQuantity();
+                this.reports[year].servicios = this.reports[year].servicios + sale.getServicesQuantity();
 
             }
         });

@@ -7,6 +7,15 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {StatusBar} from 'react-native';
 const Tab = createMaterialBottomTabNavigator();
 
+const TabBarIcons = ({focused, color, route}) => {
+
+  const iconNames = {
+    Inicio: focused ? 'home' : 'home-outline',
+    Reportes: focused ? 'clipboard-file' : 'clipboard-file-outline',
+  }
+  return <Icon size={24} name={iconNames[route.name]} color={color} />;
+};
+
 const MainNavigator = () => {
   return (
     <>
@@ -26,15 +35,7 @@ const MainNavigator = () => {
         shifting
         sceneAnimationEnabled
         screenOptions={({route}) => ({
-          tabBarIcon: ({focused, color}) => {
-            let iconName;
-            if (route.name === 'Inicio') {
-              iconName = focused ? 'home' : 'home-outline';
-            } else if (route.name === 'Reportes') {
-              iconName = focused ? 'clipboard-file' : 'clipboard-file-outline';
-            }
-            return <Icon size={24} name={iconName} color={color} />;
-          },
+          tabBarIcon: (props) => <TabBarIcons route={route} {...props}/>,
         })}>
         <Tab.Screen name="Inicio" component={HomeContainer} />
         <Tab.Screen name="Reportes" component={ReportesContainer} />

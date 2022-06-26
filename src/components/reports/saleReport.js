@@ -1,14 +1,19 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, Text, Switch, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text, Switch, ScrollView} from 'react-native';
+import store from '../../../store';
 import styles from './styles';
 import {Group} from '../auxComponents';
-import {moneyFormat} from '../mainFunctions';
+import CurrencyFunctions from '../../utils/currencyFunctions';
 import {InterstitialUnitId, interstitialAdConfig} from '../ads';
 import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
 
+const currencyFunctions = new CurrencyFunctions();
+const {moneyFormat} = currencyFunctions;
+
 const SaleReport = ({route}) => {
-  const sale = route.params.data;
+  const saleID = route.params.data;
+  const sale = store.getState().collections.sales.find((sale) => sale.id == saleID);
   const [switchValue, setSwitchValue] = React.useState(sale.estado);
 
   React.useEffect(() => {

@@ -63,7 +63,7 @@ const contextMenuFunction = (index, optionsList) => {
   }
 };
 
-const getCartActivity = () => store.getState().cart.products.length + store.getState().cart.services.length;
+const getCartActivity = () => store.getState().cart.productos.length + store.getState().cart.servicios.length;
 
 const MainHeaderRightComponent = (props) => {
   const [searchIcon, setSearchIcon] = useState('magnify');

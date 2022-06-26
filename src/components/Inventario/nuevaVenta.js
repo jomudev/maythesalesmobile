@@ -9,10 +9,10 @@ import {TextBox} from '../auxComponents';
 import {HomeBannerAd} from '../ads';
 
 const collectionInitialState = {
-  products: [],
-  services: [],
-  clients: [],
-  providers: [],
+  productos: [],
+  servicios: [],
+  clientes: [],
+  proveedores: [],
 };
 
 const NewSale = ({navigation}) => {
@@ -20,15 +20,14 @@ const NewSale = ({navigation}) => {
   const [foundClient, setFindClient] = useState(null);
   const [foundService, setFindService] = useState(null);
   const [collections, setCollections] = useState(collectionInitialState);
-
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
-      const {products, clients, services, providers} = store.getState().collections;
+      const {productos, clientes, servicios,  proveedores} = store.getState().collections;
       setCollections({
-        products,
-        clients,
-        services, 
-        providers
+        productos,
+        clientes,
+        servicios, 
+        proveedores
       });
     });
     return unsubscribe;
@@ -37,7 +36,7 @@ const NewSale = ({navigation}) => {
   const Search = ({list, type}) => {
     let found = [];
     const types = {
-      "products": () => {
+      "productos": () => {
         if (foundProduct) {
           found = list.filter((item) => filterItems(item, foundProduct));
           return found.map((product, index) => (
@@ -63,7 +62,7 @@ const NewSale = ({navigation}) => {
           );
         }
       },
-      "clients": () => {
+      "clientes": () => {
         found = list.filter((item) => filterItems(item, foundClient));
         return found.length === 0 ? (
           <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
@@ -77,7 +76,7 @@ const NewSale = ({navigation}) => {
           ))
         );
       },
-      "services": () => {
+      "servicios": () => {
         found = list.filter((item) => filterItems(item, foundService));
         return found.length === 0 ? (
           <Text style={styles.emptySearch}>No se encontró ningún registro.</Text>
@@ -96,8 +95,7 @@ const NewSale = ({navigation}) => {
   };
 
   const SearchList = ({type, list, foundElement}) => {
-
-    if (type === 'products') {
+    if (type === 'productos') {
       return <ScrollView
               horizontal={true}
               style={styles.findProductsList}
@@ -149,7 +147,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <SearchList list={collections.products} type="products" />
+          <SearchList list={collections.productos} type="productos" />
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
@@ -173,7 +171,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <SearchList type="clients" list={collections.clients} foundElement={foundClient} />
+          <SearchList type="clientes" list={collections.clientes} foundElement={foundClient} />
         </View>
         <View style={styles.formGroup}>
           <View style={styles.textContainer}>
@@ -197,7 +195,7 @@ const NewSale = ({navigation}) => {
               />
             )}
           </View>
-          <SearchList type="services" list={collections.services} foundElement={foundService} />
+          <SearchList type="servicios" list={collections.servicios} foundElement={foundService} />
         </View>
         <HomeBannerAd />
       </ScrollView>

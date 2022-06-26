@@ -6,20 +6,30 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 32,
   },
+  button: {
+    padding: 24,
+    width: '100%',
+  },
   separator: {
     height: 8,
   },
   yearItem: {
     backgroundColor: '#fff',
-    padding: 24,
     borderRadius: 24,
     flexDirection: 'column',
+    overflow: 'hidden',
   },  
-  totalText: {
+  monthItem: {
+    backgroundColor: '#fff',
+    padding: 24,
+    flexDirection: 'column',
+    paddingVertical: 16,
+  },
+  heading1: {
     fontSize: 12,
     fontWeight: 'bold',
   },
-  heading6: {
+  heading2: {
     fontSize: 12,
     color: '#999',
   },
@@ -41,18 +51,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
   },
-  itemBody: {
+  itemRow: {
     flex: 1,
     flexDirection: 'row',
   },
-  itemCol1: {
+  itemCol: {
     flex: 1,
-  },
-  itemCol2: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
   },
   itemTitle: {
     fontSize: 16,

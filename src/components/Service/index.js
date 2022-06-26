@@ -1,7 +1,5 @@
 import CurrencyFunctions from '../../utils/currencyFunctions';
 import {db} from '../mainFunctions';
-const currencyFunctions = new CurrencyFunctions();
-const {moneyFormat} = currencyFunctions;
 
 export default class Service {
     constructor(data) {
@@ -22,11 +20,11 @@ export default class Service {
     }
 
     getPrecioVenta() {
-        return moneyFormat(this.precioVenta);
+        return CurrencyFunctions.moneyFormat(this.precioVenta);
     }
 
     getGanancias() {
-        return moneyFormat(this.ganancias);
+        return CurrencyFunctions.moneyFormat(this.ganancias);
     }
 
     generateID() {

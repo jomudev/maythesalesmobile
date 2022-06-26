@@ -4,13 +4,10 @@ import FastImage from 'react-native-fast-image';
 import defaultEmptyImage from '../../assets/AdditionalMedia/defaultEmptyImage.png';
 
 export default class EmptyListImages {
-  constructor() {
-    this.images = {
-      defaultEmptyImage: defaultEmptyImage,
-    };
-  }
   
-  default() {
+  static ImageComponent () {
+    console.log(defaultEmptyImage);
+    console.warn(imageURI);
     return (
       <View
         style={{
@@ -22,11 +19,11 @@ export default class EmptyListImages {
         <FastImage
           style={{
             width: '70%',
-            flex: 1,
+            flex: .8,
           }}
           resizeMode={FastImage.resizeMode.contain}
           source={{
-            uri: this.getAssetSource(this.images.defaultEmptyImage).uri,
+            uri: Image.resolveAssetSource(defaultEmptyImage).uri,
             priority: FastImage.priority.high,
             cache: FastImage.cacheControl.immutable,
           }}
@@ -37,13 +34,16 @@ export default class EmptyListImages {
           fontWeight: 'bold', 
           textAlign: 'center'
         }}>
-        ¡Ups! no hay nada por aquí
+        ¡Ups! No hay nada por aquí
         </Text>
       </View>
     );
   }
 
-  getAssetSource (AssetToResolve) {
-    return Image.resolveAssetSource(AssetToResolve);
+  static default() {
+    return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Text>¡Ups! No hay nada por aquí</Text>
+    </View>
   }
+
 };
