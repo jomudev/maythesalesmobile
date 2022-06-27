@@ -11,10 +11,12 @@ const StickyHeader = (props) => {
 
 const styles = StyleSheet.create({
     header: {
-        width: "100%",
-        height: 48,
+        width: 100,
+        height: 50,
+        borderRadius: 100,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: "#fff",
     }
 });
 
