@@ -249,21 +249,6 @@ const styles = StyleSheet.create({
     left: 8,
     zIndex: 100,
     elevation: 30,
-  },
-  listTitle: {
-    color: 'darkgray',
-    fontSize: 24,
-    height: 30,
-    width: '100%',
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    borderWidth: 1,
-    fontWeight: 'bold',
-  },
-  listGroupContainer: {
-    borderBottomWidth: 0.5,
-    borderColor: '#eee',
-    backgroundColor: 'white',
   }
 });
 

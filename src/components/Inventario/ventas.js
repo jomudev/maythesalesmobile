@@ -80,20 +80,7 @@ const Ventas = () => {
   }, [refreshing]);
 
   if (salesList.length === 0) {
-    return (
-      <View
-        style={{
-          ...StyleSheet.absoluteFillObject,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'white',
-        }}>
-        <View style={styles.emptyListContainer}>
-          {/* {EmptyListImages.default()} */}
-          <Text style={{color: 'gray', textAlign: 'center'}}>Realice una venta en la sección de "Nueva venta" para verlas reflejadas aquí</Text>
-        </View>
-      </View>
-    );
+    return EmptyListImages.ImageComponent('Realice una venta en la sección de "Nueva venta" para verlas reflejadas aquí');
   }
 
   return (
@@ -108,8 +95,12 @@ const Ventas = () => {
       </View>
       <ReportsBannerAd />
       <ScrollView 
-        refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
-       style={styles.salesContainer}>
+        refreshControl={
+          <RefreshControl 
+          onRefresh={onRefresh} 
+          refreshing={refreshing} 
+          />}
+          style={styles.salesContainer}>
         {salesList.map((venta) => (
           <RenderVentasCollection
             sale={venta}
