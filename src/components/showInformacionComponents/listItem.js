@@ -62,6 +62,7 @@ const ListItem = ({navigation, type, data}) => {
   subtitle = subtitle.filter(item => item !== null && item !== undefined && item !== '');
   return (
     <>
+      <AddMoreQuantity show={showAddQuantityComponent} data={data} close={() => setShowAddQuantityComponent(false)} />
       <TouchableOpacity
         style={styles.listItem}
         onPress={() =>
@@ -110,7 +111,6 @@ const ListItem = ({navigation, type, data}) => {
           </View>
         </View>
       </TouchableOpacity>
-      <AddMoreQuantity show={showAddQuantityComponent} data={data} close={() => setShowAddQuantityComponent(false)} />
     </>
   );
 };

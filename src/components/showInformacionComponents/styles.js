@@ -251,15 +251,19 @@ const styles = StyleSheet.create({
     elevation: 30,
   },
   listTitle: {
-    marginTop: 8,
-    marginLeft: 8,
     color: 'darkgray',
     fontSize: 24,
+    height: 30,
+    width: '100%',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    borderWidth: 1,
     fontWeight: 'bold',
   },
   listGroupContainer: {
     borderBottomWidth: 0.5,
     borderColor: '#eee',
+    backgroundColor: 'white',
   }
 });
 

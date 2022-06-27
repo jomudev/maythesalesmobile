@@ -6,8 +6,6 @@ import defaultEmptyImage from '../../assets/AdditionalMedia/defaultEmptyImage.pn
 export default class EmptyListImages {
   
   static ImageComponent () {
-    console.log(defaultEmptyImage);
-    console.warn(imageURI);
     return (
       <View
         style={{

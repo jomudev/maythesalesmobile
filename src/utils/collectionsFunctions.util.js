@@ -10,20 +10,23 @@ export default class CollectionsFunctions {
 
     static sortCollection (collection) {
         try {
-            var sortedCollection = {};
+            let keysArray = []
             collection.forEach(item => {
-                const key = Text.getUpperFirst(item.nombre);
-                if (!sortedCollection[key]) {
-                    sortedCollection[key] = [item];
-                } else {
-                    sortedCollection[key].push(item); 
-                }
+                keysArray.push(Text.getUpperFirst(item.nombre));
             });
-            return sortedCollection;
+            keysArray = Array.from(new Set(keysArray));
+            keysArray = keysArray.sort(this.sortCollectionItems);
+            
+            var arrayToReturn = keysArray.map((key) => [key, ...this.getCollectionPerLetter(key, collection)]);
+            return arrayToReturn.flat();
         } catch (err) {
             console.error('Error al ordenar la colección de datos', err);
             return {};
         }
+    }
+
+    static getCollectionPerLetter(letter, collection) {
+        return collection.filter(element => Text.getUpperFirst(element.nombre) === letter);
     }
 
     static sortCollectionItems(prev, next) {
@@ -43,7 +46,7 @@ export default class CollectionsFunctions {
             if (search && search.trim() !== '') {
               search = search.toLowerCase();
               filteredCollection = store.getState().collection.filter((item) => {
-                filterItems(store.getState().collection.find(element => item === element.id).nombre.split('')[0].toLogwerCase(), search)
+                filterItems(store.getState().collection.find(element => item === element.id).nombre.split('')[0].toLowerCase(), search)
               });
             }
             return filteredCollection;
