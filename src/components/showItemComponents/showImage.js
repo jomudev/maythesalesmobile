@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
 import {updateImage} from './functions';
@@ -37,7 +37,6 @@ const ShowImage = ({data, setShowImage, collectionKey, setIsLoading}) => {
       optionsList[index].onPress();
     }
   };
-
   return (
     <View style={styles.imageContainer}>      
       {data.imageURL ? (
@@ -53,7 +52,7 @@ const ShowImage = ({data, setShowImage, collectionKey, setIsLoading}) => {
           }
           style={styles.showImageButton}>
           {data.imageURL ? (
-            <RenderImage source={{uri: data.imageURL}} style={styles.image} />
+            <Image source={{uri: data.imageURL}} style={styles.image} />
           ) : (
             <Icon name="image-plus" style={styles.addImageIcon} />
           )}

@@ -152,6 +152,9 @@ const App = () => {
     const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
       if (authUser) {
         Firebase.db().onSnapshot(async (snapshot) => {
+          if (!snapshot.data) {
+            return null;
+          }
           const user = snapshot.data();
           setUser({
             ...auth().currentUser,

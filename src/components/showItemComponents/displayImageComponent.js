@@ -1,6 +1,5 @@
 import React from 'react';
-import {Modal, View, TouchableOpacity, StatusBar} from 'react-native';
-import {RenderImage} from '../auxComponents';
+import {Modal, View, TouchableOpacity, StatusBar, Image} from 'react-native';
 import styles from '../showInformacionComponents/styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -18,7 +17,7 @@ const DisplayImageComponent = ({imageURL, showImage, setShowImage}) => {
           onPress={() => setShowImage(false)}>
           <Icon name="chevron-left" size={32} color="#fff" />
         </TouchableOpacity>
-        <RenderImage
+        <Image
           source={{uri: imageURL}}
           resizeMode="contain"
           style={styles.displayImage}

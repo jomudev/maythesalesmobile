@@ -6,13 +6,9 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   Text,
-  Modal,
-  ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
 import buttonStyles from './AddComponents/styles';
 import {Picker} from '@react-native-picker/picker';
 
@@ -73,37 +69,6 @@ const Button = ({action, styles, text}) => {
       <Text style={{color: 'white', fontSize: 24}}>{text || 'Agregar'}</Text>
     </TouchableOpacity>
   );
-};
-
-const RenderImage = (props) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [source, priority] = props;
-
-  if (source) {
-    return (
-      <View>
-        {isLoading ? (
-          <ActivityIndicator
-            size="small"
-            color="#101e5a"
-            style={styles.imageLoading}
-          />
-        ) : null}
-        <FastImage
-          {...props}
-          source={{
-            ...source,
-            priority: priority ? priority : FastImage.priority.normal,
-            cache: FastImage.cacheControl.immutable,
-          }}
-          onLoadStart={() => setIsLoading(true)}
-          onLoad={() => setIsLoading(false)}
-        />
-      </View>
-    );
-  } else {
-    return <Icon name="image-plus" style={styles.addImageIcon} />;
-  }
 };
 
 class Group extends React.Component {
@@ -223,7 +188,6 @@ export {
   PasswordInput,
   TextBox,
   Button,
-  RenderImage,
   Select,
   Group,
   HelpMessage,

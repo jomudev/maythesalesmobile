@@ -48,7 +48,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {isLoading ? <LoadingScreen /> : null}
       <DisplayImageComponent
         imageURL={data.imageURL}
