@@ -2,8 +2,8 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import styles from '../showInformacionComponents/styles';
-import {TextBox} from '../auxComponents';
+import styles from './styles';
+import {TextBox, LabeledInput} from '../../utils/components/TextBox';
 import DisplayImageComponent from './displayImageComponent';
 import ShowImage from './showImage';
 import {update} from '../mainFunctions';
@@ -48,7 +48,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} style={{flex: 1}}>
       {isLoading ? <LoadingScreen /> : null}
       <DisplayImageComponent
         imageURL={data.imageURL}
@@ -62,14 +62,13 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
         collectionKey={collectionKey}
         setIsLoading={setIsLoading}
       />
-      <View style={styles.form}>
         <View style={styles.nombreContainer}>
           {edit ? (
             <TextBox
               defaultValue={data.nombre}
               onChangeText={(text) => setValue('nombre', text)}
               onEndEditing={() => handleUpdate('nombre', getValues('nombre'))}
-              style={{...styles.txtInput, ...styles.nombre}}
+              style={styles.nombreInput}
             />
           ) : (
             <Text style={styles.nombre}>{data.nombre}</Text>
@@ -82,32 +81,26 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
           />
         </View>
         <View style={styles.quantity}>
-          {data.cantidad > 0 ? (
-            <>
-              <Text style={styles.quantityBadge}>{data.cantidad}</Text>
-              <Text> En inventario</Text>
-            </>
-          ) : (
-            <Text>Inexistente en inventario o no asignado</Text>
-          )}
+          <Text style={styles.quantityBadge}>{data.cantidad}</Text>
+          <Text> En inventario</Text>
         </View>
-        <Text>Codigo</Text>
-        <TextBox
+        <LabeledInput
+          label="Código"
           editable={false}
           defaultValue={data.barcode}
           style={styles.txtInput}
           placeholder="No asignado..."
         />
-        <Text>Marca</Text>
-        <TextBox
+        <LabeledInput
+          label="Marca"
           placeholder="No asignado"
           defaultValue={data.marca ? data.marca : ''}
           style={styles.txtInput}
           onChangeText={(text) => setValue('marca', text)}
           onEndEditing={() => handleUpdate('marca', getValues('marca'))}
         />
-        <Text>Descripción</Text>
-        <TextBox
+        <LabeledInput
+          label="Descripción"
           onEndEditing={() =>
             handleUpdate('descripcion', getValues('descripcion'))
           }
@@ -117,8 +110,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
           defaultValue={data.descripcion ? data.descripcion : ''}
           placeholder="No asignado..."
         />
-        <Text>Cantidad</Text>
-        <TextBox
+        <LabeledInput
+          label="Cantidad"
           onEndEditing={() => handleUpdate('cantidad', getValues('cantidad'))}
           onChangeText={(text) =>
             setValue('cantidad', Number.parseInt(text, 10))
@@ -128,9 +121,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
           keyboardType="number-pad"
           style={styles.txtInput}
         />
-        <Text>Precio de costo por unidad</Text>
-        <View style={styles.priceContainer}>
-          <TextBox
+          <LabeledInput
+            label="Precio de costo por unidad"
             onEndEditing={() =>
               handleUpdate('precioCosto', getValues('precioCosto'))
             }
@@ -142,10 +134,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             keyboardType="number-pad"
             style={styles.txtInput}
           />
-        </View>
-        <Text>Precio de venta por unidad</Text>
-        <View style={styles.priceContainer}>
-          <TextBox
+          <LabeledInput
+            label="Precio de venta por unidad"
             onEndEditing={() =>
               handleUpdate('precioVenta', getValues('precioVenta'))
             }
@@ -157,13 +147,11 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             keyboardType="number-pad"
             style={styles.txtInput}
           />
-        </View>
         <Text style={{fontSize: 24}}>
           Ganancia: {CurrencyFunctions.moneyFormat(data.precioVenta - data.precioCosto)}
         </Text>
-      </View>
     </ScrollView>
   );
-};
+}
 
 export default ShowProductoItem;

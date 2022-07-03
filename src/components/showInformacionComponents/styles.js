@@ -21,12 +21,6 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'center',
   },
-  letterContainer: {
-    flexDirection: 'column',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    padding: 8,
-  },
   mutedText: {
     color: '#aaa',
     fontSize: 12,
@@ -97,46 +91,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 8,
   },
-  txtInput: {
-    width: '100%',
-    fontSize: 16,
-    alignSelf: 'center',
-    padding: 10,
-    backgroundColor: '#e6e8f1',
-    marginBottom: 10,
-  },
   textContainer: {
     flexDirection: 'row',
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   barCodeIcon: {
     color: '#101e5a',
     flex: 1,
     fontSize: 28,
-  },
-  nombre: {
-    flex: 9,
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#101e5a',
-    padding: 4,
-  },
-  nombreContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    justifyContent: 'flex-start',
-    borderColor: '#ccc',
-  },
-  editNombre: {
-    flex: 1,
-    textAlign: 'center',
-    color: '#101e5a',
-    paddingHorizontal: 8,
   },
   quantity: {
     flexDirection: 'row',
@@ -191,9 +152,6 @@ const styles = StyleSheet.create({
     color: '#b4b6be',
     overflow: 'hidden',
   },
-  form: {
-    paddingHorizontal: 8,
-  },  
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -206,6 +164,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     height: 260,
     width: '100%',
+    paddingHorizontal: 8,
     marginVertical: 10,
   },
   showImageButton: {

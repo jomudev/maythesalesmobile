@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import React, {useEffect, useRef} from 'react';
-import {TouchableOpacity, ToastAndroid, Text, View, ScrollView} from 'react-native';
+import {TouchableOpacity, ToastAndroid, Text, View, KeyboardAvoidingView} from 'react-native';
 import Button from './button';
 import auth from '@react-native-firebase/auth';
 import styles from './authStyles';
@@ -66,7 +66,7 @@ const Login = ({setInitializing, changeScreen}) => {
     }
   };
   return (
-    <ScrollView contentContainerStyle={{width: '100%', alignItems: 'center'}} >
+    <KeyboardAvoidingView contentContainerStyle={{width: '100%', alignItems: 'center'}} >
       <Text style={styles.loginTitle}>Iniciar sesión</Text>
       <View style={styles.textInputContainer}>
         <TextBox
@@ -117,7 +117,7 @@ const Login = ({setInitializing, changeScreen}) => {
             </Text>
           </TouchableOpacity>
         </View>
-    </ScrollView>
+    </KeyboardAvoidingView>
     
   );
 };

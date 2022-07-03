@@ -6,7 +6,7 @@ import styles from '../showInformacionComponents/styles';
 import {update} from '../mainFunctions';
 import CurrencyFunctions from '../../utils/currencyFunctions';
 import {useForm} from 'react-hook-form';
-import {TextBox} from '../auxComponents';
+import {TextBox, LabeledInput} from '../../utils/components/TextBox';
 
 const ShowServicioItem = ({data, editIcon, closeIcon}) => {
   const [edit, setEdit] = useState(false);
@@ -41,7 +41,6 @@ const ShowServicioItem = ({data, editIcon, closeIcon}) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.form}>
         <View style={styles.nombreContainer}>
           {edit ? (
             <TextBox
@@ -62,8 +61,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon}) => {
             onPress={toggleEdit}
           />
         </View>
-        <Text>Descripción</Text>
-        <TextBox
+        <LabeledInput
+          label="Descripción"
           placeholder="No asignado..."
           defaultValue={data.descripcion ? data.descripcion : ''}
           onChangeText={(text) => setValue('descripcion', text)}
@@ -73,7 +72,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon}) => {
           style={styles.txtInput}
         />
         <Text>Precio de costo por unidad</Text>
-        <TextBox
+        <LabeledInput
+          label="Precio de costo por unidad"
           defaultValue={CurrencyFunctions.moneyFormat(data.precioCosto)}
           placeholder={CurrencyFunctions.moneyFormat(0)}
           onChangeText={(text) => setValue('precioCosto', text)}
@@ -84,7 +84,8 @@ const ShowServicioItem = ({data, editIcon, closeIcon}) => {
           style={styles.txtInput}
         />
         <Text>Precio de venta por unidad</Text>
-        <TextBox
+        <LabeledInput
+          label="Precio de venta por unidad"
           defaultValue={CurrencyFunctions.moneyFormat(data.precioVenta)}
           placeholder={CurrencyFunctions.moneyFormat(0)}
           onChangeText={(text) => setValue('precioVenta', text)}
@@ -98,7 +99,6 @@ const ShowServicioItem = ({data, editIcon, closeIcon}) => {
           Ganancias:
           {' ' + CurrencyFunctions.moneyFormat(data.ganancias)}
         </Text>
-      </View>
     </View>
   );
 };

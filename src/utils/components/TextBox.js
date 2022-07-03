@@ -1,0 +1,49 @@
+import React from 'react';
+import {TextInput, View, Text} from 'react-native';
+
+const TextBox = (props) => {
+    let {style, Ref, isTextArea} = props;
+    return (
+      <TextInput
+        underlineColorAndroid="transparent"
+        {...props}
+        style={{
+          backgroundColor: '#e6e8f1',
+          paddingHorizontal: 16,
+          borderRadius: 100,
+          textAlignVertical: isTextArea ? 'top' : 'auto',
+          ...style,
+        }}
+        spellCheck={true}
+        ref={Ref}
+      />
+    );
+};
+
+const LabeledInput = (props) => {
+    const styles = {
+        textContainer: {
+            flexDirection: 'column',
+            width: '100%',
+            alignItems: 'center',
+        },
+        label: {
+            textAlign: 'left',
+            fontWeight: 'bold',
+            fontSize: 18,
+            width: '80%',
+        },
+    };
+
+    return (
+      <View style={styles.textContainer}>
+        <Text style={styles.label}>{props.label}</Text>
+        <TextBox {...props} />
+      </View>
+    )
+}
+
+export {
+    TextBox,
+    LabeledInput,
+};

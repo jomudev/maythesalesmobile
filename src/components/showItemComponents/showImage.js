@@ -3,7 +3,6 @@ import {View, TouchableOpacity, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from '../showInformacionComponents/styles';
 import {updateImage} from './functions';
-import {RenderImage} from '../auxComponents';
 import PopupMenu from '../PopupMenu';
 
 const ShowImage = ({data, setShowImage, collectionKey, setIsLoading}) => {
