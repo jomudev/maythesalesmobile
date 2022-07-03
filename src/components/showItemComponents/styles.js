@@ -2,9 +2,14 @@ import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 36,
         backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    form: {
+        paddingHorizontal: 36,
         justifyContent: 'space-between',
+        width: '100%',
         alignItems: 'center',
     },
     txtInput: {
@@ -64,6 +69,54 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    imageContainer: {
+        width: "100%",
+        height: 150,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        alignContent: 'center',
+        alignSelf: 'center',
+        position: 'relative',
+        height: 260,
+        width: '100%',
+        marginVertical: 10,
+      },
+    showImageButton: {
+        alignItems: 'center',
+        alignContent: 'center',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#f1f2f3',
+        zIndex: -1,
+        overflow: 'hidden',
+    },
+    updateImageButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: '#f6f7f8aa',
+        borderRadius: 100,
+        padding: 10,
+        elevation: 30,
+    },
+    addImageIcon: {
+        fontSize: 225,
+        color: '#101e5a',
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    displayImage: {
+        width: '100%',
+        height: '100%',
+    },
+    displayImageContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: '#000',
     },
 });
 

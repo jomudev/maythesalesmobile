@@ -80,73 +80,75 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             onPress={() => toggleEdit()}
           />
         </View>
-        <View style={styles.quantity}>
-          <Text style={styles.quantityBadge}>{data.cantidad}</Text>
-          <Text> En inventario</Text>
+        <View style={styles.form}>
+          <View style={styles.quantity}>
+            <Text style={styles.quantityBadge}>{data.cantidad}</Text>
+            <Text> En inventario</Text>
+          </View>
+          <LabeledInput
+            label="Código"
+            editable={false}
+            defaultValue={data.barcode}
+            style={styles.txtInput}
+            placeholder="No asignado..."
+          />
+          <LabeledInput
+            label="Marca"
+            placeholder="No asignado"
+            defaultValue={data.marca ? data.marca : ''}
+            style={styles.txtInput}
+            onChangeText={(text) => setValue('marca', text)}
+            onEndEditing={() => handleUpdate('marca', getValues('marca'))}
+          />
+          <LabeledInput
+            label="Descripción"
+            onEndEditing={() =>
+              handleUpdate('descripcion', getValues('descripcion'))
+            }
+            onChangeText={(text) => setValue('descripcion', text)}
+            style={{...styles.txtInput, overflow: 'hidden', maxHeight: 100}}
+            multiline={true}
+            defaultValue={data.descripcion ? data.descripcion : ''}
+            placeholder="No asignado..."
+          />
+          <LabeledInput
+            label="Cantidad"
+            onEndEditing={() => handleUpdate('cantidad', getValues('cantidad'))}
+            onChangeText={(text) =>
+              setValue('cantidad', Number.parseInt(text, 10))
+            }
+            defaultValue={`${data.cantidad}`}
+            placeholder={'0'}
+            keyboardType="number-pad"
+            style={styles.txtInput}
+          />
+            <LabeledInput
+              label="Precio de costo por unidad"
+              onEndEditing={() =>
+                handleUpdate('precioCosto', getValues('precioCosto'))
+              }
+              onChangeText={(text) =>
+                setValue('precioCosto', Number.parseInt(text, 10))
+              }
+              defaultValue={CurrencyFunctions.moneyFormat(data.precioCosto)}
+              placeholder={CurrencyFunctions.moneyFormat(0)}
+              keyboardType="number-pad"
+              style={styles.txtInput}
+            />
+            <LabeledInput
+              label="Precio de venta por unidad"
+              onEndEditing={() =>
+                handleUpdate('precioVenta', getValues('precioVenta'))
+              }
+              defaultValue={CurrencyFunctions.moneyFormat(data.precioVenta)}
+              placeholder={CurrencyFunctions.moneyFormat(0)}
+              onChangeText={(text) =>
+                setValue('precioVenta', Number.parseInt(text, 10))
+              }
+              keyboardType="number-pad"
+              style={styles.txtInput}
+            />
         </View>
-        <LabeledInput
-          label="Código"
-          editable={false}
-          defaultValue={data.barcode}
-          style={styles.txtInput}
-          placeholder="No asignado..."
-        />
-        <LabeledInput
-          label="Marca"
-          placeholder="No asignado"
-          defaultValue={data.marca ? data.marca : ''}
-          style={styles.txtInput}
-          onChangeText={(text) => setValue('marca', text)}
-          onEndEditing={() => handleUpdate('marca', getValues('marca'))}
-        />
-        <LabeledInput
-          label="Descripción"
-          onEndEditing={() =>
-            handleUpdate('descripcion', getValues('descripcion'))
-          }
-          onChangeText={(text) => setValue('descripcion', text)}
-          style={{...styles.txtInput, overflow: 'hidden', maxHeight: 100}}
-          multiline={true}
-          defaultValue={data.descripcion ? data.descripcion : ''}
-          placeholder="No asignado..."
-        />
-        <LabeledInput
-          label="Cantidad"
-          onEndEditing={() => handleUpdate('cantidad', getValues('cantidad'))}
-          onChangeText={(text) =>
-            setValue('cantidad', Number.parseInt(text, 10))
-          }
-          defaultValue={`${data.cantidad}`}
-          placeholder={'0'}
-          keyboardType="number-pad"
-          style={styles.txtInput}
-        />
-          <LabeledInput
-            label="Precio de costo por unidad"
-            onEndEditing={() =>
-              handleUpdate('precioCosto', getValues('precioCosto'))
-            }
-            onChangeText={(text) =>
-              setValue('precioCosto', Number.parseInt(text, 10))
-            }
-            defaultValue={CurrencyFunctions.moneyFormat(data.precioCosto)}
-            placeholder={CurrencyFunctions.moneyFormat(0)}
-            keyboardType="number-pad"
-            style={styles.txtInput}
-          />
-          <LabeledInput
-            label="Precio de venta por unidad"
-            onEndEditing={() =>
-              handleUpdate('precioVenta', getValues('precioVenta'))
-            }
-            defaultValue={CurrencyFunctions.moneyFormat(data.precioVenta)}
-            placeholder={CurrencyFunctions.moneyFormat(0)}
-            onChangeText={(text) =>
-              setValue('precioVenta', Number.parseInt(text, 10))
-            }
-            keyboardType="number-pad"
-            style={styles.txtInput}
-          />
         <Text style={{fontSize: 24}}>
           Ganancia: {CurrencyFunctions.moneyFormat(data.precioVenta - data.precioCosto)}
         </Text>

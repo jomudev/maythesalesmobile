@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, TouchableOpacity, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import styles from '../showInformacionComponents/styles';
+import styles from '../showItemComponents/styles';
 import {updateImage} from './functions';
 import PopupMenu from '../PopupMenu';
 

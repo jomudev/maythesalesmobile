@@ -1,6 +1,6 @@
 import React from 'react';
 import {Modal, View, TouchableOpacity, StatusBar, Image} from 'react-native';
-import styles from '../showInformacionComponents/styles';
+import styles from '../showItemComponents/styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const DisplayImageComponent = ({imageURL, showImage, setShowImage}) => {
