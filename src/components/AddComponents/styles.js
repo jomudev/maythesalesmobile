@@ -2,7 +2,7 @@ import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
   form: {
-    ...StyleSheet.absoluteFillObject,
+    width: "100%",
     backgroundColor: 'white',
   },
   formTitle: {
@@ -15,12 +15,24 @@ const styles = StyleSheet.create({
     color: '#101e5a',
     textAlign: 'center',
     textAlignVertical: 'center',
-    borderRadius: 8,
-    flex: 1,
+  },
+  flex9: {
+    flex: 9,
+  },
+  flex2: {
+    flex: 2,
+  },
+  barcodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+
   },
   txtInput: {
-    width: '90%',
-    backgroundColor: '#e6e8f1',
+  },
+  txtAreaInput: {
+    width: '100%',
+    borderRadius: 0,
   },
   btn: {
     backgroundColor: '#101e5a',

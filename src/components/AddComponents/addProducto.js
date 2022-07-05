@@ -8,13 +8,16 @@ import {
   Image,
   ToastAndroid,
 } from 'react-native';
-import {TextBox, Button} from '../auxComponents';
+import {useNavigation} from "@react-navigation/native";
+import {Button} from '../auxComponents';
+import {LabeledInput, TextBox} from '../../utils/components/TextBox';
 import {save} from './functions';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useForm} from 'react-hook-form';
 import ImagePicker from 'react-native-image-crop-picker';
 import LoadingScreen from '../loadingScreen';
+import CamScanner from '../CamScanner';
 
 const initialFormValues = {
   nombre: '',
@@ -28,8 +31,8 @@ const initialFormValues = {
   imageURL: '',
 };
 
-const AddProducto = ({navigation, route}) => {
-  const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
+const AddProducto = () => {
+  const navigation = useNavigation();
   const {register, handleSubmit, errors, watch, setValue} = useForm({
     defaultValues: initialFormValues,
     mode: 'onSubmit',
@@ -37,6 +40,7 @@ const AddProducto = ({navigation, route}) => {
   });
   const [imageURL, setImageURL] = useState(null);
   const [barcode, setBarcode] = useState('');
+  const [showScanner, setShowScanner] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const reset = () => {
@@ -64,10 +68,6 @@ const AddProducto = ({navigation, route}) => {
     register('precioMayoreo');
     register('descripcion');
   }, []);
-
-  if (paramsBarcode && barcode !== paramsBarcode) {
-    setBarcode(paramsBarcode);
-  }
 
   const clean = () => {
     reset();
@@ -119,15 +119,21 @@ const AddProducto = ({navigation, route}) => {
     setValue('imageURL', null);
   };
 
+  const getBarcode = (barcode) => {
+    setBarcode(barcode);
+    setShowScanner(false);
+  }
+
   return (
     <>
       {isLoading ? <LoadingScreen /> : null}
       <View style={styles.form}>
-        <ScrollView
-          style={{width: '100%'}}
-          contentContainerStyle={{alignItems: 'center'}}>
+        <ScrollView>
           <View style={styles.imageContainer}>
-            <TouchableOpacity
+          {
+            showScanner ? <CamScanner handleReturn={getBarcode} /> 
+            : (
+              <TouchableOpacity
               style={styles.setImageButton}
               onPress={handleSetImage}>
               {imageURL ? (
@@ -143,75 +149,69 @@ const AddProducto = ({navigation, route}) => {
                 <Icon name="image-plus" style={styles.imageIcon} />
               )}
             </TouchableOpacity>
+            )
+          }
           </View>
-          <View style={{flexDirection: 'row', padding: 8}}>
-            <TextBox
-              editable={false}
-              placeholder="Codigo de barras"
-              style={{...styles.txtInput, flex: 9}}
-              value={barcode}
-            />
-            <Icon
-              name="barcode-scan"
-              style={styles.Icon}
-              onPress={() =>
-                navigation.navigate('CamScanner', {
-                  type: 'getBarcode',
-                  screen: 'Productos',
-                })
-              }
-            />
+          <View style={styles.barcodeContainer}>
+            <View style={styles.flex9}>
+              <LabeledInput
+                editable={false}
+                label="Codigo de barras"
+                style={styles.txtInput}
+                value={barcode}
+              />
+            </View>
+            <View style={styles.flex2}>
+              <Icon
+                name="barcode-scan"
+                style={styles.Icon}
+                onPress={() => setShowScanner(!showScanner)}
+              />
+            </View>
           </View>
-          <TextBox
-            placeholder="Nombre del producto*"
+          <LabeledInput
+            label="Nombre del producto*"
             style={styles.txtInput}
             onChangeText={(text) => setValue('nombre', text)}
             autoCapitalize="words"
             value={watch('nombre')}
           />
           {errors.nombre && <Text>Este campo es obligatorio</Text>}
-          <TextBox
-            placeholder="Marca del producto"
+          <LabeledInput
+            label="Marca del producto"
             style={styles.txtInput}
             onChangeText={(text) => setValue('marca', text)}
             value={watch('marca')}
           />
-          <TextBox
-            placeholder="Cantidad"
+          <LabeledInput
+             
+            label="Cantidad"
             style={styles.txtInput}
             onChangeText={(text) => setValue('cantidad', text)}
             value={watch('cantidad')}
           />
-          <TextBox
-            placeholder="Precio de costo"
+          <LabeledInput
+            label="Precio de costo"
             style={styles.txtInput}
             keyboardType="number-pad"
             onChangeText={(text) => setValue('precioCosto', text)}
             value={watch('precioCosto')}
           />
 
-          <TextBox
-            placeholder="Precio de venta"
+          <LabeledInput
+            label="Precio de venta"
             keyboardType="number-pad"
             style={styles.txtInput}
             onChangeText={(text) => setValue('precioVenta', text)}
             value={watch('precioVenta')}
           />
 
-          <TextBox
-            placeholder="Precio para mayoristas"
-            keyboardType="number-pad"
-            style={styles.txtInput}
-            onChangeText={(text) => setValue('precioMayoreo', text)}
-            value={watch('precioMayoreo')}
-          />
-
-          <TextBox
-            placeholder="Descripción"
+          <LabeledInput
+            label="Descripción"
             numberOfLines={4}
             multiline={true}
             returnKeyType="none"
-            style={styles.txtInput}
+            style={styles.txtAreaInput}
             isTextArea={true}
             onChangeText={(text) => setValue('descripcion', text)}
             value={watch('descripcion')}

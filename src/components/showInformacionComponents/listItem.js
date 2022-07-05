@@ -56,7 +56,7 @@ function getSubtitlesList(data, type) {
   return [];
 }
 
-const ListItem = ({navigation, type, data}) => {
+const ListItem = ({navigation, type, data, onPressAdd}) => {
   const [showAddQuantityComponent, setShowAddQuantityComponent] = React.useState(false);
   let subtitle = getSubtitlesList(data, type)
   subtitle = subtitle.filter(item => item !== null && item !== undefined && item !== '');

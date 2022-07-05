@@ -10,9 +10,9 @@ const TextBox = (props) => {
         style={{
           backgroundColor: '#e6e8f1',
           paddingHorizontal: 16,
-          borderRadius: 100,
           textAlignVertical: isTextArea ? 'top' : 'auto',
-          ...style,
+          width: '100%',
+          marginBottom: 24,
         }}
         spellCheck={true}
         ref={Ref}
@@ -31,7 +31,7 @@ const LabeledInput = (props) => {
             textAlign: 'left',
             fontWeight: 'bold',
             fontSize: 18,
-            width: '80%',
+            width: '100%',
         },
     };
 

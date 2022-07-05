@@ -7,7 +7,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     form: {
-        paddingHorizontal: 36,
         justifyContent: 'space-between',
         width: '100%',
         alignItems: 'center',
