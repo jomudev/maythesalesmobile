@@ -293,10 +293,6 @@ const App = () => {
             })}
             component={SaleReport}
             />
-            
-          <Stack.Screen
-            options={{headerMode: 'none'}}
-            name="CamScanner" component={CamScanner} />
           <Stack.Screen
             name="Clientes"
             options={{title: 'Añadir nuevo cliente'}}
