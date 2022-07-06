@@ -9,8 +9,7 @@ import EmptyListImages from '../emptyListImage';
 import CollectionsFunctions from '../../utils/collectionsFunctions.util';
 import ListItem from './listItem';
 import StickyHeader from '../../utils/components/list/StickyHeader'
-import BottomSheet from '../../utils/components/BottomSheet';
-import AddProduct from '../AddComponents/addProducto';
+import AddModal from './AddModal';
 
 function ShowInventory({navigation, route}) {
   const collectionName = route.params.collectionName;
@@ -46,22 +45,9 @@ function ShowInventory({navigation, route}) {
         }
       </ScrollView>
       <FloatingButton onPress={() => bottomSheetRef.current.show()} />
-      <AddModal type={showAddQuantity ? 'addQuantity' : 'addRegistry'} ref={bottomSheetRef}/>
+      <AddModal type={showAddQuantity ? 'addQuantity' : 'addRegistry'} registryType={collectionName} ref={bottomSheetRef}/>
     </>
   );
 }
-
-const AddModal = React.forwardRef((props, ref) => {
-  const {type} = props;
-  const types = {
-    addQuantity: <Text>Add quantity</Text>,
-    addRegistry: <AddProduct route={{params: null}}/>
-  }
-  return (
-    <BottomSheet ref={ref}>
-        {types[type]}
-    </BottomSheet>
-  )
-})
 
 export default ShowInventory;

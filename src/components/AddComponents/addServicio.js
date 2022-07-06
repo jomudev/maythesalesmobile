@@ -15,9 +15,11 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useForm} from 'react-hook-form';
 import ImagePicker from 'react-native-image-crop-picker';
 import LoadingScreen from '../loadingScreen';
+import CamScanner from '../CamScanner';
 
 const initialFormValues = {
   nombre: '',
+  barcode: '',
   marca: '',
   cantidad: 0,
   proveedor: '',
@@ -27,19 +29,19 @@ const initialFormValues = {
   previoMayoreo: 0,
 };
 
-function AddServicio ({navigation, route}) {
-  const paramsBarcode = route.params ? route.params.scannedBarcode.data : '';
+function AddServicio () {
   const {register, handleSubmit, errors, watch, setValue} = useForm({
     defaultValues: initialFormValues,
     mode: 'onSubmit',
     criteriaMode: 'firstError',
   });
   const [image, setImage] = useState(null);
-  const [barcode, setBarcode] = useState();
+  const [showScanner, setShowScanner] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     register('image');
+    register('barcode');
     register('nombre', {required: true});
     register('categoria');
     register('marca');
@@ -51,30 +53,27 @@ function AddServicio ({navigation, route}) {
     register('descripcion');
   }, []);
 
-  if (paramsBarcode && barcode !== paramsBarcode) {
-    setBarcode(paramsBarcode);
+  const getBarcode = (barcode) => {
+    setValue('barcode', barcode);
   }
 
   const reset = () => {
-    setValue('image', '')
-    setValue('nombre', '')
-    setValue('marca', '')
-    setValue('cantidad', '')
-    setValue('proveedor', '')
-    setValue('precioCosto', '')
-    setValue('precioVenta', '')
-    setValue('precioMayoreo', '')
-    setValue('descripcion', '')
-    setBarcode('')
-    setImage(null)
+    setValue('image', '');
+    setValue('barcode', '');
+    setValue('nombre', '');
+    setValue('marca', '');
+    setValue('cantidad', '');
+    setValue('proveedor', '');
+    setValue('precioCosto', '');
+    setValue('precioVenta', '');
+    setValue('precioMayoreo', '');
+    setValue('descripcion', '');
+    setImage(null);
   }
   
   const onSubmit = (data) => {
     setIsLoading(true);
-    save('service', {
-      ...data,
-      barcode,
-    })
+    save('service', data)
       .then(() => {
         ToastAndroid.show(
           'El registro se ha guardado con exito.',
@@ -120,39 +119,39 @@ function AddServicio ({navigation, route}) {
         style={{width: '100%'}}
         contentContainerStyle={{alignItems: 'center'}}>
         <View style={styles.imageContainer}>
-            <TouchableOpacity
-              style={styles.setImageButton}
-              onPress={handleSetImage}>
-              {image ? (
+          {
+            showScanner ? <CamScanner handleReturn={getBarcode} />
+            : (
                 <TouchableOpacity
-                  style={styles.imageRemoveButton}
-                  onPress={removeImage}>
-                  <Icon name="image-remove" style={styles.imageRemoveIcon} />
-                </TouchableOpacity>
-              ) : null}
-              {image ? (
-                <Image source={{uri: image}} style={styles.image} />
-              ) : (
-                <Icon name="image-plus" style={styles.imageIcon} />
-              )}
-            </TouchableOpacity>
+                style={styles.setImageButton}
+                onPress={handleSetImage}>
+                {image ? (
+                  <TouchableOpacity
+                    style={styles.imageRemoveButton}
+                    onPress={removeImage}>
+                    <Icon name="image-remove" style={styles.imageRemoveIcon} />
+                  </TouchableOpacity>
+                ) : null}
+                {image ? (
+                  <Image source={{uri: image}} style={styles.image} />
+                ) : (
+                  <Icon name="image-plus" style={styles.imageIcon} />
+                )}
+              </TouchableOpacity>
+              )
+          }
           </View>
         <View style={{flexDirection: 'row', padding: 8}}>
           <TextBox
             editable={false}
             placeholder="Codigo de barras"
             style={{...styles.txtInput, flex: 9}}
-            value={barcode}
+            value={watch('barcode')}
           />
           <Icon
             name="barcode"
             style={styles.Icon}
-            onPress={() =>
-              navigation.navigate('CamScanner', {
-                type: 'getBarcode',
-                screen: 'Servicios',
-              })
-            }
+            onPress={() => setShowScanner(!showScanner)}
           />
         </View>
         <TextBox

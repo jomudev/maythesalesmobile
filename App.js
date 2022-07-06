@@ -27,8 +27,6 @@ import AddCliente from './src/components/AddComponents/addCliente';
 import AddProducto from './src/components/AddComponents/addProducto';
 import AddServicio from './src/components/AddComponents/addServicio';
 import AddProveedor from './src/components/AddComponents/addProveedor';
-import AddWholesaler from './src/components/AddComponents/addWholesaler';
-import CamScanner from './src/components/CamScanner';
 import SaleReport from './src/components/reports/saleReport';
 import ShowInventory from './src/components/showInformacionComponents/ShowInventory';
 import {format} from 'date-fns';
@@ -312,11 +310,6 @@ const App = () => {
             name="Proveedores"
             options={{title: 'Añadir nuevo proveedor'}}
             component={AddProveedor}
-          />
-          <Stack.Screen
-            name="Mayoristas"
-            options={{title: 'Añadir nuevo comprador mayorista'}}
-            component={AddWholesaler}
           />
         </Stack.Navigator>
       </NavigationContainer>
