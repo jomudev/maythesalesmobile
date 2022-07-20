@@ -1,7 +1,9 @@
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import store from '../../store';
 export default class Firebase {
 
+    
     static db(collection) {
         const authId = auth().currentUser.uid;
         const ref = firestore().collection('negocios');
