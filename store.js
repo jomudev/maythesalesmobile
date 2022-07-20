@@ -41,10 +41,6 @@ const reducers = (prevState, action) => {
     newState.reports = action.data;
   }
 
-  if (action.type === 'SET_IS_NEW_USER') {
-    newState.data.isNewUser = action.data;
-  }
-
   if (action.type === 'SET_SEARCH') {
     newState = {
       ...prevState,
@@ -97,6 +93,9 @@ const reducers = (prevState, action) => {
     newState.data = action.data
   }
 
+  if (action.type === 'SAVE_STATE') {
+    console.log("save state");
+  }
   return newState;
 };
 

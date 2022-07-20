@@ -4,7 +4,7 @@ import AddServicio from '../../components/AddComponents/addServicio';
 import AddCliente from '../../components/AddComponents/addCliente';
 import AddProveedor from '../../components/AddComponents/addProveedor';
 
-const SelectAddComponent = (type) => 
+const SelectAddComponent = ({type}) => 
 {
     const types = {
         productos: <AddProducto />,
