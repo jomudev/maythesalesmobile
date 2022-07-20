@@ -1,3 +1,4 @@
+import Firebase from '../../utils/firebase';
 export default class Provider {
     constructor(data) {
         this.id = null;
@@ -21,11 +22,12 @@ export default class Provider {
         this.id = new Date.now();
     }
 
-    static updateProperty(property, value) {
+    updateProperty(property, value) {
         this[property] = value;
+        this.save();
     }
 
-    static toJSON() {
+    toJSON() {
         return {
             id: this.id,
             nombre: this.nombre,
@@ -35,11 +37,16 @@ export default class Provider {
         };
     }
 
-    static getIdentifiers () {
+    getIdentifiers () {
         return {
             id: this.id,
             nombre: this.nombre,
         };
+    }
+
+    async save() {
+        const productRef = Firebase.db('proveedores').doc(this.id);
+        await productRef.set(this.toJSON());
     }
 
 }

@@ -1,16 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
+import {
+  Alert,
+  AppState,
+  StatusBar,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import auth from '@react-native-firebase/auth';
 import SignInComponent from './src/components/auth/signInComponent';
-import {
-  Alert,
-  StatusBar,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
 import LoadingScreen from './src/components/loadingScreen';
 import ShowItem from './src/components/showInformacionComponents/ShowItem';
 import MainNavigator from './src/components/mainNavigator';
@@ -42,10 +43,12 @@ import Provider from './src/components/Provider';
 import Sale from './src/components/Sale';
 import Reports from './src/components/reports/Reports';
 
+var cnsl = console;
+
 const Stack = createStackNavigator();
 
 const App = () => {
-  const [user, setUser] = useState(undefined);
+  const [user, setUser] = useState(false);
   const [loading, setLoading] = useState(true);
   let popupMenuRef = React.createRef();
 
@@ -148,64 +151,63 @@ const App = () => {
 
   useEffect(() => {
     const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
+      cnsl.info('verifying authentication...');
       if (authUser) {
-        Firebase.db().onSnapshot(async (snapshot) => {
-          if (!snapshot.data) {
-            return null;
-          }
-          const user = snapshot.data();
-          setUser({
-            ...auth().currentUser,
-            ...user,
-          });
+        Firebase.db().get().then((doc) => {
+          setUser(true);
           store.dispatch({
-            type: 'SET_USER',
-            data: user,
+            type: 'SET_DATA',
+            data: doc.data(),
           });
 
-          await Firebase.db('productos').get().then(async (doc) => { 
-            const productos = doc.docs.map(item => new Product(item.data()));
-            await Firebase.db('servicios').get().then(async (doc) => {
-              const servicios = doc.docs.map(item => new Service(item.data()));
-              await Firebase.db('clientes').get().then(async (doc) => {
-                const clientes = doc.docs.map(item => new Client(item.data()));
-                await Firebase.db('proveedores').get().then(async (doc) => {
-                  const proveedores = doc.docs.map(item => new Provider(item.data()));
-                  await Firebase.db('ventas').get().then(async (doc) => {
-                    const ventas = doc.docs.map(item => {
-                      const sale = new Sale(item.data());
-                      return sale;
+          (async () => {
+            await Firebase.db('productos').get().then(async (doc) => { 
+              const productos = doc.docs.map(item => new Product(item.data()));
+              await Firebase.db('servicios').get().then(async (doc) => {
+                const servicios = doc.docs.map(item => new Service(item.data()));
+                await Firebase.db('clientes').get().then(async (doc) => {
+                  const clientes = doc.docs.map(item => new Client(item.data()));
+                  await Firebase.db('proveedores').get().then(async (doc) => {
+                    const proveedores = doc.docs.map(item => new Provider(item.data()));
+                    await Firebase.db('ventas').get().then(async (doc) => {
+                      const ventas = doc.docs.map(item => {
+                        const sale = new Sale(item.data());
+                        return sale;
+                      });
+                      store.dispatch({
+                        type: 'SET_COLLECTIONS',
+                        data: {
+                          productos,
+                          servicios,
+                          clientes,
+                          proveedores,
+                          ventas,
+                        },
+                      });
+                      const reports = new Reports();
+                      store.dispatch({
+                        type: 'SET_REPORTS',
+                        data: reports,
+                      });
+                      setLoading(false);
+                      cnsl.info("authentication verified");
                     });
-                    store.dispatch({
-                      type: 'SET_COLLECTIONS',
-                      data: {
-                        productos,
-                        servicios,
-                        clientes,
-                        proveedores,
-                        ventas,
-                      },
-                    });
-                    const reports = new Reports();
-                    store.dispatch({
-                      type: 'SET_REPORTS',
-                      data: reports,
-                    });
-                    setLoading(false);
-                  });
+                  })
                 })
               })
             })
-          })
+            
+          })()
 
-
-        })
+        });
       } else {
         setUser(null);
         setLoading(false);
+        cnsl.info("authentication verified");
       }
     });
-    return authUnsubscribe
+    
+    return () => authUnsubscribe()
   }, []);
 
   if (loading) {
@@ -213,7 +215,6 @@ const App = () => {
   }
 
   if (user) {
-
     return (
       <NavigationContainer>
         <Stack.Navigator

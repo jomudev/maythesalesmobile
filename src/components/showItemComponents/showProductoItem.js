@@ -6,7 +6,6 @@ import styles from './styles';
 import {TextBox, LabeledInput} from '../../utils/components/TextBox';
 import DisplayImageComponent from './displayImageComponent';
 import ShowImage from './showImage';
-import {update} from '../mainFunctions';
 import LoadingScreen from '../loadingScreen';
 import {useForm} from 'react-hook-form';
 import CurrencyFunctions from "../../utils/currencyFunctions";
@@ -37,14 +36,8 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
     if (!value) {
       return;
     }
-    Object.defineProperty(data, element, {
-      value,
-      writable: true,
-    });
     console.log(data);
-    await update(collectionKey, data).catch((err) =>
-      console.log('async err: ' + err),
-    );
+    //data.updateProperty(element, value);
   };
 
   return (

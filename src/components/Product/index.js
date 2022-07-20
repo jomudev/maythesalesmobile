@@ -1,5 +1,5 @@
 import CurrencyFunctions from '../../utils/currencyFunctions';
-import {db} from '../mainFunctions';
+import Firebase from '../../utils/firebase';
 
 export default class Product {
     constructor(data) {
@@ -34,6 +34,7 @@ export default class Product {
 
     updateProperty(property, value) {
         this[property] = value;
+        this.save()
     }
 
     toJSON() {
@@ -52,7 +53,7 @@ export default class Product {
     }
 
     async save() {
-        const productRef = db('products').doc(this.id);
+        const productRef = Firebase.db('productos').doc(this.id);
         await productRef.set(this.toJSON());
     }
 }
