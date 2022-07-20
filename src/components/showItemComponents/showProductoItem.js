@@ -122,8 +122,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
               onChangeText={(text) =>
                 setValue('precioCosto', Number.parseInt(text, 10))
               }
-              defaultValue={CurrencyFunctions.moneyFormat(data.precioCosto)}
-              placeholder={CurrencyFunctions.moneyFormat(0)}
+              placeholder={CurrencyFunctions.moneyFormat(data.precioCosto)}
               keyboardType="number-pad"
               style={styles.txtInput}
             />
@@ -132,8 +131,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
               onEndEditing={() =>
                 handleUpdate('precioVenta', getValues('precioVenta'))
               }
-              defaultValue={CurrencyFunctions.moneyFormat(data.precioVenta)}
-              placeholder={CurrencyFunctions.moneyFormat(0)}
+              placeholder={CurrencyFunctions.moneyFormat(data.precioVenta)}
               onChangeText={(text) =>
                 setValue('precioVenta', Number.parseInt(text, 10))
               }
@@ -142,7 +140,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             />
         </View>
         <Text style={{fontSize: 24}}>
-          Ganancia: {CurrencyFunctions.moneyFormat(data.precioVenta - data.precioCosto)}
+          Ganancia: {CurrencyFunctions.moneyFormat(data.ganancias)}
         </Text>
     </ScrollView>
   );
