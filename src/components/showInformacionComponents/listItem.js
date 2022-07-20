@@ -1,12 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {TouchableOpacity, Text, View, Animated} from 'react-native';
+import {TouchableOpacity, Text, View} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {phoneFormat } from '../mainFunctions';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CurrencyFunctions from '../../utils/currencyFunctions';
-import AddMoreQuantity from '../../utils/components/products/AddMoreQuantity';
 
 const Dot = () => (
   <>
@@ -57,7 +56,6 @@ function getSubtitlesList(data, type) {
 }
 
 const ListItem = ({navigation, type, data, onPressAdd}) => {
-  const [showAddQuantityComponent, setShowAddQuantityComponent] = React.useState(false);
   let subtitle = getSubtitlesList(data, type)
   subtitle = subtitle.filter(item => item !== null && item !== undefined && item !== '');
   return (
@@ -104,7 +102,7 @@ const ListItem = ({navigation, type, data, onPressAdd}) => {
         </View>
         <View style={styles.flex1Center}>
           <View style={styles.modifyQuantityContainer}>
-              <TouchableOpacity style={styles.modifyQuantityButton} onPress={() => setShowAddQuantityComponent(true)}>
+              <TouchableOpacity style={styles.modifyQuantityButton} onPress={() => onPressAdd('addQuantity', data.id)}>
                 <Icon name="plus-circle-outline" size={36} color="#999" />
               </TouchableOpacity>
           </View>
