@@ -9,19 +9,24 @@ import EmptyListImages from '../emptyListImage';
 import CollectionsFunctions from '../../utils/collectionsFunctions.util';
 import ListItem from './listItem';
 import StickyHeader from '../../utils/components/list/StickyHeader'
-import AddModal from './AddModal';
+import BottomSheet from '../../utils/components/BottomSheet';
+import AddQuantityComponent from '../../utils/components/products/AddQuantityComponent';
+import SelectAddComponent from '../../utils/components/SelectAddComponent';
 
 function ShowInventory({navigation, route}) {
   const collectionName = route.params.collectionName;
   const [collection, setCollection] = React.useState([]);
   const [headers, setHeaders] = React.useState([]);
   const [showAddQuantity, toggleAddQuantity] = React.useState(false);
+  const [itemToAddId, setItemToAddId] = React.useState(null);
   let bottomSheetRef = React.createRef();
 
-  const getHeaders = (array) => array.map((item, index) => ({item, index})).filter((item) => typeof item.item === "string").map(item => item.index)
+  const getHeaders = (array) => array.map((item, index) => (typeof item === "string") ? index : null).filter((item) => item !== null);
 
-  const handleShowAddQuantity = () => {
-    console.log("show Add quantity");
+  const showModal = (type, item) => {
+    toggleAddQuantity(type);
+    setItemToAddId(item);
+    bottomSheetRef.current.show();
   }
 
   React.useEffect(() => {
@@ -36,7 +41,7 @@ function ShowInventory({navigation, route}) {
         {collection.length > 0 ? 
           collection.map((item) => {
               const returnType = {
-                object: <ListItem key={Math.random()} data={item} type={collectionName} navigation={navigation} onPressAdd={() => handleShowAddQuantity()} />,
+                object: <ListItem key={Math.random()} data={item} type={collectionName} navigation={navigation} onPressAdd={showModal} />,
                 string: <StickyHeader key={Math.random()}><Text style={{fontSize: 14, fontWeight: 'bold', color: 'gray'}}>{item}</Text></StickyHeader>,
               }
             return returnType[typeof item]
@@ -44,8 +49,12 @@ function ShowInventory({navigation, route}) {
           EmptyListImages.ImageComponent()
         }
       </ScrollView>
-      <FloatingButton onPress={() => bottomSheetRef.current.show()} />
-      <AddModal type={showAddQuantity ? 'addQuantity' : 'addRegistry'} registryType={collectionName} ref={bottomSheetRef}/>
+      <FloatingButton onPress={() => showModal('addRegistry')} />
+      <BottomSheet ref={bottomSheetRef}>
+        {
+          showAddQuantity ? <AddQuantityComponent id={itemToAddId} /> : <SelectAddComponent type={collectionName}/>
+        }
+      </BottomSheet>
     </>
   );
 }
