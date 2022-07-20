@@ -34,6 +34,10 @@ export default class Product {
 
     updateProperty(property, value) {
         this[property] = value;
+        const newGanancias = this.precioVenta - this.precioCosto;
+        if (newGanancias !== this.ganancias) {
+            this.ganancias = newGanancias;
+        }
         this.save()
     }
 
