@@ -36,8 +36,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
     if (!value) {
       return;
     }
-    console.log(data);
-    //data.updateProperty(element, value);
+    data.updateProperty(element, value);
   };
 
   return (

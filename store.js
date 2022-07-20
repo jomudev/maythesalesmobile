@@ -93,9 +93,6 @@ const reducers = (prevState, action) => {
     newState.data = action.data
   }
 
-  if (action.type === 'SAVE_STATE') {
-    console.log("save state");
-  }
   return newState;
 };
 
