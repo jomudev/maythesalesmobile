@@ -131,7 +131,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
               onEndEditing={() =>
                 handleUpdate('precioVenta', getValues('precioVenta'))
               }
-              placeholder={CurrencyFunctions.moneyFormat(data.precioVenta)}
+              placeholder={data.getPrecioVenta()}
               onChangeText={(text) =>
                 setValue('precioVenta', Number.parseInt(text, 10))
               }
@@ -140,7 +140,7 @@ const ShowProductoItem = ({data, type, navigation, closeIcon, editIcon}) => {
             />
         </View>
         <Text style={{fontSize: 24}}>
-          Ganancia: {CurrencyFunctions.moneyFormat(data.ganancias)}
+          Ganancia: {data.getGanancias()}
         </Text>
     </ScrollView>
   );
