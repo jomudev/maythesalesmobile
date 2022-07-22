@@ -8,12 +8,9 @@ import CurrencyFunctions from '../../utils/currencyFunctions';
 import {InterstitialUnitId, interstitialAdConfig} from '../ads';
 import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
 
-const currencyFunctions = new CurrencyFunctions();
-const {moneyFormat} = currencyFunctions;
-
 const SaleReport = ({route}) => {
   const saleID = route.params.data;
-  const sale = store.getState().collections.sales.find((sale) => sale.id == saleID);
+  const sale = store.getState().collections.ventas.find((sale) => sale.id == saleID);
   const [switchValue, setSwitchValue] = React.useState(sale.estado);
 
   React.useEffect(() => {
@@ -65,7 +62,7 @@ const SaleReport = ({route}) => {
       {sale.servicios.map((service) => (
         <ListItem element={service} key={service.id} />
       ))}
-      <Total text="Total Venta" isPrimary={true} value={moneyFormat(sale.total)} />
+      <Total text="Total Venta" isPrimary={true} value={CurrencyFunctions.moneyFormat(sale.total)} />
     </ScrollView>
   );
 };
@@ -79,7 +76,7 @@ const ListItem = ({element}) => {
         {element.nombre}
       </Text>
       <Text>
-        {moneyFormat(element.cantidad * element.precioVenta)}
+        {CurrencyFunctions.moneyFormat(element.cantidad * element.precioVenta)}
       </Text>
     </View>
   );

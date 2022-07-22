@@ -14,16 +14,13 @@ import {InterstitialAd, AdEventType} from '@react-native-firebase/admob';
 import store from '../../../store';
 import PopupMenu from '../PopupMenu';
 
-const currencyFunctions = new CurrencyFunctions();
-const {moneyFormat} = currencyFunctions;
-
 const interstitial = InterstitialAd.createForAdRequest(InterstitialUnitId, {
   requestNonPersonalizedAdsOnly: true,
   keywords: ['business', 'marketing', 'market', 'delivery'],
 });
 
 const RenderVentasCollection = ({saleId}) => {
-  const sale = store.getState().collections.sales.find((sale) => sale.id == saleId);
+  const sale = store.getState().collections.ventas.find((sale) => sale.id == saleId);
   const estado = sale.estado ? 'Vendido' : 'Pendiente';
   const navigation = useNavigation();
   const [isAdLoaded, setAdLoaded] = useState(false);
@@ -119,7 +116,7 @@ const RenderVentasCollection = ({saleId}) => {
         </Text>
         <Text style={{fontWeight: 'bold', flex: 1}}>
           Ganancias de la venta:{' '}
-          {moneyFormat(sale.ganancias)}
+          {CurrencyFunctions.moneyFormat(sale.ganancias)}
         </Text>
         <Text
           style={{
@@ -127,7 +124,7 @@ const RenderVentasCollection = ({saleId}) => {
             flex: 1,
             fontSize: 16,
           }}>
-          Vendido: {moneyFormat(sale.total)}
+          Vendido: {CurrencyFunctions.moneyFormat(sale.total)}
         </Text>
       </View>
       <TouchableOpacity style={styles.reportButton} onPress={() => contextMenuFunction(0)}>
