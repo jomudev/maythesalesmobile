@@ -31,6 +31,7 @@ const LabeledInput = (props) => {
             textAlign: 'left',
             fontWeight: 'bold',
             fontSize: 18,
+            marginLeft: 8,
             width: '100%',
         },
     };
