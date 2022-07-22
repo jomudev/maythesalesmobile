@@ -107,9 +107,9 @@ export default class Sale {
     getProductsQuantity(type) {
         if (type === 'text') {
             if (this.conteoDeProductos > 1) {
-                return ` ${this.conteoDeProductos} servicios`;
+                return ` ${this.conteoDeProductos} productos`;
             } else {
-                return this.conteoDeProductos === 1 ? ` ${this.conteoDeProductos} servicio` : '';
+                return this.conteoDeProductos === 1 ? ` ${this.conteoDeProductos} producto` : '';
             }
         } else {
             return this.conteoDeProductos;

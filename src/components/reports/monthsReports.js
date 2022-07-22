@@ -4,9 +4,6 @@ import styles from './styles';
 import store from '../../../store';
 import CurrencyFunctions from '../../utils/currencyFunctions';
 
-const currencyFunctions = new CurrencyFunctions();
-const {moneyFormat} = currencyFunctions;
-
 const MonthsReports = ({year, navigation}) => {
     const keys = Object.keys(store.getState().reports.reports[year].months).reverse()
     
@@ -45,11 +42,11 @@ const MonthItem = ({month, year, navigation}) => {
                     </View>
                     <View style={styles.itemRow}>
                         <View style={styles.itemCol}> 
-                            <Text style={[styles.heading1, styles.textCenter]}>{moneyFormat(monthData.total)}</Text>
+                            <Text style={[styles.heading1, styles.textCenter]}>{CurrencyFunctions.moneyFormat(monthData.total)}</Text>
                             <Text style={[styles.heading2, styles.textCenter]}>Ventas</Text>
                         </View>
                         <View style={styles.itemCol}> 
-                            <Text style={[styles.heading1, styles.textCenter]}>{moneyFormat(monthData.ganancias)}</Text>
+                            <Text style={[styles.heading1, styles.textCenter]}>{CurrencyFunctions.moneyFormat(monthData.ganancias)}</Text>
                             <Text style={[styles.heading2, styles.textCenter]}>Ganancias</Text>
                         </View>
                     </View>
