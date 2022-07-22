@@ -5,9 +5,6 @@ import styles from './styles';
 import MonthsReports from './monthsReports';
 import CurrencyFunctions from '../../utils/currencyFunctions';
 
-const currencyFunctions = new CurrencyFunctions();
-const {moneyFormat} = currencyFunctions;
-
 const YearReportItem = ({data, navigation}) => {
     const year = store.getState().reports.reports[data];
     const isActualYear = new Date().getFullYear() == data;
@@ -32,11 +29,11 @@ const YearReportItem = ({data, navigation}) => {
                     </View>
                     <View style={styles.itemRow}>
                         <View style={styles.itemCol}>
-                            <Text style={[styles.heading1, styles.textCenter]}>{moneyFormat(year.total)}</Text>
+                            <Text style={[styles.heading1, styles.textCenter]}>{CurrencyFunctions.moneyFormat(year.total)}</Text>
                             <Text style={[styles.heading2, styles.textCenter]}>Ventas</Text>
                         </View>
                         <View style={styles.itemCol}>
-                            <Text style={[styles.heading1, styles.textCenter]}>{moneyFormat(year.ganancias)}</Text>
+                            <Text style={[styles.heading1, styles.textCenter]}>{CurrencyFunctions.moneyFormat(year.ganancias)}</Text>
                             <Text style={[styles.heading2, styles.textCenter]}>Ganancias</Text>
                         </View>
                     </View>
