@@ -42,6 +42,14 @@ export default class Sale {
         return CurrencyFunctions.moneyFormat(this.total);
     }
 
+    getTotalProductos() {
+        return CurrencyFunctions.moneyFormat(this.totalProductos);
+    }
+
+    getTotalServicios() {
+        return CurrencyFunctions.moneyFormat(this.totalServicios);
+    }
+
     getDate() {
         return new Date(this.timestamp.seconds * 1000);
     }
