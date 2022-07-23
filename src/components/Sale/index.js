@@ -4,6 +4,7 @@ import {es} from 'date-fns/locale';
 import {formatDistanceToNow} from 'date-fns';
 import Product from '../Product';
 import Service from '../Service';
+import CurrencyFunctions from '../../utils/currencyFunctions'
 
 const configuredFormat = (date, dateType) => format(date, dateType, {locale: es});
 
@@ -29,10 +30,16 @@ export default class Sale {
             this.timestamp = new Date.now();
         }
         this.total = 0;
+        this.totalProductos = 0;
+        this.totalServicios = 0;
         this.ganancias = 0;
 
-        // Inicializar los datos de la venta
+        // Inicializar los totales de la venta
         this.calculateTotals();
+    }
+
+    getTotal() {
+        return CurrencyFunctions.moneyFormat(this.total);
     }
 
     getDate() {
@@ -78,8 +85,10 @@ export default class Sale {
     getPurchased() {
         const precioVentasProductos = this.productos.map(this.calculateProductsTotalPurchase);
         const precioVentasServicios = this.servicios.map(this.calculateProductsTotalPurchase);
-        this.total = precioVentasProductos.reduce(this.reducer, 0) + precioVentasServicios.reduce(this.reducer, 0);
         
+        this.totalProductos = precioVentasProductos.reduce(this.reducer, 0);
+        this.totalServicios = precioVentasServicios.reduce(this.reducer, 0);
+        this.total = this.totalProductos + this.totalServicios;
     }
 
     getProfits() {  
