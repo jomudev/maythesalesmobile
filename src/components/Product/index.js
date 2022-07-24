@@ -24,6 +24,10 @@ export default class Product {
         return CurrencyFunctions.moneyFormat(this.precioVenta);
     }
 
+    getTotal() {
+        return CurrencyFunctions.moneyFormat(this.precioVenta * this.cantidad);
+    }
+
     getGanancias() {
         return CurrencyFunctions.moneyFormat(this.ganancias);
     }
