@@ -50,4 +50,15 @@ export default class Firebase {
     static postSale(sale) {
         this.db('sales').doc(`${sale.id}`).set(sale.getJSON())
     }
+
+    static async getUserData() {
+        var data;
+        await this.db().get().then((doc) => {
+            data = {
+                ...doc.data(),
+                ...auth().currentUser,
+            };
+        });
+        return data;
+    }
 }
