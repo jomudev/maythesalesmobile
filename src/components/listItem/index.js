@@ -136,12 +136,11 @@ const RenderVentasCollection = ({saleId}) => {
 
 const printPDF = async (sale) => {
   try {
-    const saleDate = new Date(sale.timestamp.seconds * 1000);
     const html = await htmlData(sale);
 
     const results = await RNHTMLtoPDF.convert({
       html,
-      fileName: `REPORTE VENTA ${format(saleDate, 'yMd-hms')}`,
+      fileName: `REPORTE VENTA ${sale.formattedDate('yMd-hms')}`,
       base64: true,
     });
     await RNPrint.print({filePath: results.filePath});
