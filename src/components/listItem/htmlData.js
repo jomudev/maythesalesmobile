@@ -1,10 +1,7 @@
-import {format} from 'date-fns';
-import {es} from 'date-fns/locale';
-import {moneyFormat, getTotal, getUserData} from '../mainFunctions';
+import Firebase from '../../utils/firebase';
 
 async function htmlData(venta) {
-  const userData = await getUserData();
-  const saleDate = new Date(venta.timestamp.seconds * 1000);
+  var userData = Firebase.getUserData();
   let html = `
     <style>
       .nofactura {
@@ -40,56 +37,30 @@ async function htmlData(venta) {
       }
 
     </style>
-    <div class="nofactura">No. Factura: ${format(saleDate, 'dmyhms')}</div>
+    <div class="nofactura">No. Factura: ${venta.formattedDate('dmyhms')}</div>
     <p>
     ${
-      userData.userData.negocio
-        ? `<br/>Negocio: ${userData.userData.negocio}`
+      userData.negocio
+        ? `<br/>Negocio: ${userData.negocio}`
         : ''
     }
     ${
-      userData.currentUser.displayName
-        ? `<br/>Propietario: ${userData.currentUser.displayName}`
+      userData.displayName
+        ? `<br/>Propietario: ${userData.displayName}`
         : ''
     }
     ${
-      userData.currentUser.email
-        ? `<br/>Correo electrónico: ${userData.currentUser.email}`
+      userData.email
+        ? `<br/>Correo electrónico: ${userData.email}`
         : ''
     }
     ${
-      userData.userData.telefono
-        ? `<br/>Número telefónico: ${userData.userData.telefono}`
+      userData.telefono
+        ? `<br/>Número telefónico: ${userData.telefono}`
         : ''
     }
     </p>
-    <h3>fecha: ${format(saleDate, 'PPpp', {locale: es})} - ${format(
-    saleDate,
-    'P',
-    {locale: es}
-  )}</h3>
-  ${
-    venta.mayorista
-      ? `
-    <table>
-      <caption>Facturar a:</caption>
-      <tr><td>${
-        venta.mayorista.nombre ? venta.mayorista.nombre : null
-      }</td></tr>
-      ${
-        venta.mayorista.email
-          ? `<tr><td>correo: ${venta.mayorista.email}</td></tr>`
-          : null
-      }
-      ${
-        venta.mayorista.telefono
-          ? `<tr><td>cel: ${venta.mayorista.telefono}</td></tr>`
-          : null
-      }
-    </table>
-  `
-      : ''
-  }
+    <h3>fecha: ${venta.formattedDate('PPpp')} - ${venta.formattedDate('P')}</h3>
     ${
       venta.cliente
         ? `
@@ -112,25 +83,20 @@ async function htmlData(venta) {
 
   html += '<table class="mainTable list">';
   html +=
-    '<thead><tr><th colspan="5">PRODUCTOS</th></tr><tr><th>CODIGO</th><th>DESCRIPCION</th><th>CANTIDAD</th><th>COSTO POR UNIDAD</th><th>TOTALES</th></tr></thead><tbody>';
+    '<thead><tr><th colspan="5">PRODUCTOS</th></tr><tr><th>CODIGO</th><th>DESCRIPCION</th><th>CANTIDAD</th><th>COSTO POR UNIDAD</th><th>TOTAL</th></tr></thead><tbody>';
 
   venta.productos.forEach(function (producto) {
     html += `
         <tr>
         <td>${
-          producto.codigoDeBarras ? producto.codigoDeBarras : producto.id
+          producto.barcode ? producto.barcode : producto.id
         }</td>
           <td class="name">${producto.nombre.toLocaleUpperCase()}${
       producto.descripcion ? ', ' + producto.marca : ''
     }</td>
           <td>${producto.cantidad}</td>
-          <td>${moneyFormat(
-            venta.mayorista ? producto.precioMayoreo : producto.precioVenta,
-          )}</td>
-          <td>${moneyFormat(
-            (venta.mayorista ? producto.precioMayoreo : producto.precioVenta) *
-              producto.cantidad,
-          )}</td>
+          <td>${producto.getPrecioVenta()}</td>
+          <td>${producto.getTotal()}</td>
         </tr>`;
   });
 
@@ -138,9 +104,7 @@ async function htmlData(venta) {
     html += `<tr>
                   <td colspan="3"></td>
                   <td>SUBTOTAL PRODUCTOS</td>
-                  <td>${moneyFormat(
-                    getTotal([venta.productos], venta.mayorista),
-                  )}</td>
+                  <td>${venta.getTotalProductos()}}</td>
               </tr>`;
   }
 
@@ -154,24 +118,14 @@ async function htmlData(venta) {
     html += `
         <tr>
         <td>${
-          servicio.codigoDeBarras ? servicio.codigoDeBarras : servicio.id
+          servicio.barcode ? servicio.barcode : servicio.id
         }</td>
             <td class="name">${servicio.nombre.toLocaleUpperCase()}${
       servicio.descripcion ? ', ' + servicio.marca : ''
     }</td>
             <td>${servicio.cantidad}</td>
-            <td>${moneyFormat(
-              venta.mayorista
-                ? servicio.precioMayoreo
-                  ? servicio.precioMayoreo
-                  : servicio.precioVenta
-                : servicio.precioVenta,
-            )}</td>
-            <td>${moneyFormat(
-              (venta.mayorista
-                ? servicio.precioMayoreo
-                : servicio.precioVenta) * servicio.cantidad,
-            )}</td>
+            <td>${servicio.getPrecioVenta()}</td>
+            <td>${servicio.precioVenta * servicio.cantidad}</td>
         </tr>`;
   });
 
@@ -179,13 +133,11 @@ async function htmlData(venta) {
     ? `<tr>
   <td colspan="3"></td>
   <td>SUBTOTAL SERVICIOS</td>
-  <td>${moneyFormat(getTotal([venta.servicios], venta.mayorista))}</td>
+  <td>${venta.getTotalServicios()}</td>
 </tr>`
     : '';
 
-  html += `<tr><td colspan="3"></td><td>TOTAL</td><td>${moneyFormat(
-    venta.total,
-  )}</td></tr>`;
+  html += `<tr class="totalTd"><td colspan="3"></td><td>TOTAL</td><td>${venta.getTotal()}</td></tr>`;
 
   html += '</tbody>';
   return html;
