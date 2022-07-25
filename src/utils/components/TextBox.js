@@ -11,7 +11,7 @@ const TextBox = (props) => {
           backgroundColor: '#e6e8f1',
           paddingHorizontal: 16,
           textAlignVertical: isTextArea ? 'top' : 'auto',
-          width: '100%',
+          flex: 1,
           marginBottom: 24,
         }}
         spellCheck={true}
