@@ -15,6 +15,9 @@ import {
   removeProductFromCart,
   removeServiceFromCart,
 } from '../Cart/cartComponents/functions';
+import {Row, Column} from '../../utils/components/layout/table';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Share from '../../utils/share';
 
 const defaultImageURI = Image.resolveAssetSource(defaultImage).uri;
 
@@ -87,12 +90,25 @@ const ProductItem = ({data}) => {
         }}
       />
       <View style={styles.itemDescription}>
-        <Text style={styles.itemName} ellipsizeMode='tail' numberOfLines={1}>
-          {data.nombre}
-        </Text>
-        <Text style={styles.itemPrice}>
-          {data.getPrecioVenta()}
-        </Text>
+      <Row>
+        <Column>
+          <Text style={styles.itemName} ellipsizeMode='tail' numberOfLines={1}>
+            {data.nombre}
+          </Text>
+        </Column>
+        <Column align="right">
+          <TouchableOpacity onPress={() => Share.product(data, "detailsAndImage")} style={{padding: 10}}>
+            <Icon name="share-variant" size={18} color="#101e5a" />
+          </TouchableOpacity>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Text style={styles.itemPrice}>
+            {data.getPrecioVenta()}
+          </Text>
+        </Column>
+      </Row>
       </View>
     </TouchableOpacity>
   );
