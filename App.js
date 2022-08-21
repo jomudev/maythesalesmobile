@@ -148,7 +148,6 @@ const App = () => {
 
     return optionsList;
   }
-
   useEffect(() => {
     const authUnsubscribe = auth().onAuthStateChanged((authUser) => {
       cnsl.info('verifying authentication...');

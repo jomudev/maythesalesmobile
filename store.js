@@ -1,4 +1,5 @@
 import {createStore} from 'redux';
+import Sale from './src/components/Sale';
 
 const initialState = {
   // Usual
@@ -14,11 +15,7 @@ const initialState = {
   // Reports
   reports: null,
   // Cart
-  cart: {
-    productos: [],
-    servicios: [],
-    cliente: null,
-  },
+  cart: new Sale(),
   // Configuration
   data: {
     defaultSaleState: true,
@@ -46,32 +43,6 @@ const reducers = (prevState, action) => {
       ...prevState,
       search: action.text,
     }
-  }
-
-  if (action.type === 'SET_CART') {
-    newState.cart = action.cart;
-  }
-
-  if (action.type === 'UPDATE_PRODUCTS') {
-
-    newState.cart.products = action.data;
-  }
-  /** */
-  if (action.type === 'UPDATE_SERVICES') {
-    newState.cart.services = action.data;
-  }
-
-  if (action.type === 'SET_CART_CLIENT') {
-    newState.cart.client = action.data;
-  }
-
-  /** */
-  if (action.type === 'CLEAR_CART') {
-    newState.cart = {
-      cartProducts: [],
-      cartServices: [],
-      cartClient: null,
-    };
   }
 
   if (action.type === 'SIGN_OUT') {
