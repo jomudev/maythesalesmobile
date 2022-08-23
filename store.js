@@ -1,4 +1,5 @@
 import {createStore} from 'redux';
+import { createRef } from 'react';
 import Sale from './src/components/Sale';
 
 const initialState = {
@@ -15,7 +16,7 @@ const initialState = {
   // Reports
   reports: null,
   // Cart
-  cart: new Sale(),
+  cart: createRef().current = new Sale(),
   // Configuration
   data: {
     defaultSaleState: true,
