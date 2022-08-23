@@ -4,7 +4,7 @@ import {es} from 'date-fns/locale';
 import {formatDistanceToNow} from 'date-fns';
 import Product from '../Product';
 import Service from '../Service';
-import CurrencyFunctions from '../../utils/currencyFunctions'
+import CurrencyFunctions from '../../utils/currencyFunctions';
 
 const configuredFormat = (date, dateType) => format(date, dateType, {locale: es});
 
@@ -26,8 +26,8 @@ export default class Sale {
             this.servicios = data.servicios.map(service => new Service(service));
             this.timestamp = data.timestamp;
         } else {
-            this.generateID();
-            this.timestamp = new Date.now();
+            this.id = Date.now();
+            this.timestamp = Date.now();
         }
         this.total = 0;
         this.totalProductos = 0;
@@ -59,7 +59,7 @@ export default class Sale {
     }
 
     generateID() {
-        this.id = new Date.now();
+        this.id = Date.now();
     }
 
     
@@ -181,17 +181,22 @@ export default class Sale {
           }
     }
 
-    addProduct(product) {
-        this.productos.push(product);
-        this.calculateTotals();
+    addTo(propertyName, element) {
+        console.log('adding to ', propertyName);
+        if (propertyName === 'servicios' || propertyName === 'productos') {
+            this[propertyName].push(element);
+            this.calculateTotals();
+        }
     }
 
-    addService(service) {
-        this.servicios.push(service);
-        this.calculateTotals();
+    removeTo(propertyName, elementIdToDelete) {
+        console.log('adding to ', propertyName);
+        if (propertyName === 'servicios' || propertyName === "productos") {
+            this[propertyName] = this[propertyName].filter((element) => element.id === elementIdToDelete);
+        }
     }
 
-    save() {
+    static save() {
         this.postSale();
     }
 
