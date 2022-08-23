@@ -22,11 +22,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   findProductsList: {
+    transform: [{scaleX: -1}],
     alignSelf: 'center',
     width: '100%',
     display: 'flex',
   },
   emptySearch: {
+    transform: [{scaleX: -1}],
     padding: 8,
     textAlign: 'center',
   },
@@ -43,6 +45,7 @@ const styles = StyleSheet.create({
     color: '#101e5a',
   },
   itemList: {
+    transform: [{scaleX: -1}],
     elevation: 8,
     backgroundColor: 'white',
     width: 200,
