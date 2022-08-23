@@ -1,6 +1,5 @@
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import store from '../../store';
 export default class Firebase {
 
     
@@ -10,7 +9,7 @@ export default class Firebase {
         return collection ? ref.doc(authId).collection(collection) : ref.doc(authId);
     }
 
-    static async initializeAppData() {
+    static async initializeAppData(dispatch) {
         try {
             const getDocData = (item) => item.doc.data();
             const getCollections = async (collection) =>
@@ -33,7 +32,7 @@ export default class Firebase {
                     services,
                     wholesalers,
                 };
-                store.dispatch({
+                dispatch({
                     type: 'INITIALIZE_APP_DATA',
                     data,
                 });
