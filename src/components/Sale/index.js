@@ -192,7 +192,7 @@ export default class Sale {
     removeTo(propertyName, elementIdToDelete) {
         console.log('adding to ', propertyName);
         if (propertyName === 'servicios' || propertyName === "productos") {
-            this[propertyName] = this[propertyName].filter((element) => element.id === elementIdToDelete);
+            this[propertyName] = this[propertyName].filter((element) => element.id !== elementIdToDelete);
         }
     }
 
