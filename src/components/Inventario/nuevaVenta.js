@@ -3,23 +3,22 @@ import store from '../../../store';
 import {View, ScrollView, Text} from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {ProductItem, ServiceItem, ClientItem, WholesalerItem} from './items';
+import {ProductItem, ServiceItem, ClientItem} from './items';
 import {filterItems} from '../mainFunctions';
 import {TextBox} from '../auxComponents';
 import {HomeBannerAd} from '../ads';
-
-const collectionInitialState = {
-  productos: [],
-  servicios: [],
-  clientes: [],
-  proveedores: [],
-};
 
 const NewSale = ({navigation}) => {
   const [foundProduct, setFindProduct] = useState(null);
   const [foundClient, setFindClient] = useState(null);
   const [foundService, setFindService] = useState(null);
-  const [collections, setCollections] = useState(collectionInitialState);
+  const [collections, setCollections] = useState({
+    productos: [],
+    clientes: [],
+    servicios: [],
+    proveedores: [],
+  });
+  
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
       const {productos, clientes, servicios,  proveedores} = store.getState().collections;
