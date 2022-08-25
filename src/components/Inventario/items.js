@@ -8,6 +8,8 @@ import store from '../../../store';
 import {Row, Column} from '../../utils/components/layout/table';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Share from '../../utils/share';
+import Product from '../Product';
+import Service from '../Service';
 
 const defaultImageURI = Image.resolveAssetSource(defaultImage).uri;
 
@@ -27,29 +29,19 @@ const ProductItem = ({data}) => {
     elementIsSelected(cart.products, data.id),
   );
 
-  React.useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
-      setIsSelected(elementIsSelected(cart.products, data.id));
-    }
-    );
-    return () => {
-      unsubscribe();
-    }
-  }, []);
-
   return (
     <TouchableOpacity
       style={[styles.itemList, isSelected ? styles.selectedItemList : null]}
       onPress={() => {
-        if (isSelected) {
-          cart.removeTo(type, data.id);
-          setIsSelected(false);
-        } else {
-          cart.addTo(type, data);
-          setIsSelected(true);
-        }
-      }
-      }>
+        Object.defineProperty(data, "cantidad", {
+          value: 1,
+          writable: true,
+        })
+        isSelected
+          ? cart.removeTo(type, data.id)
+          : cart.addTo(type, new Product(data));   
+        setIsSelected(!isSelected);
+      }}>
       <FastImage
         style={styles.itemImage}
         source={{
@@ -95,11 +87,16 @@ const ServiceItem = ({data}) => {
         {...styles.itemList, flexDirection: 'column'},
         isSelected ? styles.selectedItemList : null,
       ]}
-      onPress={() =>
+      onPress={() => {
+        Object.defineProperty(data, "cantidad", {
+          value: 1,
+          writable: true,
+        })
         isSelected
-          ? cart.addTo(type, data.id, setIsSelected)
-          : cart.addTo(type, data, setIsSelected)
-      }>
+          ? cart.removeTo(type, data.id)
+          : cart.addTo(type, new Service(data)) 
+        setIsSelected(!isSelected);
+      }}>
       <Text style={itemStyles.title}>{data.nombre}</Text>
       <Text style={itemStyles.subtitle}>
         {data.getPrecioVenta()}
