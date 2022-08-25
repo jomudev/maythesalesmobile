@@ -1,30 +1,28 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, Text} from 'react-native';
-import {moneyFormat} from '../../mainFunctions';
 import styles from './styles';
 
-const ServicesList = ({services, wholesaler}) => {
+const ServicesList = ({services}) => {
   return (
     <View style={styles.cartList}>
       {services.length > 0 ? (
         <Text style={styles.cartTitle}>Servicios adicionales</Text>
       ) : null}
         {services.map((service) => (
-          <Service key={service.id} data={service} wholesaler={wholesaler} />
+          <Service key={service.id} data={service} />
         ))}
     </View>
   );
 };
 
-const Service = ({data, wholesaler}) => {
-  const {nombre, precioVenta, precioMayoreo, marca, cantidad, id} = data;
+const Service = ({data}) => {
   return (
     <View style={styles.serviceContainer}>
-      <Text style={styles.productName} ellipsizeMode="tail" numberOfLines={1} >{nombre}</Text>
-      <Text style={styles.productDescription}>{marca}</Text>
+      <Text style={styles.productName} ellipsizeMode="tail" numberOfLines={1} >{data.nombre}</Text>
+      <Text style={styles.productDescription}>{data.marca}</Text>
       <Text>
-        {wholesaler ? moneyFormat(precioMayoreo) : moneyFormat(precioVenta)}
+        {data.getPrecioVenta()}
       </Text>
     </View>
   );
