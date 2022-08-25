@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import store from '../../../store';
-import {clearStoreCart} from '../Cart/cartComponents/functions';
 import {TextBox} from '../auxComponents';
 import PopupMenu from '../PopupMenu';
 import auth from '@react-native-firebase/auth'
@@ -194,11 +193,6 @@ const MainHeaderRightComponent = (props) => {
   } else if (routeName === 'Cart') {
     return (
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        {/*}<TouchableOpacity
-          style={styles.configButtonNavigator}
-          onPress={() => navigation.navigate('SecludedSales')}>
-          <Icon name="cart-arrow-right" size={24} />
-        </TouchableOpacity>{*/}
         {cartActivity > 0 ? (
           <ContextMenu
             {...props}
@@ -207,29 +201,9 @@ const MainHeaderRightComponent = (props) => {
               {
                 text: 'Vaciar carrito de ventas',
                 onPress: () => {
-                  clearStoreCart().then(() => {
-                    ToastAndroid.show(
-                      'El carrito de ventas fue limpiado',
-                      ToastAndroid.SHORT,
-                    );
-                  });
+                  console.log("vaciando carrito de ventas")
                 },
               },
-              /*{
-                text: 'Apartar Venta',
-                onPress: () => {
-                  store.dispatch({
-                    type: 'SET_ASIDE_SALE',
-                    data: getActualSale(),
-                  });
-                  clearStoreCart().then(() => {
-                    ToastAndroid.show(
-                      'Venta Apartada, revisa la pantalla de ventas apartadas para poder visualizarla...',
-                      ToastAndroid.LONG,
-                    );
-                  });
-                },
-              },*/
             ]}
           />
         ) : null}

@@ -1,17 +1,15 @@
 import React, {useState} from 'react';
-import {Pressable, TextInput, View, Text} from 'react-native';
+import {Pressable, TextInput, View} from 'react-native';
 import styles from './styles';
-import {updateQuantity} from './functions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const QuantityEditor = ({defaultQuantity, type, id}) => {
+const QuantityEditor = ({defaultQuantity, type, id, cartRef}) => {
   const [quantity, setQuantity] = useState(defaultQuantity);
 
   const changeQuantity = (newQuantity) => {
     const numberIsValid = newQuantity > 0;
     if (numberIsValid) {
-      setQuantity(newQuantity);
-      updateQuantity(type, newQuantity, id);
+      console.log('number is valid', newQuantity);
     }
   };
 

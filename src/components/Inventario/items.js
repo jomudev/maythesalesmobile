@@ -2,19 +2,9 @@
 import React, {useState} from 'react';
 import {View, Text, ToastAndroid,Image, TouchableOpacity} from 'react-native';
 import FastImage from 'react-native-fast-image';
-import {
-  addProductToCart,
-  addServiceToCart,
-  addClientToCart,
-  addWholesalerToCart,
-} from './functions';
 import styles from './styles';
 import defaultImage from '../../assets/AdditionalMedia/productDefaultImage.png';
 import store from '../../../store';
-import {
-  removeProductFromCart,
-  removeServiceFromCart,
-} from '../Cart/cartComponents/functions';
 import {Row, Column} from '../../utils/components/layout/table';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Share from '../../utils/share';
@@ -28,45 +18,18 @@ const elementIsSelected = (storeCartElements, id) => {
   let isInCart = storeCartElements.filter((element) => element.id === id);
   isInCart = isInCart[0];
   return isInCart ? true : false;
-};
-
-const removeFromCart = (type, id, setIsSelected) => {
-  switch (type) {
-    case 'product':
-      removeProductFromCart(id);
-      break;
-    case 'service':
-      removeServiceFromCart(id);
-      break;
-    default:
-      break;
-  }
-  setIsSelected(false);
-};
-
-const addToCart = (type, id, setIsSelected) => {
-  switch (type) {
-    case 'product':
-      addProductToCart(id);
-      break;
-    case 'service':
-      addServiceToCart(id);
-      break;
-    default:
-      break;
-  }
-  setIsSelected(true);
-};
+}; 
 
 const ProductItem = ({data}) => {
-  const type = 'product';
+  const cart = store.getState().cart;
+  const type = 'productos';
   const [isSelected, setIsSelected] = useState(
-    elementIsSelected(store.getState().cart.products, data.id),
+    elementIsSelected(cart.products, data.id),
   );
 
   React.useEffect(() => {
     const unsubscribe = store.subscribe(() => {
-      setIsSelected(elementIsSelected(store.getState().cartProducts, data.id));
+      setIsSelected(elementIsSelected(cart.products, data.id));
     }
     );
     return () => {
@@ -77,10 +40,15 @@ const ProductItem = ({data}) => {
   return (
     <TouchableOpacity
       style={[styles.itemList, isSelected ? styles.selectedItemList : null]}
-      onPress={() =>
-        isSelected
-          ? removeFromCart(type, data.id, setIsSelected)
-          : addToCart(type, data, setIsSelected)
+      onPress={() => {
+        if (isSelected) {
+          cart.removeTo(type, data.id);
+          setIsSelected(false);
+        } else {
+          cart.addTo(type, data);
+          setIsSelected(true);
+        }
+      }
       }>
       <FastImage
         style={styles.itemImage}
@@ -115,7 +83,8 @@ const ProductItem = ({data}) => {
 };
 
 const ServiceItem = ({data}) => {
-  const type = 'service';
+  const cart = () => store.getState().cart;
+  const type = 'servicios';
   const [isSelected, setIsSelected] = useState(
     elementIsSelected(store.getState().cartServices, data.id),
   );
@@ -128,8 +97,8 @@ const ServiceItem = ({data}) => {
       ]}
       onPress={() =>
         isSelected
-          ? removeFromCart(type, data.id, setIsSelected)
-          : addToCart(type, data, setIsSelected)
+          ? cart.addTo(type, data.id, setIsSelected)
+          : cart.addTo(type, data, setIsSelected)
       }>
       <Text style={itemStyles.title}>{data.nombre}</Text>
       <Text style={itemStyles.subtitle}>
