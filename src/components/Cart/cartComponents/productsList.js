@@ -4,6 +4,7 @@ import {View, Text, FlatList, Image} from 'react-native';
 import QuantityEditor from './quantityEditor';
 import styles from './styles';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import store from '../../../../store';
 
 const ProductsList = ({products}) => {
 
@@ -11,7 +12,7 @@ const ProductsList = ({products}) => {
     <FlatList 
       data={products}
       keyExtractor={item => item.id}
-      renderItem={({item}) => <ListItem data={item} />}
+      renderItem={({item}) => <ListItem data={item} key={item.id} />}
       style={styles.cartList}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       showsVerticalScrollIndicator={false}
@@ -31,18 +32,15 @@ const RightSwipeAction = () => (
   </View>
 )
 
-const ListItem = ({data, wholesaler}) => {
-  const cart = {
-    products:[],
-    services: [],
-  };
+const ListItem = ({data}) => {
+  const cart = store.getState().cart;
   return <Swipeable
     renderLeftActions={LeftSwipeAction} 
     renderRightActions={RightSwipeAction} 
     onSwipeableLeftOpen={() => {cart.removeTo('productos', data.id)}}
     onSwipeableRightOpen={() => {cart.removeTo('servicios', data.id)}}  
     >
-      <Product data={data} key={data.id} />
+      <Product data={data} />
     </Swipeable>
 }
 
