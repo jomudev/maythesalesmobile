@@ -40,7 +40,6 @@ const Cart = () => {
   ) : (
     <View style={styles.container}>
       <FlatList
-        data={[cart.productos, cart.servicios]}
         ListHeaderComponent={() => (<ProductsList products={cart.productos} />)}
         ListFooterComponent={() => (<ServicesList services={cart.servicios} />)}
        />
