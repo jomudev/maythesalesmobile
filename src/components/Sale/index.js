@@ -182,15 +182,13 @@ export default class Sale {
     }
 
     addTo(propertyName, element) {
-        console.log('adding to ', propertyName);
         if (propertyName === 'servicios' || propertyName === 'productos') {
-            this[propertyName].push(element);
+            this[propertyName] = this[propertyName].concat(element);
             this.calculateTotals();
         }
     }
 
     removeTo(propertyName, elementIdToDelete) {
-        console.log('adding to ', propertyName);
         if (propertyName === 'servicios' || propertyName === "productos") {
             this[propertyName] = this[propertyName].filter((element) => element.id !== elementIdToDelete);
         }
