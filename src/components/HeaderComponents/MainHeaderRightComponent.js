@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {
   View,
   TouchableOpacity,
@@ -12,7 +12,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import store from '../../../store';
 import {TextBox} from '../auxComponents';
 import PopupMenu from '../PopupMenu';
-import auth from '@react-native-firebase/auth'
+import auth from '@react-native-firebase/auth';
+import Listener from '../../utils/listener';
 
 const styles = StyleSheet.create({
   cartButtonNavigationBadge: {
@@ -62,15 +63,31 @@ const contextMenuFunction = (index, optionsList) => {
   }
 };
 
-const getCartActivity = () => store.getState().cart.productos.length + store.getState().cart.servicios.length;
+const getCartActivity = (productos, servicios) => {
+  if (productos > -1 || servicios > -1) {
+    return productos + servicios;
+  }
+  return store.getState().cart.productos.length + store.getState().cart.servicios.length;
+}
 
 const MainHeaderRightComponent = (props) => {
-  const [searchIcon, setSearchIcon] = useState('magnify');
-  const [cartActivity, setCartActivity] = useState(getCartActivity());
+  const [searchIcon, setSearchIcon] = React.useState('magnify');
+  const [cartActivity, setCartActivity] = React.useState(getCartActivity());
   let popupMenuRef = React.createRef();
   const routeName = props.route.name;
   const navigation = props.navigation;
+
+  React.useEffect(() => {
+    Listener.propertyValueChanges(store.getState().cart, "productos", (prevVal, newVal) => {
+      setCartActivity(getCartActivity(newVal.length, store.getState().cart.servicios.length));
+   });
   
+    Listener.propertyValueChanges(store.getState().cart, "servicios", (prevVal, newVal) => {
+      setCartActivity(getCartActivity(newVal.length, store.getState().cart.productos.length));
+    });
+  }, []) 
+
+
   const alerts = (type, condition) => {
     let iconName;
     switch (type) {
@@ -86,7 +103,7 @@ const MainHeaderRightComponent = (props) => {
           return (
             <View style={styles.alertContainer}>
               <View style={styles.alertIcon}>
-                  <Text style={styles.badgeText}>{cartActivity}</Text>
+                  <Text style={styles.badgeText}>{getCartActivity()}</Text>
               </View>
             </View>
           )
@@ -122,14 +139,6 @@ const MainHeaderRightComponent = (props) => {
     );
   };
 
-  useEffect(() => {
-    const storeUnsubscribe = store.subscribe(() => {
-      setCartActivity(getCartActivity());
-    });
-    return () => {
-      storeUnsubscribe();
-    };
-  }, []);
   if (routeName === 'ShowInventory') {
     return (
       <Icon
@@ -174,7 +183,7 @@ const MainHeaderRightComponent = (props) => {
           <View>   
               <Icon name="cart-outline" size={24} />
               {
-                alerts('cart', cartActivity)
+                alerts('cart', getCartActivity())
               }
           </View>
         </TouchableOpacity>
