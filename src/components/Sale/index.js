@@ -183,15 +183,34 @@ export default class Sale {
 
     addTo(propertyName, element) {
         if (propertyName === 'servicios' || propertyName === 'productos') {
-            this[propertyName] = this[propertyName].concat(element);
-            this.calculateTotals();
+            if (!this[propertyName].find((item) => item.id === element.id)) {
+                this[propertyName] = this[propertyName].concat(element);
+                this.calculateTotals();
+            }
         }
     }
-
+    
     removeTo(propertyName, elementIdToDelete) {
         if (propertyName === 'servicios' || propertyName === "productos") {
             this[propertyName] = this[propertyName].filter((element) => element.id !== elementIdToDelete);
         }
+        this.calculateTotals();
+    }
+
+    reset() {
+        this.productos = [];
+        this.conteoDeProductos = 0;
+        this.servicios = [];
+        this.conteoDeServicios = 0;
+        this.cliente = null;
+        this.estado = false;
+        this.timestamp = null;
+        this.id = Date.now();
+        this.timestamp = Date.now();
+        this.total = 0;
+        this.totalProductos = 0;
+        this.totalServicios = 0;
+        this.ganancias = 0;
     }
 
     static save() {
