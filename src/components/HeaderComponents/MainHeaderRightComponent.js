@@ -77,15 +77,13 @@ const MainHeaderRightComponent = (props) => {
   const routeName = props.route.name;
   const navigation = props.navigation;
 
-  React.useEffect(() => {
-    Listener.propertyValueChanges(store.getState().cart, "productos", (prevVal, newVal) => {
+  Listener.propertyValueChanges(store.getState().cart, "productos", (prevVal, newVal) => {
       setCartActivity(getCartActivity(newVal.length, store.getState().cart.servicios.length));
-   });
+  });
   
-    Listener.propertyValueChanges(store.getState().cart, "servicios", (prevVal, newVal) => {
+  Listener.propertyValueChanges(store.getState().cart, "servicios", (prevVal, newVal) => {
       setCartActivity(getCartActivity(newVal.length, store.getState().cart.productos.length));
-    });
-  }, []) 
+  });
 
 
   const alerts = (type, condition) => {
@@ -103,7 +101,7 @@ const MainHeaderRightComponent = (props) => {
           return (
             <View style={styles.alertContainer}>
               <View style={styles.alertIcon}>
-                  <Text style={styles.badgeText}>{getCartActivity()}</Text>
+                  <Text style={styles.badgeText}>{cartActivity}</Text>
               </View>
             </View>
           )
@@ -210,7 +208,7 @@ const MainHeaderRightComponent = (props) => {
               {
                 text: 'Vaciar carrito de ventas',
                 onPress: () => {
-                  console.log("vaciando carrito de ventas")
+                  store.getState().cart.reset();
                 },
               },
             ]}
